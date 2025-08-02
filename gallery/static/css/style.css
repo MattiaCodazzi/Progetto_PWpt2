@@ -298,4 +298,6 @@ footer {
 }
 
 
-
+/* === COLORI PALETTE PERSONALIZZATI === */
+.bg-light-pink   { background-color: hsl(314 100% 95%); }
+.text-light-pink { color:            hsl(314 100% 95%); }
