@@ -1,0 +1,97 @@
+main.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px); /* adattare se header/nav sono più alti */
+  padding: 2rem;
+}
+
+.news-museo h2 {
+  margin-bottom: 0rem;
+  color: white;
+}
+
+.news-museo {
+  text-align: center;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  max-width: 1000px;
+}
+.news-container {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+.news-card {
+  width: 250px;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+.news-card:hover {
+  transform: scale(1.05);
+}
+.news-card .overlay {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0 0 8px 8px;
+}
+
+/* POPUP STILE */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.popup.hidden {
+  display: none;
+}
+.popup-content {
+  background: hsl(314, 100%, 95%);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+.popup-content h3 {
+  margin-top: 0;
+  color: #7d7878;
+}
+.popup-content p {
+  color:#7d7878; /* oppure #000, white, ecc. */
+}
+
+
+.popup .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

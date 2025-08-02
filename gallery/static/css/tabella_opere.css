@@ -1,0 +1,177 @@
+.tabella-opere {
+  width: 90%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin: 1rem auto;
+  font-size: 0.9rem;
+  max-height: 500px;
+  overflow: auto;
+  display: block;
+  background-color: hsl(314, 100%, 97%);
+  color: #5a5a5a;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.tabella-opere th,
+.tabella-opere td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ffcce5;
+  text-align: left;
+}
+
+.tabella-opere th {
+  background-color: hsl(314, 100%, 92%);
+  color: #7d7878;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.tabella-opere tr:hover {
+  background-color: #ffa3d5;
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.pagination-container {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.pagina-btn {
+  padding: 0.5rem 1rem;
+  margin: 0 0.3rem;
+  border: none;
+  background-color: hsl(314, 100%, 95%);
+  color: #7d7878;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.pagina-btn:hover {
+  background-color: #ffa3d5;
+}
+
+
+.pagination-container {
+  margin: 1rem auto;
+  text-align: center;
+}
+
+.pagina-corrente {
+  margin-right: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.pagina-avanti {
+  padding: 0.4rem 0.8rem;
+  background-color: hsl(314, 100%, 95%);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #7d7878;
+  font-weight: bold;
+}
+
+.pagina-avanti:hover {
+  background-color: #ffa3d5;
+}
+
+.pagina-indietro {
+  padding: 0.4rem 0.8rem;
+  background-color: hsl(314, 100%, 95%);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #7d7878;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.pagina-indietro:hover {
+  background-color: #ffa3d5;
+}
+
+.griglia-sale {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.card-sala {
+  background-color: hsl(314, 100%, 95%);
+  border: 1px solid #ccc;
+  color: #7d7878;
+  border-radius: 10px;
+  width: 250px;
+  padding: 1rem;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.paginazione-sale {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.griglia-temi {
+display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+
+.card-tema {
+  background-size: cover;
+  background-position: center;
+  height: 220px; /* prima era ~160px */
+  width: 280px;  /* leggermente più larga per proporzione */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  color: white;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+.card-tema:hover {
+  transform: scale(1.05);
+}
+
+.card-tema h3 {
+  background: rgba(0, 0, 0, 0.55);
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem;
+  border-radius: 0 0 10px 10px;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+
+.card-tema .overlay {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0 0 8px 8px;
+}
+
+
+.paginazione-temi {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
