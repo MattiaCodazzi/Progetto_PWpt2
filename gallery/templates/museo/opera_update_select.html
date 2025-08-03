@@ -50,7 +50,6 @@
 
   <!-- ───────────── RISULTATI & FORM ───────────── -->
   <section class="col-md-9">
-    <!-- tabella risultati -->
     <div class="table-responsive mb-3">
       <table id="tabella-opere" class="table table-striped align-middle">
         <thead class="table-light">
@@ -78,23 +77,23 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 /* =====================================================================
-   END-POINT da creare in urls.py → api_views.py (o DRF):
-     • api_autori_lista          (GET)
-     • api_sale_lista            (GET)
-     • api_opere_update_search   (POST)  – filtri + paginazione
-     • api_opera_get             (GET)   – singola opera per form
-     • api_opera_update          (POST)  – salva modifiche
+   Endpoint (stub) già presenti in gallery/urls.py → api_views.py
+     • gallery:api_autori_lista
+     • gallery:api_sale_lista
+     • gallery:api_opere_update_search
+     • gallery:api_opera_get
+     • gallery:api_opera_update
    ===================================================================== */
 
 $(function () {
   /* -------- Popola select Autori -------- */
-  $.getJSON("{% url 'api_autori_lista' %}", data => {
+  $.getJSON("{% url 'gallery:api_autori_lista' %}", data => {
     data.forEach(a =>
       $('#autoreId').append(`<option value="${a.codice}">${a.nome} ${a.cognome}</option>`));
   });
 
   /* -------- Popola select Sale -------- */
-  $.getJSON("{% url 'api_sale_lista' %}", data => {
+  $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
     data.forEach(s =>
       $('#salaId').append(`<option value="${s.numero}">${s.nome}</option>`));
   });
@@ -102,18 +101,15 @@ $(function () {
   /* -------- Caricamento iniziale -------- */
   caricaOpere({}, 1);
 
-  /* -------- Submit filtri -------- */
   $('#filtro-opere').on('submit', function (e) {
     e.preventDefault();
     caricaOpere(raccogliFiltri(), 1);
   });
 
-  /* -------- Paginazione -------- */
   $('#paginazione').on('click', '.pagina', function () {
     caricaOpere(raccogliFiltri(), $(this).data('pagina'));
   });
 
-  /* -------- Click riga → carica form -------- */
   $('#corpo-tabella-opere').on('click', 'tr', function () {
     const codice = $(this).data('id');
     caricaForm(codice);
@@ -134,7 +130,7 @@ function raccogliFiltri() {
 function caricaOpere(filtri, pagina = 1) {
   filtri.pagina = pagina;
 
-  $.post("{% url 'api_opere_update_search' %}", filtri, res => {
+  $.post("{% url 'gallery:api_opere_update_search' %}", filtri, res => {
     const { opere, totale, limite } = res;
     const totPagine = Math.ceil(totale / limite);
     const $tbody = $('#corpo-tabella-opere').empty();
@@ -155,21 +151,18 @@ function caricaOpere(filtri, pagina = 1) {
       });
     }
 
-    /* paginatore */
     const $pag = $('#paginazione').empty();
     if (totPagine > 1) {
-      if (pagina > 1)
-        $pag.append(`<button class="btn btn-outline-secondary me-2 pagina" data-pagina="${pagina-1}">«</button>`);
+      if (pagina > 1) $pag.append(`<button class="btn btn-outline-secondary me-2 pagina" data-pagina="${pagina-1}">«</button>`);
       $pag.append(`<span class="fw-semibold">Pagina ${pagina} / ${totPagine}</span>`);
-      if (pagina < totPagine)
-        $pag.append(`<button class="btn btn-outline-secondary ms-2 pagina" data-pagina="${pagina+1}">»</button>`);
+      if (pagina < totPagine) $pag.append(`<button class="btn btn-outline-secondary ms-2 pagina" data-pagina="${pagina+1}">»</button>`);
     }
   }, 'json').fail(() => alert("Errore nel caricamento delle opere."));
 }
 
 /* ===== Carica form di modifica ===== */
 function caricaForm(codice) {
-  $.getJSON("{% url 'api_opera_get' %}?codice=" + codice, opera => {
+  $.getJSON("{% url 'gallery:api_opera_get' %}?codice=" + codice, opera => {
 
     const template = `
       <h2 class="h5 mb-3">Modifica opera</h2>
@@ -177,7 +170,7 @@ function caricaForm(codice) {
         <input type="hidden" name="codice" value="${opera.codice}">
         <div class="col-md-6">
           <label class="form-label">Titolo</label>
-          <input name="titolo"           class="form-control" type="text"   value="${opera.titolo ?? ''}" required>
+          <input name="titolo" class="form-control" type="text" value="${opera.titolo ?? ''}" required>
         </div>
         <div class="col-md-3">
           <label class="form-label">Anno real.</label>
@@ -185,7 +178,7 @@ function caricaForm(codice) {
         </div>
         <div class="col-md-3">
           <label class="form-label">Anno acq.</label>
-          <input name="annoAcquisto"     class="form-control" type="number" value="${opera.annoAcquisto ?? ''}" required>
+          <input name="annoAcquisto" class="form-control" type="number" value="${opera.annoAcquisto ?? ''}" required>
         </div>
         <div class="col-md-4">
           <label class="form-label">Tipo</label>
@@ -208,10 +201,9 @@ function caricaForm(codice) {
 
     $('#form-modifica-wrapper').html(template).scrollTop();
 
-    /* submit modifica */
     $('#modifica-opera').on('submit', function (e) {
       e.preventDefault();
-      $.post("{% url 'api_opera_update' %}", $(this).serialize(), res => {
+      $.post("{% url 'gallery:api_opera_update' %}", $(this).serialize(), res => {
         $('#messaggio-modifica').html(`<div class="alert alert-success">${res.msg}</div>`);
         caricaOpere(raccogliFiltri(), 1);
       }, 'json').fail(xhr => {
@@ -220,9 +212,6 @@ function caricaForm(codice) {
       });
     });
 
-    /* annulla */
     $('#annulla-modifica').on('click', () => $('#form-modifica-wrapper').empty());
-  }).fail(() => alert("Impossibile caricare l’opera selezionata."));
-}
-</script>
-{% endblock %}
+  }).fail(() => alert(\"Impossibile caricare l’opera selezionata.\"));\n}\n</script>\n{% endblock %}"}]}
+

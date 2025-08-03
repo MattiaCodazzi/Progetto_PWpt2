@@ -22,7 +22,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 /* =======================================================================
-   AJAX  ➜  /api/sale/  (definisci questa rotta in urls.py)
+   AJAX  ➜  /api/sale/  (definita come api_sale_lista in gallery/urls.py)
    ======================================================================= */
 let tutteLeSale   = [];
 let paginaCorrente = 1;
@@ -30,7 +30,7 @@ const perPagina    = 10;
 
 $(function () {
   // 1) Carica tutte le sale al load
-  $.getJSON("{% url 'api_sale_list' %}", data => {
+  $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
     tutteLeSale = data;
     mostraPagina(1);
   });
@@ -70,3 +70,4 @@ function mostraPagina(pagina) {
 }
 </script>
 {% endblock %}
+

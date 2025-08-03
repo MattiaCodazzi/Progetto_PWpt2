@@ -88,49 +88,43 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 /* =====================================================================
-   End-point da predisporre in urls.py → views / DRF:
-     - api_autori_lista        (GET)
-     - api_sale_lista          (GET)
-     - api_opere_delete_search (POST  → filtri, paginazione)
-     - api_opere_delete        (POST  → elimina elenco codici)
+   Endpoint:
+     • gallery:api_autori_lista        (GET)
+     • gallery:api_sale_lista          (GET)
+     • gallery:api_opere_delete_search (POST)
+     • gallery:api_opere_delete        (POST)
    ===================================================================== */
 
 $(function () {
 
   /* ---- popola select Autori ---- */
-  $.getJSON("{% url 'api_autori_lista' %}", data => {
+  $.getJSON("{% url 'gallery:api_autori_lista' %}", data => {
     data.forEach(a =>
-      $('#autoreId').append(`<option value="${a.codice}">${a.nome} ${a.cognome}</option>`)
-    );
+      $('#autoreId').append(`<option value="${a.codice}">${a.nome} ${a.cognome}</option>`));
   });
 
   /* ---- popola select Sale ---- */
-  $.getJSON("{% url 'api_sale_lista' %}", data => {
+  $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
     data.forEach(s =>
-      $('#salaId').append(`<option value="${s.numero}">${s.nome}</option>`)
-    );
+      $('#salaId').append(`<option value="${s.numero}">${s.nome}</option>`));
   });
 
   /* ---- caricamento iniziale ---- */
   caricaOpere({}, 1);
 
-  /* ---- submit filtri ---- */
   $('#filtro-opere').on('submit', function (e) {
     e.preventDefault();
     caricaOpere(raccogliFiltri(), 1);
   });
 
-  /* ---- paginatore ---- */
   $('#paginazione').on('click', '.pagina', function () {
     caricaOpere(raccogliFiltri(), $(this).data('pagina'));
   });
 
-  /* ---- select all ---- */
   $('#seleziona-tutte').on('change', function () {
     $('.seleziona-opera').prop('checked', this.checked);
   });
 
-  /* ---- elimina selezionate ---- */
   $('#elimina-selezionate').on('click', function () {
     const codici = $('.seleziona-opera:checked').map((_, el) => el.value).get();
     if (!codici.length) {
@@ -139,7 +133,7 @@ $(function () {
     }
     if (!confirm(`Eliminare ${codici.length} opera/e?`)) return;
 
-    $.post("{% url 'api_opere_delete' %}", { codici }, res => {
+    $.post("{% url 'gallery:api_opere_delete' %}", { codici }, res => {
       $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
       caricaOpere(raccogliFiltri(), 1);
     }, 'json').fail(xhr => {
@@ -164,7 +158,7 @@ function raccogliFiltri() {
 function caricaOpere(filtri, pagina = 1) {
   filtri.pagina = pagina;
 
-  $.post("{% url 'api_opere_delete_search' %}", filtri, res => {
+  $.post("{% url 'gallery:api_opere_delete_search' %}", filtri, res => {
     const { opere, totale, limite } = res;
     const totPagine = Math.ceil(totale / limite);
     const $tbody = $('#corpo-tabella-opere').empty();

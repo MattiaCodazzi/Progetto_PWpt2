@@ -61,22 +61,22 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 /* =======================================================================
-   AJAX → definisci queste tre rotte in urls.py:
-     – api_autori_lista     (GET)  → JSON con {codice, cognome, nome}
-     – api_sale_lista       (GET)  → JSON con {numero, nome}
-     – api_opera_create     (POST) → inserisce e restituisce messaggio
+   AJAX endpoint (già definiti in gallery/urls.py):
+     – gallery:api_autori_lista  (GET)
+     – gallery:api_sale_lista    (GET)
+     – gallery:api_opera_create  (POST)
    ======================================================================= */
 $(function () {
 
   /* ---------- popola select Autori ---------- */
-  $.getJSON("{% url 'api_autori_lista' %}", function (data) {
+  $.getJSON("{% url 'gallery:api_autori_lista' %}", function (data) {
     data.forEach(a =>
       $('#autoreId').append(`<option value="${a.codice}">${a.cognome} ${a.nome}</option>`)
     );
   });
 
   /* ---------- popola select Sale ---------- */
-  $.getJSON("{% url 'api_sale_lista' %}", function (data) {
+  $.getJSON("{% url 'gallery:api_sale_lista' %}", function (data) {
     data.forEach(s =>
       $('#espostaInSalaId').append(`<option value="${s.numero}">${s.nome}</option>`)
     );
@@ -86,7 +86,7 @@ $(function () {
   $('#form-opera').on('submit', function (e) {
     e.preventDefault();
 
-    $.post("{% url 'api_opera_create' %}", $(this).serialize())
+    $.post("{% url 'gallery:api_opera_create' %}", $(this).serialize())
       .done(res => {
         $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
         this.reset();
@@ -100,3 +100,4 @@ $(function () {
 });
 </script>
 {% endblock %}
+
