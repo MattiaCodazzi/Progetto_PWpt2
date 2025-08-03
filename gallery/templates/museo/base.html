@@ -22,14 +22,15 @@
 
     <!-- Navbar -->
     <nav class="mt-3">
-      <ul class="nav justify-content-center gap-3">
-        <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'dashboard' %}">Home</a></li>
-        <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'opere-menu' %}">Opere</a></li>
-        <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'autori' %}">Autori</a></li>
-        <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'sale' %}">Sale</a></li>
-        <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'temi' %}">Temi</a></li>
-      </ul>
-    </nav>
+  <ul class="nav justify-content-center gap-3">
+    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:opere_dashboard' %}">Home</a></li>
+    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:opera_create' %}">Nuova opera</a></li>
+    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:autori_list' %}">Autori</a></li>
+    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:sale_list' %}">Sale</a></li>
+    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:temi_list' %}">Temi</a></li>
+  </ul>
+</nav>
+
   </header>
 
   <!-- Contenuto -->

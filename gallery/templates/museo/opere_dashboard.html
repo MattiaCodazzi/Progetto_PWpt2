@@ -4,34 +4,38 @@
 
 {% block content %}
 <div class="row">
-  <!-- --- SIDEBAR OPZIONI --- -->
+  <!-- ─────────── SIDEBAR OPZIONI ─────────── -->
   <aside class="col-md-3 mb-4">
     <h2 class="h5 mb-3">Opzioni</h2>
 
     <div class="d-grid gap-2">
-      <a class="btn btn-primary"  href="{% url 'opera_create' %}">
+      <a class="btn btn-primary"  href="{% url 'gallery:opera_create' %}">
         Aggiungi nuova opera
       </a>
-      <a class="btn btn-secondary" href="{% url 'opera_search' %}">
+      <a class="btn btn-secondary" href="{% url 'gallery:opera_search' %}">
         Cerca opera
       </a>
-      <a class="btn btn-warning"  href="{% url 'opera_update_select' %}">
+      <a class="btn btn-warning"  href="{% url 'gallery:opera_update_select' %}">
         Modifica opera
       </a>
-      <a class="btn btn-danger"   href="{% url 'opera_delete_select' %}">
+      <a class="btn btn-danger"   href="{% url 'gallery:opera_delete_select' %}">
         Elimina opera
       </a>
     </div>
   </aside>
 
-  <!-- --- AREA CONTENUTI (verrà popolata in seguito) --- -->
+  <!-- ─────────── AREA CONTENUTI ─────────── -->
   <section class="col-md-9">
-    <!-- Qui potrai caricare AJAX o template inclusi con {% include %} -->
+    {# eventuali template dinamici verranno inseriti qui via include/AJAX #}
     <div class="text-center py-5">
-      <img src="{% static 'museo/images/logo.png' %}" alt="Logo Museo" class="img-fluid mb-4" style="max-width:200px;">
+      <img src="{% static 'museo/images/logo.png' %}"
+           alt="Logo Museo"
+           class="img-fluid mb-4"
+           style="max-width:200px;">
       <h1 class="display-6">Gestione Opere</h1>
       <p class="lead">Seleziona un’azione nella sidebar per iniziare.</p>
     </div>
   </section>
 </div>
 {% endblock %}
+
