@@ -1,0 +1,167 @@
+{% extends "museo/base.html" %}
+{% load static %}
+
+{% block title %}Cerca opere{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'museo/css/tabella_opere.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Cerca opere</h1>
+
+<div class="row">
+  <!-- ──────────── SIDEBAR FILTRI ──────────── -->
+  <aside class="col-md-3 mb-4">
+    <h2 class="h5 mb-3">Filtri di ricerca</h2>
+    <form id="filtro-opere" class="vstack gap-3">
+      <div>
+        <label for="titolo" class="form-label">Titolo</label>
+        <input type="text" id="titolo" name="titolo" class="form-control">
+      </div>
+
+      <div>
+        <label for="autoreId" class="form-label">Autore</label>
+        <select id="autoreId" name="autoreId" class="form-select">
+          <option value="">— Seleziona autore —</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="tipo" class="form-label">Tipo</label>
+        <select id="tipo" name="tipo" class="form-select">
+          <option value="">— Qualsiasi —</option>
+          <option value="Quadro">Quadro</option>
+          <option value="Scultura">Scultura</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="salaId" class="form-label">Sala</label>
+        <select id="salaId" name="salaId" class="form-select">
+          <option value="">— Qualsiasi —</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Cerca</button>
+    </form>
+  </aside>
+
+  <!-- ──────────── RISULTATI ──────────── -->
+  <section class="col-md-9">
+    <div class="table-responsive">
+      <table class="table table-striped align-middle" id="tabella-opere">
+        <thead class="table-light">
+          <tr>
+            <th>Titolo</th>
+            <th>Autore</th>
+            <th>Tipo</th>
+            <th>Anno real.</th>
+            <th>Anno acquisto</th>
+            <th>Sala</th>
+          </tr>
+        </thead>
+        <tbody id="corpo-tabella-opere"></tbody>
+      </table>
+    </div>
+
+    <nav id="paginazione" class="d-flex justify-content-center mt-3"></nav>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+/* =====================================================================
+   End-point da predisporre in urls.py → api_views.py (o DRF):
+     - api_autori_lista   (GET)  → [{"codice":1,"nome":"…","cognome":"…"}, …]
+     - api_sale_lista     (GET)  → [{"numero":101,"nome":"Sala Blu"}, …]
+     - api_opere_search   (POST) → {opere:[…], totale:99, limite:10}
+   ===================================================================== */
+$(function () {
+
+  /* ---------- Popola select autori ---------- */
+  $.getJSON("{% url 'api_autori_lista' %}", data => {
+    data.forEach(a =>
+      $('#autoreId').append(`<option value="${a.codice}">${a.nome} ${a.cognome}</option>`)
+    );
+  });
+
+  /* ---------- Popola select sale ---------- */
+  $.getJSON("{% url 'api_sale_lista' %}", data => {
+    data.forEach(s =>
+      $('#salaId').append(`<option value="${s.numero}">${s.nome}</option>`)
+    );
+  });
+
+  /* ---------- Caricamento iniziale (senza filtri) ---------- */
+  caricaOpere({}, 1);
+
+  /* ---------- Submit filtri ---------- */
+  $('#filtro-opere').on('submit', function (e) {
+    e.preventDefault();
+    const filtri = raccogliFiltri();
+    caricaOpere(filtri, 1);
+  });
+
+  /* ---------- Navigazione pagine ---------- */
+  $('#paginazione').on('click', '.pagina', function () {
+    const pagina = $(this).data('pagina');
+    caricaOpere(raccogliFiltri(), pagina);
+  });
+
+});
+
+/* =============== helpers =============== */
+function raccogliFiltri() {
+  return {
+    titolo:   $('#titolo').val(),
+    autoreId: $('#autoreId').val(),
+    tipo:     $('#tipo').val(),
+    salaId:   $('#salaId').val() || null
+  };
+}
+
+function caricaOpere(filtri, pagina = 1) {
+  /* aggiunge la pagina al payload */
+  filtri.pagina = pagina;
+
+  $.post("{% url 'api_opere_search' %}", filtri, function (response) {
+    const { opere, totale, limite } = response;
+    const totPagine = Math.ceil(totale / limite);
+    const $tbody = $('#corpo-tabella-opere').empty();
+
+    if (!opere.length) {
+      $tbody.append('<tr><td colspan="6" class="text-center">Nessun risultato trovato.</td></tr>');
+    } else {
+      opere.forEach(o => {
+        $tbody.append(`
+          <tr>
+            <td>${o.titolo}</td>
+            <td>${o.autore}</td>
+            <td>${o.tipo}</td>
+            <td>${o.annoRealizzazione}</td>
+            <td>${o.annoAcquisto}</td>
+            <td>${o.sala ?? '—'}</td>
+          </tr>`);
+      });
+    }
+
+    /* ------- paginazione ------- */
+    const $pag = $('#paginazione').empty();
+    if (totPagine > 1) {
+      if (pagina > 1) {
+        $pag.append(`<button class="btn btn-outline-secondary me-2 pagina" data-pagina="${pagina-1}">«</button>`);
+      }
+      $pag.append(`<span class="fw-semibold">Pagina ${pagina} / ${totPagine}</span>`);
+      if (pagina < totPagine) {
+        $pag.append(`<button class="btn btn-outline-secondary ms-2 pagina" data-pagina="${pagina+1}">»</button>`);
+      }
+    }
+  }, 'json').fail(() => {
+    alert("Errore nel caricamento delle opere.");
+  });
+}
+</script>
+{% endblock %}

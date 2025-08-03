@@ -1,0 +1,102 @@
+{% extends "museo/base.html" %}
+{% load static %}
+
+{% block title %}Nuova opera{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- ───────────────────────── FORM INSERIMENTO ────────────────────────── -->
+  <aside class="col-md-4 mb-4">
+    <h2 class="h5 mb-3">Inserisci nuova opera</h2>
+
+    <form id="form-opera" class="vstack gap-3">
+      <div>
+        <label for="autoreId" class="form-label">Autore</label>
+        <select id="autoreId" name="autore" class="form-select" required></select>
+      </div>
+
+      <div>
+        <label for="titolo" class="form-label">Titolo</label>
+        <input type="text" id="titolo" name="titolo" class="form-control" required>
+      </div>
+
+      <div>
+        <label for="annoRealizzazione" class="form-label">Anno di realizzazione</label>
+        <input type="number" id="annoRealizzazione" name="annoRealizzazione" class="form-control" required>
+      </div>
+
+      <div>
+        <label for="annoAcquisto" class="form-label">Anno di acquisto</label>
+        <input type="number" id="annoAcquisto" name="annoAcquisto" class="form-control" required>
+      </div>
+
+      <div>
+        <label for="tipo" class="form-label">Tipo</label>
+        <select id="tipo" name="tipo" class="form-select" required>
+          <option value="Quadro">Quadro</option>
+          <option value="Scultura">Scultura</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="espostaInSalaId" class="form-label">Sala (opzionale)</label>
+        <select id="espostaInSalaId" name="sala" class="form-select">
+          <option value="">— Nessuna —</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Inserisci</button>
+    </form>
+  </aside>
+
+  <!-- ───────────────────────── AREA MESSAGGI ──────────────────────────── -->
+  <section class="col-md-8">
+    <h2 class="h5 mb-3">Esito operazione</h2>
+    <div id="messaggio"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+/* =======================================================================
+   AJAX → definisci queste tre rotte in urls.py:
+     – api_autori_lista     (GET)  → JSON con {codice, cognome, nome}
+     – api_sale_lista       (GET)  → JSON con {numero, nome}
+     – api_opera_create     (POST) → inserisce e restituisce messaggio
+   ======================================================================= */
+$(function () {
+
+  /* ---------- popola select Autori ---------- */
+  $.getJSON("{% url 'api_autori_lista' %}", function (data) {
+    data.forEach(a =>
+      $('#autoreId').append(`<option value="${a.codice}">${a.cognome} ${a.nome}</option>`)
+    );
+  });
+
+  /* ---------- popola select Sale ---------- */
+  $.getJSON("{% url 'api_sale_lista' %}", function (data) {
+    data.forEach(s =>
+      $('#espostaInSalaId').append(`<option value="${s.numero}">${s.nome}</option>`)
+    );
+  });
+
+  /* ---------- invio form ---------- */
+  $('#form-opera').on('submit', function (e) {
+    e.preventDefault();
+
+    $.post("{% url 'api_opera_create' %}", $(this).serialize())
+      .done(res => {
+        $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
+        this.reset();
+      })
+      .fail(xhr => {
+        const err = xhr.responseJSON?.error || 'Errore sconosciuto';
+        $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+      });
+  });
+
+});
+</script>
+{% endblock %}

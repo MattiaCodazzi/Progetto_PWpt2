@@ -1,0 +1,111 @@
+{% extends "museo/base.html" %}
+{% load static %}
+
+{% block title %}Temi – Museo{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Temi artistici</h1>
+
+<!-- CARD dei temi -->
+<section id="contenitore-temi" class="row g-4 justify-content-center">
+  <!-- le card vengono iniettate via JS -->
+</section>
+
+<!-- PAGINAZIONE -->
+<nav class="d-flex justify-content-between align-items-center mt-4" aria-label="Paginazione temi">
+  <button id="precedente-tema" class="btn btn-outline-secondary" disabled>« Precedente</button>
+  <button id="successivo-tema" class="btn btn-outline-secondary">Successivo »</button>
+</nav>
+
+<!-- POP-UP Bootstrap -->
+<div id="popup-tema" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="popup-titolo" class="modal-title"></h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <p id="popup-testo"></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   Dati statici (per ora) – puoi sostituirli con una chiamata AJAX
+   /api/temi se decidi di leggere i temi dal database.
+   ------------------------------------------------------------------ */
+const staticBase = "{% static 'museo/immagini/' %}";
+const temi = [
+  { titolo: "Impressionismo", immagine: staticBase + "impressionismo.jpg", descrizione: "L'impressionismo è un movimento artistico nato in Francia nel XIX secolo, focalizzato sulla luce e il colore." },
+  { titolo: "Cubismo",        immagine: staticBase + "cubismo.jpg",        descrizione: "Il cubismo è un'avanguardia che scompone la realtà in forme geometriche, reso famoso da Picasso e Braque." },
+  { titolo: "Surrealismo",    immagine: staticBase + "surrealismo.jpg",    descrizione: "Movimento che esplora il sogno e l'inconscio, con opere cariche di simbolismo e logiche oniriche." },
+  { titolo: "Futurismo",      immagine: staticBase + "futurismo.jpg",      descrizione: "Esalta velocità, tecnologia e modernità. Nato in Italia nei primi del '900." },
+  { titolo: "Espressionismo", immagine: staticBase + "espressionismo.jpg", descrizione: "Espressione drammatica di emozioni, forme distorte e colori intensi." },
+  { titolo: "Realismo",       immagine: staticBase + "realismo.jpg",       descrizione: "Rappresentazione fedele e oggettiva della realtà sociale e quotidiana." },
+  { titolo: "Brutalismo",     immagine: staticBase + "brutalismo.jpg",     descrizione: "Movimento architettonico e artistico noto per l'utilizzo massiccio del cemento e forme essenziali." },
+  { titolo: "Barocco",        immagine: staticBase + "barocco.jpg",        descrizione: "Stile teatrale, ricco e dinamico nato nel XVII secolo in Europa." },
+  { titolo: "Minimalismo",    immagine: staticBase + "minimalismo.jpg",    descrizione: "Movimento che punta sull'essenzialità, forme pure e riduzione del superfluo." },
+  { titolo: "Pop Art",        immagine: staticBase + "popart.jpg",         descrizione: "Nata negli anni '50, celebra la cultura pop, la pubblicità e l’arte dei consumi." }
+];
+
+let paginaCorrente = 1;
+const perPagina = 5;
+
+/* ----------------------
+   on-ready → prima pagina
+   ---------------------- */
+$(function () {
+  mostraTemi(paginaCorrente);
+
+  $('#successivo-tema').on('click', () => { paginaCorrente++; mostraTemi(paginaCorrente); });
+  $('#precedente-tema').on('click', () => { paginaCorrente--; mostraTemi(paginaCorrente); });
+});
+
+/* ---------------------------
+   Rendering + gestione popup
+   --------------------------- */
+function mostraTemi(pagina) {
+  const start = (pagina - 1) * perPagina;
+  const end   = pagina * perPagina;
+  const temiPagina = temi.slice(start, end);
+
+  const $contenitore = $('#contenitore-temi').empty();
+
+  if (!temiPagina.length) {
+    $contenitore.append('<p class="text-center">Nessun tema disponibile.</p>');
+    return;
+  }
+
+  temiPagina.forEach(tema => {
+    $contenitore.append(`
+      <div class="col-sm-6 col-lg-4">
+        <div class="card h-100 text-white shadow-sm"
+             style="background-image:url('${tema.immagine}'); background-size:cover; background-position:center; cursor:pointer"
+             data-titolo="${tema.titolo}"
+             data-descrizione="${tema.descrizione}">
+          <div class="card-body d-flex align-items-end p-0">
+            <h3 class="card-title bg-dark bg-opacity-50 w-100 m-0 p-3">${tema.titolo}</h3>
+          </div>
+        </div>
+      </div>
+    `);
+  });
+
+  /* click su card → modal Bootstrap */
+  $('#contenitore-temi .card').on('click', function () {
+    $('#popup-titolo').text($(this).data('titolo'));
+    $('#popup-testo') .text($(this).data('descrizione'));
+    new bootstrap.Modal(document.getElementById('popup-tema')).show();
+  });
+
+  $('#precedente-tema').prop('disabled', pagina === 1);
+  $('#successivo-tema').prop('disabled', end >= temi.length);
+}
+</script>
+{% endblock %}

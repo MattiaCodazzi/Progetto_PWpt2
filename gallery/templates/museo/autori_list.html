@@ -1,0 +1,177 @@
+{% extends "museo/base.html" %}
+{% load static %}
+
+{% block title %}Autori – Gestione{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR FILTRI -->
+  <aside class="col-md-3 mb-4">
+    <h2 class="h5 mb-3">Filtri di ricerca</h2>
+    <form id="filtro-autore" class="vstack gap-3">
+      <div>
+        <label class="form-label" for="nome">Nome</label>
+        <select class="form-select" id="nome" name="nome">
+          <option value="">— Seleziona autore —</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label" for="cognome">Cognome</label>
+        <select class="form-select" id="cognome" name="cognome">
+          <option value="">— Seleziona autore —</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label" for="nazione">Nazionalità</label>
+        <select class="form-select" id="nazione" name="nazione">
+          <option value="">— Qualsiasi —</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Cerca</button>
+    </form>
+  </aside>
+
+  <!-- RISULTATI + FORM MODIFICA -->
+  <section class="col-md-9">
+    <!-- TABELLA RISULTATI -->
+    <div class="table-responsive mb-4">
+      <table class="table table-striped align-middle" id="tabella-autori">
+        <thead class="table-light">
+          <tr>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Nazione</th>
+            <th>Data nascita</th>
+            <th>Tipo</th>
+            <th>Data morte</th>
+          </tr>
+        </thead>
+        <tbody id="corpo-tabella-opere"></tbody>
+      </table>
+      <nav id="paginazione" class="mt-3"></nav>
+    </div>
+
+    <!-- FORM MODIFICHE (hidden di default) -->
+    <div id="modifica-autore" class="card d-none">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Modifica autore</h2>
+        <form id="form-modifica-autore" class="row g-3">
+          <input type="hidden" id="codice" name="codice">
+
+          <div class="col-md-6">
+            <label class="form-label" for="nome_mod">Nome</label>
+            <input type="text" id="nome_mod" name="nome" class="form-control" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="cognome_mod">Cognome</label>
+            <input type="text" id="cognome_mod" name="cognome" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="dataNascita">Data di nascita</label>
+            <input type="date" id="dataNascita" name="dataNascita" class="form-control">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="tipo">Tipo</label>
+            <select id="tipo" name="tipo" class="form-select">
+              <option value="vivo">Vivo</option>
+              <option value="morto">Morto</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="dataMorte">Data di morte</label>
+            <input type="date" id="dataMorte" name="dataMorte" class="form-control">
+          </div>
+
+          <div class="col-12">
+            <button type="submit" class="btn btn-success">Salva modifiche</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+/* =========================================================================
+   AJAX helper per popolare filtri e tabella.
+   In produzione sostituisci gli URL '/api/autori/…' con le tue view Django
+   (es. path('api/autori/', …) in urls.py + DRF o JsonResponse).
+   ========================================================================= */
+$(function () {
+
+  // 1) Carica le opzioni filtro al load
+  $.getJSON("{% url 'api_autori_lista' %}", function (data) {
+    const nomi   = new Set();
+    const cognomi = new Set();
+    const nazioni = new Set();
+
+    data.forEach(a => {
+      if (a.nome)        nomi.add(a.nome);
+      if (a.cognome)     cognomi.add(a.cognome);
+      if (a.nazione)     nazioni.add(a.nazione);
+    });
+
+    [...nomi]   .forEach(n  => $('#nome')   .append(`<option value="${n}">${n}</option>`));
+    [...cognomi].forEach(cg => $('#cognome').append(`<option value="${cg}">${cg}</option>`));
+    [...nazion i].sort().forEach(naz => $('#nazione').append(`<option value="${naz}">${naz}</option>`));
+  });
+
+  // 2) Cerca autori
+  $('#filtro-autore').on('submit', function (e) {
+    e.preventDefault();
+
+    $.post("{% url 'api_autori_search' %}", $(this).serialize(), function (autori) {
+      const tbody = $('#corpo-tabella-opere').empty();
+
+      if (!autori.length) {
+        tbody.append('<tr><td colspan="6" class="text-center">Nessun autore trovato.</td></tr>');
+        return;
+      }
+
+      autori.forEach(a => {
+        tbody.append(`
+          <tr data-id="${a.codice}" data-nome="${a.nome}" data-cognome="${a.cognome}"
+              data-nascita="${a.annoNascita}" data-morte="${a.annoMorte}">
+            <td>${a.nome}</td>
+            <td>${a.cognome}</td>
+            <td>${a.nazione}</td>
+            <td>${a.dataNascita ?? '—'}</td>
+            <td>${a.tipo}</td>
+            <td>${a.dataMorte ?? '—'}</td>
+          </tr>`);
+      });
+    }, 'json');
+  });
+
+  // 3) Clic su riga -> mostra form modifica
+  $('#corpo-tabella-opere').on('click', 'tr', function () {
+    const r = $(this).data();
+    $('#codice')     .val(r.id);
+    $('#nome_mod')   .val(r.nome);
+    $('#cognome_mod').val(r.cognome);
+    $('#dataNascita').val(r.nascita ?? '');
+    $('#dataMorte') .val(r.morte  ?? '');
+    $('#modifica-autore').removeClass('d-none');
+  });
+
+  // 4) Submit form modifica
+  $('#form-modifica-autore').on('submit', function (e) {
+    e.preventDefault();
+    $.post("{% url 'api_autori_update' %}", $(this).serialize())
+      .done(() => { alert('Modifiche salvate'); location.reload(); })
+      .fail(() => { alert('Errore durante il salvataggio'); });
+  });
+
+});
+</script>
+{% endblock %}
