@@ -5,9 +5,10 @@
 
 {% block content %}
 <div class="row">
-  <!-- SIDEBAR FILTRI -->
+  <!-- ─────────── SIDEBAR FILTRI ─────────── -->
   <aside class="col-md-3 mb-4">
     <h2 class="h5 mb-3">Filtri di ricerca</h2>
+
     <form id="filtro-autore" class="vstack gap-3">
       <div>
         <label class="form-label" for="nome">Nome</label>
@@ -34,9 +35,8 @@
     </form>
   </aside>
 
-  <!-- RISULTATI + FORM MODIFICA -->
+  <!-- ─────────── RISULTATI + FORM MODIFICA ─────────── -->
   <section class="col-md-9">
-    <!-- TABELLA RISULTATI -->
     <div class="table-responsive mb-4">
       <table class="table table-striped align-middle" id="tabella-autori">
         <thead class="table-light">
@@ -58,6 +58,7 @@
     <div id="modifica-autore" class="card d-none">
       <div class="card-body">
         <h2 class="h5 mb-3">Modifica autore</h2>
+
         <form id="form-modifica-autore" class="row g-3">
           <input type="hidden" id="codice" name="codice">
 
@@ -104,33 +105,35 @@
 <script>
 /* =========================================================================
    AJAX helper per popolare filtri e tabella.
-   In produzione sostituisci gli URL '/api/autori/…' con le tue view Django
-   (es. path('api/autori/', …) in urls.py + DRF o JsonResponse).
+   Gli endpoint devono esistere in gallery/urls.py come:
+     path("api/autori/",  api_views.autori_lista,  name="api_autori_lista")
+     path("api/autori/search/", api_views.autori_search, name="api_autori_search")
+     path("api/autori/update/", api_views.autori_update, name="api_autori_update")
    ========================================================================= */
 $(function () {
 
-  // 1) Carica le opzioni filtro al load
-  $.getJSON("{% url 'api_autori_lista' %}", function (data) {
-    const nomi   = new Set();
-    const cognomi = new Set();
-    const nazioni = new Set();
+  /* ---------- 1) Popola i filtri ---------- */
+  $.getJSON("{% url 'gallery:api_autori_lista' %}", function (data) {
+    const nomi     = new Set();
+    const cognomi  = new Set();
+    const nazioni  = new Set();
 
     data.forEach(a => {
-      if (a.nome)        nomi.add(a.nome);
-      if (a.cognome)     cognomi.add(a.cognome);
-      if (a.nazione)     nazioni.add(a.nazione);
+      if (a.nome)    nomi.add(a.nome);
+      if (a.cognome) cognomi.add(a.cognome);
+      if (a.nazione) nazioni.add(a.nazione);
     });
 
-    [...nomi]   .forEach(n  => $('#nome')   .append(`<option value="${n}">${n}</option>`));
-    [...cognomi].forEach(cg => $('#cognome').append(`<option value="${cg}">${cg}</option>`));
+    [...nomi]    .forEach(n   => $('#nome')   .append(`<option value="${n}">${n}</option>`));
+    [...cognomi] .forEach(cg  => $('#cognome').append(`<option value="${cg}">${cg}</option>`));
     [...nazion i].sort().forEach(naz => $('#nazione').append(`<option value="${naz}">${naz}</option>`));
   });
 
-  // 2) Cerca autori
+  /* ---------- 2) Ricerca autori ---------- */
   $('#filtro-autore').on('submit', function (e) {
     e.preventDefault();
 
-    $.post("{% url 'api_autori_search' %}", $(this).serialize(), function (autori) {
+    $.post("{% url 'gallery:api_autori_search' %}", $(this).serialize(), function (autori) {
       const tbody = $('#corpo-tabella-opere').empty();
 
       if (!autori.length) {
@@ -153,21 +156,21 @@ $(function () {
     }, 'json');
   });
 
-  // 3) Clic su riga -> mostra form modifica
+  /* ---------- 3) Click riga → mostra form modifica ---------- */
   $('#corpo-tabella-opere').on('click', 'tr', function () {
     const r = $(this).data();
-    $('#codice')     .val(r.id);
-    $('#nome_mod')   .val(r.nome);
-    $('#cognome_mod').val(r.cognome);
-    $('#dataNascita').val(r.nascita ?? '');
-    $('#dataMorte') .val(r.morte  ?? '');
+    $('#codice')      .val(r.id);
+    $('#nome_mod')    .val(r.nome);
+    $('#cognome_mod') .val(r.cognome);
+    $('#dataNascita') .val(r.nascita ?? '');
+    $('#dataMorte')   .val(r.morte  ?? '');
     $('#modifica-autore').removeClass('d-none');
   });
 
-  // 4) Submit form modifica
+  /* ---------- 4) Salva modifiche ---------- */
   $('#form-modifica-autore').on('submit', function (e) {
     e.preventDefault();
-    $.post("{% url 'api_autori_update' %}", $(this).serialize())
+    $.post("{% url 'gallery:api_autori_update' %}", $(this).serialize())
       .done(() => { alert('Modifiche salvate'); location.reload(); })
       .fail(() => { alert('Errore durante il salvataggio'); });
   });
@@ -175,3 +178,4 @@ $(function () {
 });
 </script>
 {% endblock %}
+
