@@ -1,1 +1,24 @@
+<<<<<<< HEAD
 gallery/__pycache__/api_views.cpython-312.pyc
+=======
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+.env
+
+# VSCode/PyCharm
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+>>>>>>> cd3182633d4cdff57bf39706edd69f83c62914c4
