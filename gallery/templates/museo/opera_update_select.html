@@ -57,8 +57,8 @@
             <th>Titolo</th>
             <th>Autore</th>
             <th>Tipo</th>
-            <th>Anno&nbsp;real.</th>
-            <th>Anno&nbsp;acq.</th>
+            <th>Anno real.</th>
+            <th>Anno acq.</th>
             <th>Sala</th>
           </tr>
         </thead>
@@ -67,7 +67,6 @@
     </div>
     <nav id="paginazione" class="d-flex justify-content-center mb-4"></nav>
 
-    <!-- form di modifica (iniettato via JS) -->
     <div id="form-modifica-wrapper"></div>
   </section>
 </div>
@@ -76,29 +75,17 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-/* =====================================================================
-   Endpoint (stub) già presenti in gallery/urls.py → api_views.py
-     • gallery:api_autori_lista
-     • gallery:api_sale_lista
-     • gallery:api_opere_update_search
-     • gallery:api_opera_get
-     • gallery:api_opera_update
-   ===================================================================== */
-
 $(function () {
-  /* -------- Popola select Autori -------- */
   $.getJSON("{% url 'gallery:api_autori_lista' %}", data => {
     data.forEach(a =>
       $('#autoreId').append(`<option value="${a.codice}">${a.nome} ${a.cognome}</option>`));
   });
 
-  /* -------- Popola select Sale -------- */
   $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
     data.forEach(s =>
       $('#salaId').append(`<option value="${s.numero}">${s.nome}</option>`));
   });
 
-  /* -------- Caricamento iniziale -------- */
   caricaOpere({}, 1);
 
   $('#filtro-opere').on('submit', function (e) {
@@ -116,17 +103,15 @@ $(function () {
   });
 });
 
-/* ===== Helpers ===== */
 function raccogliFiltri() {
   return {
-    titolo:   $('#titolo').val(),
+    titolo: $('#titolo').val(),
     autoreId: $('#autoreId').val(),
-    tipo:     $('#tipo').val(),
-    salaId:   $('#salaId').val() || null
+    tipo: $('#tipo').val(),
+    salaId: $('#salaId').val() || null
   };
 }
 
-/* ===== Carica opere + paginazione ===== */
 function caricaOpere(filtri, pagina = 1) {
   filtri.pagina = pagina;
 
@@ -153,17 +138,17 @@ function caricaOpere(filtri, pagina = 1) {
 
     const $pag = $('#paginazione').empty();
     if (totPagine > 1) {
-      if (pagina > 1) $pag.append(`<button class="btn btn-outline-secondary me-2 pagina" data-pagina="${pagina-1}">«</button>`);
+      if (pagina > 1)
+        $pag.append(`<button class="btn btn-outline-secondary me-2 pagina" data-pagina="${pagina-1}">«</button>`);
       $pag.append(`<span class="fw-semibold">Pagina ${pagina} / ${totPagine}</span>`);
-      if (pagina < totPagine) $pag.append(`<button class="btn btn-outline-secondary ms-2 pagina" data-pagina="${pagina+1}">»</button>`);
+      if (pagina < totPagine)
+        $pag.append(`<button class="btn btn-outline-secondary ms-2 pagina" data-pagina="${pagina+1}">»</button>`);
     }
   }, 'json').fail(() => alert("Errore nel caricamento delle opere."));
 }
 
-/* ===== Carica form di modifica ===== */
 function caricaForm(codice) {
   $.getJSON("{% url 'gallery:api_opera_get' %}?codice=" + codice, opera => {
-
     const template = `
       <h2 class="h5 mb-3">Modifica opera</h2>
       <form id="modifica-opera" class="row g-3">
@@ -183,7 +168,7 @@ function caricaForm(codice) {
         <div class="col-md-4">
           <label class="form-label">Tipo</label>
           <select name="tipo" class="form-select" required>
-            <option value="Quadro"   ${opera.tipo === 'Quadro'   ? 'selected' : ''}>Quadro</option>
+            <option value="Quadro" ${opera.tipo === 'Quadro' ? 'selected' : ''}>Quadro</option>
             <option value="Scultura" ${opera.tipo === 'Scultura' ? 'selected' : ''}>Scultura</option>
           </select>
         </div>
@@ -213,5 +198,7 @@ function caricaForm(codice) {
     });
 
     $('#annulla-modifica').on('click', () => $('#form-modifica-wrapper').empty());
-  }).fail(() => alert(\"Impossibile caricare l’opera selezionata.\"));\n}\n</script>\n{% endblock %}"}]}
-
+  }).fail(() => alert("Impossibile caricare l’opera selezionata."));
+}
+</script>
+{% endblock %}
