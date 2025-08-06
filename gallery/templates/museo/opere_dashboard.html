@@ -1,42 +1,39 @@
 {% extends "museo/base.html" %}
 {% load static %}
 
-{% block title %}Opere – Dashboard{% endblock %}
+{% block title %}Dashboard – Museo{% endblock %}
 
 {% block content %}
-<div class="row">
-  <!-- ─────────── SIDEBAR OPZIONI ─────────── -->
-  <aside class="col-md-3 mb-4">
-    <h2 class="h5 mb-3">Opzioni</h2>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 200px);">
+  <div class="row justify-content-center w-100">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="card shadow-lg p-5 bg-white rounded text-center">
 
-    <div class="d-grid gap-2">
-      <a class="btn btn-primary"  href="{% url 'gallery:opera_create' %}">
-        Aggiungi nuova opera
-      </a>
-      <a class="btn btn-secondary" href="{% url 'gallery:opera_search' %}">
-        Cerca opera
-      </a>
-      <a class="btn btn-warning"  href="{% url 'gallery:opera_update_select' %}">
-        Modifica opera
-      </a>
-      <a class="btn btn-danger"   href="{% url 'gallery:opera_delete_select' %}">
-        Elimina opera
-      </a>
-    </div>
-  </aside>
+        <!-- LOGO -->
+        <img src="{% static 'icon/logo.png' %}" 
+             alt="Logo Museo" 
+             class="img-fluid mx-auto mb-4" 
+             style="max-width: 200px;">
 
-  <!-- ─────────── AREA CONTENUTI ─────────── -->
-  <section class="col-md-9">
-    {# eventuali template dinamici verranno inseriti qui via include/AJAX #}
-    <div class="text-center py-5">
-      <img src="{% static 'museo/images/logo.png' %}"
-           alt="Logo Museo"
-           class="img-fluid mb-4"
-           style="max-width:200px;">
-      <h1 class="display-6">Gestione Opere</h1>
-      <p class="lead">Seleziona un’azione nella sidebar per iniziare.</p>
+        <!-- TITOLO -->
+        <h2 class="fw-bold text-dark mb-3">Benvenuto nella piattaforma di gestione del patrimonio museale</h2>
+
+        <!-- DESCRIZIONE -->
+        <p class="lead text-muted mb-3">
+          Utilizza il menù in alto per accedere alle opere, agli autori, alle sale e ai temi del museo.
+        </p>
+
+        <!-- CITAZIONE -->
+        <blockquote class="blockquote mt-4 mb-0">
+          <p class="fst-italic text-secondary">“Custodire l’arte significa dare voce al passato per illuminare il presente.”</p>
+        </blockquote>
+
+      </div>
     </div>
-  </section>
+  </div>
 </div>
 {% endblock %}
+
+
+
 

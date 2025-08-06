@@ -31,6 +31,16 @@ def autori_search(request):
     ]
     return JsonResponse(risultati, safe=False)
 
+@csrf_exempt
+@require_POST
+def autori_delete(request):
+    codici = request.POST.getlist("codici[]")
+    if not codici:
+        return JsonResponse({"error": "Nessun autore selezionato"}, status=400)
+    eliminate, _ = Autore.objects.filter(codice__in=codici).delete()
+    return JsonResponse({"msg": f"{eliminate} autore/i eliminati"})
+
+
 
 
 @csrf_exempt
@@ -52,30 +62,67 @@ def autore_check_or_create(request):
 @csrf_exempt
 @require_POST
 def autore_create(request):
-    try:
-        nome = request.POST.get("nome")
-        cognome = request.POST.get("cognome")
-        nazione = request.POST.get("nazione")
-        data_nascita = request.POST.get("data_nascita")
-        tipo = request.POST.get("tipo")
-        data_morte = request.POST.get("data_morte") or None
+    nome = request.POST.get("nome")
+    cognome = request.POST.get("cognome")
+    nazione = request.POST.get("nazione")
+    data_nascita = request.POST.get("dataNascita")  # <-- con N maiuscola
+    data_morte = request.POST.get("dataMorte")
+    tipo = request.POST.get("tipo")
 
-        autore = Autore.objects.create(
-            nome=nome,
-            cognome=cognome,
-            nazione=nazione,
-            data_nascita=data_nascita,
-            tipo=tipo,
-            data_morte=data_morte
-        )
-        return JsonResponse({"msg": "Autore inserito", "codice": autore.codice})
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+    if not nome or not cognome or not nazione:
+        return JsonResponse({"error": "Dati mancanti"}, status=400)
+    if tipo == "vivo":
+        data_morte = None
+    elif tipo == "morto" and not data_morte:
+        return JsonResponse({"error": "Data di morte richiesta per autore morto"}, status=400)
+    autore = Autore.objects.create(
+        nome=nome,
+        cognome=cognome,
+        nazione=nazione,
+        data_nascita=data_nascita or None,
+        data_morte=data_morte or None,
+        tipo=tipo
+    )
+
+    return JsonResponse({"msg": "Autore inserito", "id": autore.codice})
+
 
 
 @require_POST
 def autori_update(request):
-    return JsonResponse({"msg": "Stub OK"})
+    codice = request.POST.get("codice")
+    nome = request.POST.get("nome", "").strip()
+    cognome = request.POST.get("cognome", "").strip()
+    nazione = request.POST.get("nazione", "").strip()
+    data_nascita = request.POST.get("dataNascita") or None
+    data_morte = request.POST.get("dataMorte") or None
+    tipo = request.POST.get("tipo", "").strip()
+
+    if not codice or not nome or not cognome or not nazione:
+        return JsonResponse({"error": "Dati incompleti"}, status=400)
+
+    # 🛑 Se è stato inserito un tipo "vivo" ma c'è una data di morte, blocca
+    if tipo == "vivo" and data_morte:
+        return JsonResponse({"error": "Un autore vivo non può avere una data di morte."}, status=400)
+
+    # 🛑 Se è stato selezionato "morto" ma manca la data di morte
+    if tipo == "morto" and not data_morte:
+        return JsonResponse({"error": "Seleziona una data di morte per un autore morto."}, status=400)
+
+    try:
+        autore = Autore.objects.get(codice=codice)
+        autore.nome = nome
+        autore.cognome = cognome
+        autore.nazione = nazione
+        autore.data_nascita = data_nascita
+        autore.data_morte = data_morte
+        autore.tipo = tipo
+        autore.save()
+        return JsonResponse({"msg": "Autore aggiornato"})
+    except Autore.DoesNotExist:
+        return JsonResponse({"error": "Autore non trovato"}, status=404)
+
+
 
 # ---- Sale ----
 
@@ -431,9 +478,7 @@ def autori_search(request):
     ]
     return JsonResponse(risultati, safe=False)
 
-@require_POST
-def autori_update(request):
-    return JsonResponse({"msg": "Stub OK"})
+
 
 def autore_detail_api(request, pk):
     autore = get_object_or_404(Autore, pk=pk)
@@ -462,3 +507,59 @@ def sala_detail_api(request, pk):
         "tema": sala.tema.descrizione if sala.tema else "—",
         "opere": opere
     })
+
+
+#--------------AUTORI--------------#
+
+@csrf_exempt
+@require_POST
+def autori_search_form(request):
+    from django.db.models import Q
+
+    nome_completo = request.POST.get("nomeCompleto", "").strip()
+    nazione = request.POST.get("nazione", "").strip()
+    tipo = request.POST.get("tipo", "").strip()
+    data_nascita = request.POST.get("dataNascita", "").strip()
+    data_morte = request.POST.get("dataMorte", "").strip()
+    pagina = int(request.POST.get("pagina", 1))
+    limite = int(request.POST.get("limite", 10))
+
+    filtri = Q()
+    if nome_completo:
+        parti = nome_completo.split()
+        if len(parti) == 1:
+            filtri &= Q(nome__icontains=parti[0]) | Q(cognome__icontains=parti[0])
+        else:
+            filtri &= Q(nome__icontains=parti[0]) & Q(cognome__icontains=" ".join(parti[1:]))
+    if nazione:
+        filtri &= Q(nazione__icontains=nazione)
+    if tipo:
+        filtri &= Q(tipo=tipo)
+    if data_nascita:
+        filtri &= Q(data_nascita=data_nascita)
+    if data_morte:
+        filtri &= Q(data_morte=data_morte)
+
+    queryset = Autore.objects.filter(filtri).order_by("cognome")
+    totale = queryset.count()
+    offset = (pagina - 1) * limite
+    risultati = queryset[offset:offset + limite]
+
+    dati = [{
+        "codice": a.codice,
+        "nome": a.nome,
+        "cognome": a.cognome,
+        "nazione": a.nazione,
+        "dataNascita": a.data_nascita.isoformat() if a.data_nascita else "",
+        "dataMorte": a.data_morte.isoformat() if a.data_morte else "",
+        "tipo": a.tipo
+    } for a in risultati]
+
+    return JsonResponse({
+        "totale": totale,
+        "limite": limite,
+        "pagina": pagina,
+        "risultati": dati
+    })
+
+

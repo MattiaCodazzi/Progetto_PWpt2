@@ -47,6 +47,12 @@ urlpatterns = [
     path('autori/<int:pk>/', views.autore_detail, name='autore_detail'),
     path('sale/<int:pk>/', views.sala_detail, name='sala_detail'),
 
+
+    # pagina autori
+    path("api/autori/search/form/", api_views.autori_search_form, name="api_autori_search_form"),
+    path("api/autori/delete/", api_views.autori_delete, name="api_autori_delete"),
+
+
 ]
 
 
