@@ -1,7 +1,6 @@
 # ===========================
 # gallery/urls.py
 # ===========================
-"""Routing HTML + tutte le API stub."""
 
 from django.urls import path
 from django.views.generic import TemplateView
@@ -25,6 +24,8 @@ urlpatterns = [
     path("api/autori/",            api_views.autori_lista,          name="api_autori_lista"),
     path("api/autori/search/",     api_views.autori_search,         name="api_autori_search"),
     path("api/autori/update/",     api_views.autori_update,         name="api_autori_update"),
+    path("api/autore/check/",      api_views.autore_check_or_create, name="api_autore_check"),
+    path("api/autore/create/",     api_views.autore_create,          name="api_autore_create"),
 
     # API Sale
     path("api/sale/",              api_views.sale_lista,            name="api_sale_lista"),
@@ -41,6 +42,11 @@ urlpatterns = [
     # API Opere – Elimina
     path("api/opere/delete/search/", api_views.opere_delete_search, name="api_opere_delete_search"),
     path("api/opere/delete/",        api_views.opere_delete,        name="api_opere_delete"),
+
+    # API detail
+    path('autori/<int:pk>/', views.autore_detail, name='autore_detail'),
+    path('sale/<int:pk>/', views.sala_detail, name='sala_detail'),
+
 ]
 
 

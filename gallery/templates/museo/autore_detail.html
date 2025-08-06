@@ -1,0 +1,17 @@
+{% extends "museo/base.html" %}
+{% block content %}
+  <h2>{{ autore.nome }} {{ autore.cognome }}</h2>
+  <p>Nazione: {{ autore.nazione }}</p>
+  <p>Data di nascita: {{ autore.data_nascita }}</p>
+  {% if autore.data_morte %}
+    <p>Data di morte: {{ autore.data_morte }}</p>
+  {% endif %}
+  <h3>Opere dell'autore:</h3>
+  <ul>
+    {% for opera in opere %}
+      <li>{{ opera.titolo }} ({{ opera.anno_realizzazione }})</li>
+    {% empty %}
+      <li>Nessuna opera registrata</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

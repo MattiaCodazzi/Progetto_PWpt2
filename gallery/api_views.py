@@ -31,6 +31,48 @@ def autori_search(request):
     ]
     return JsonResponse(risultati, safe=False)
 
+
+
+@csrf_exempt
+@require_POST
+def autore_check_or_create(request):
+    nome_completo = request.POST.get("nome_completo", "").strip()
+    parti = nome_completo.split()
+    if len(parti) < 2:
+        return JsonResponse({"esiste": False})
+
+    nome = parti[0]
+    cognome = " ".join(parti[1:])
+    try:
+        autore = Autore.objects.get(nome__iexact=nome, cognome__iexact=cognome)
+        return JsonResponse({"esiste": True, "codice": autore.codice})
+    except Autore.DoesNotExist:
+        return JsonResponse({"esiste": False})
+
+@csrf_exempt
+@require_POST
+def autore_create(request):
+    try:
+        nome = request.POST.get("nome")
+        cognome = request.POST.get("cognome")
+        nazione = request.POST.get("nazione")
+        data_nascita = request.POST.get("data_nascita")
+        tipo = request.POST.get("tipo")
+        data_morte = request.POST.get("data_morte") or None
+
+        autore = Autore.objects.create(
+            nome=nome,
+            cognome=cognome,
+            nazione=nazione,
+            data_nascita=data_nascita,
+            tipo=tipo,
+            data_morte=data_morte
+        )
+        return JsonResponse({"msg": "Autore inserito", "codice": autore.codice})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
 @require_POST
 def autori_update(request):
     return JsonResponse({"msg": "Stub OK"})
@@ -58,7 +100,8 @@ def opera_create(request):
             return JsonResponse({"error": "Tutti i campi obbligatori devono essere compilati."}, status=400)
 
         autore = Autore.objects.get(pk=autore_id)
-        sala = Sala.objects.get(pk=sala_id) if sala_id else None
+        sala = Sala.objects.get(pk=sala_id) if sala_id not in [None, ""] else None
+
 
         Opera.objects.create(
             autore=autore,
@@ -85,7 +128,7 @@ def opere_search(request):
     from django.db.models import Q
 
     titolo = request.POST.get("titolo", "").strip()
-    autore_id = request.POST.get("autore", "")
+    autore_nome = request.POST.get("autore_nome", "").strip()
     tipo = request.POST.get("tipo", "")
     sala_id = request.POST.get("salaId", "")
     anno_real_min = request.POST.get("annoRealizzazioneMin", "")
@@ -99,9 +142,14 @@ def opere_search(request):
 
     filtri = Q()
     if titolo:
-        filtri &= Q(titolo__icontains=titolo)
-    if autore_id:
-        filtri &= Q(autore__codice=autore_id)
+        filtri &= Q(titolo__istartswith=titolo)
+    if autore_nome:
+        parti = autore_nome.split()
+        if len(parti) >= 2:
+            nome = parti[0]
+            cognome = " ".join(parti[1:])
+            filtri &= Q(autore__nome__iexact=nome, autore__cognome__iexact=cognome)
+
     if tipo:
         filtri &= Q(tipo=tipo)
     if sala_id:
@@ -122,14 +170,17 @@ def opere_search(request):
     risultati = []
     for o in opere:
         risultati.append({
-            "codice": o.codice,
-            "titolo": o.titolo,
-            "autore": f"{o.autore.nome} {o.autore.cognome}",
-            "tipo": o.tipo,
-            "annoRealizzazione": o.anno_realizzazione,
-            "annoAcquisto": o.anno_acquisto,
-            "sala": o.esposta_in_sala.nome if o.esposta_in_sala else None
-        })
+    "codice": o.codice,
+    "titolo": o.titolo,
+    "autore": f"{o.autore.nome} {o.autore.cognome}",
+    "autore_id": o.autore.codice,
+    "tipo": o.tipo,
+    "annoRealizzazione": o.anno_realizzazione,
+    "annoAcquisto": o.anno_acquisto,
+    "sala": o.esposta_in_sala.nome if o.esposta_in_sala else None,
+    "sala_id": o.esposta_in_sala.numero if o.esposta_in_sala else None
+})
+
 
     return JsonResponse({
         "opere": risultati,

@@ -14,11 +14,12 @@
 <form class="vstack gap-3" id="form-opera">
 <input id="codice" name="codice" type="hidden"/>
 <div>
-<label class="form-label" for="autoreId">Autore</label>
-<select class="form-select" id="autoreId" name="autore">
-<option value="">— Qualsiasi autore —</option>
-</select>
+  <label class="form-label" for="autoreNomeCompleto">Autore</label>
+  <input class="form-control" id="autoreNomeCompleto" name="autoreNomeCompleto" type="text" placeholder="Nome Cognome" />
 </div>
+
+<!-- Form nuovo autore nascosto -->
+
 <div>
 <label class="form-label" for="titolo">Titolo</label>
 <input class="form-control" id="titolo" name="titolo" type="text"/>
@@ -26,15 +27,15 @@
 <div>
 <label class="form-label" for="annoRealizzazioneMin">Anno di realizzazione (da - a)</label>
 <div class="d-flex gap-2">
-<input class="form-control" id="annoRealizzazioneMin" name="annoRealizzazioneMin" placeholder="min" type="number"/>
-<input class="form-control" id="annoRealizzazioneMax" name="annoRealizzazioneMax" placeholder="max" type="number"/>
+<input class="form-control" id="annoRealizzazioneMin"  placeholder="min" type="number"/>
+<input class="form-control" id="annoRealizzazioneMax"  placeholder="max" type="number"/>
 </div>
 </div>
 <div>
 <label class="form-label" for="annoAcquistoMin">Anno di acquisto (da - a)</label>
 <div class="d-flex gap-2">
-<input class="form-control" id="annoAcquistoMin" name="annoAcquistoMin" placeholder="min" type="number"/>
-<input class="form-control" id="annoAcquistoMax" name="annoAcquistoMax" placeholder="max" type="number"/>
+<input class="form-control" id="annoAcquistoMin"  placeholder="min" type="number"/>
+<input class="form-control" id="annoAcquistoMax"  placeholder="max" type="number"/>
 </div>
 </div>
 <div id="blocco-anno-acquisto">
@@ -43,14 +44,23 @@
 </div><div id="blocco-anno-realizzazione">
 <label class="form-label" for="annoRealizzazione">Anno di realizzazione</label>
 <input class="form-control" id="annoRealizzazione" name="annoRealizzazione" type="number"/>
-</div><div>
-<label class="form-label" for="tipo">Tipo</label>
-<select class="form-select" id="tipo" name="tipo">
-<option value="">— Qualsiasi tipo —</option>
-<option value="Quadro">Quadro</option>
-<option value="Scultura">Scultura</option>
-</select>
 </div>
+<div>
+  <label class="form-label d-block">Tipo</label>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_tutti" value="" checked>
+    <label class="form-check-label" for="tipo_tutti">Tutti</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_quadro" value="Quadro">
+    <label class="form-check-label" for="tipo_quadro">Quadro</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_scultura" value="Scultura">
+    <label class="form-check-label" for="tipo_scultura">Scultura</label>
+  </div>
+</div>
+
 <div>
 <label class="form-label" for="espostaInSalaId">Sala (opzionale)</label>
 <select class="form-select" id="espostaInSalaId" name="sala">
@@ -63,13 +73,40 @@
 </div>
 <button class="btn btn-secondary d-none" id="btn-cancel" type="button">Annulla modifica</button>
 </form>
+<div id="form-nuovo-autore" class="d-none border p-2 mt-2 bg-light">
+  <div class="mb-2">L'autore non esiste. Vuoi inserirlo?</div>
+  <div class="mb-2">
+    <input class="form-control mb-2" id="nuovo-nome" name="nome" placeholder="Nome" required />
+    <input class="form-control mb-2" id="nuovo-cognome" name="cognome" placeholder="Cognome" required />
+    <input class="form-control mb-2" id="nuovo-nazione" name="nazione" placeholder="Nazione" required />
+    <input class="form-control mb-2" id="nuovo-data-nascita" name="data_nascita" type="date" required />
+    <select class="form-select mb-2" id="nuovo-tipo" name="tipo">
+      <option value="vivo">Vivo</option>
+      <option value="morto">Morto</option>
+    </select>
+    <input class="form-control mb-2" id="nuovo-data-morte" name="data_morte" type="date" placeholder="Data di morte (se morto)" />
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-sm btn-success" id="btn-autore-salva">Salva autore</button>
+    <button type="button" class="btn btn-sm btn-secondary" id="btn-autore-annulla">Annulla</button>
+  </div>
+</div>
 <div class="mt-3" id="messaggio"></div>
 </aside>
 <section class="col-md-8">
 <h2 class="h5 mb-3">Risultati</h2>
 <div class="d-flex justify-content-between align-items-center mb-2">
 <button class="btn btn-danger btn-sm" id="elimina-selezionate">Elimina selezionate</button>
-<nav class="d-flex" id="paginazione"></nav>
+<div id="conferma-eliminazione" class="alert alert-warning d-none mt-2">
+  <span id="testo-conferma"></span>
+  <div class="mt-2">
+    <button class="btn btn-danger btn-sm me-2" id="btn-conferma-elimina">Conferma</button>
+    <button class="btn btn-secondary btn-sm" id="btn-annulla-elimina">Annulla</button>
+  </div>
+</div>
+
+
+
 </div>
 <div class="table-responsive">
 <table class="table table-striped align-middle" id="tabella-opere">
@@ -86,6 +123,9 @@
 </thead>
 <tbody id="corpo-tabella-opere"></tbody>
 </table>
+<nav class="d-flex justify-content-center align-items-center gap-2 mt-3" id="paginazione">
+  <!-- Il contenuto sarà generato dinamicamente via JavaScript -->
+</nav>
 </div>
 </section>
 </div>
@@ -140,6 +180,83 @@ $(function () {
       $('#messaggio').html('<div class="alert alert-danger">L\'anno di acquisto non può precedere quello di realizzazione.</div>');
       return;
     }
+	
+	function inviaFormOpera() {
+  const real = parseInt($('#annoRealizzazione').val(), 10);
+  const acq = parseInt($('#annoAcquisto').val(), 10);
+  if (!isNaN(real) && !isNaN(acq) && acq < real) {
+    $('#messaggio').html('<div class="alert alert-danger">L\'anno di acquisto non può precedere quello di realizzazione.</div>');
+    return;
+  }
+
+  const nomeAutore = $('#autoreNomeCompleto').val().trim();
+  if (!nomeAutore) {
+    $('#messaggio').html('<div class="alert alert-danger">Inserisci il nome completo dell\'autore.</div>');
+    return;
+  }
+
+  $.post("/api/autore/check/", { nome_completo: nomeAutore })
+    .done(res => {
+      if (res.esiste) {
+        $('input[name=autore]').remove();
+        $('#form-opera').append(`<input type="hidden" name="autore" value="${res.codice}">`);
+
+        // 🔧 Disattiva i filtri da-a solo per inserimento
+        $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', true);
+        const data = $('#form-opera').serialize();
+        $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', false);
+
+        const url = $('#codice').val() ? "{% url 'gallery:api_opera_update' %}" : "{% url 'gallery:api_opera_create' %}";
+        $.post(url, data)
+          .done(res => {
+            $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
+            $('#form-opera')[0].reset();
+            $('#btn-cancel').addClass('d-none');
+            $('#form-title').text("Inserisci o cerca opera");
+            $('#btn-inserisci').text("Inserisci");
+            caricaOpere({}, 1);
+          })
+          .fail(xhr => {
+            const err = xhr.responseJSON?.error || 'Errore.';
+            $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+          });
+      } else {
+        $('#form-nuovo-autore').removeClass('d-none');
+      }
+    });
+}
+
+
+$('#btn-inserisci').on('click', function (e) {
+  e.preventDefault();
+  inviaFormOpera();
+});
+
+$('#btn-autore-annulla').on('click', function () {
+  $('#form-nuovo-autore').addClass('d-none');
+});
+
+$('#btn-autore-salva').on('click', function () {
+  const data = {
+    nome: $('#nuovo-nome').val(),
+    cognome: $('#nuovo-cognome').val(),
+    nazione: $('#nuovo-nazione').val(),
+    data_nascita: $('#nuovo-data-nascita').val(),
+    tipo: $('#nuovo-tipo').val(),
+    data_morte: $('#nuovo-data-morte').val()
+  };
+  $.post("/api/autore/create/", data)
+    .done(res => {
+      $('#form-nuovo-autore').addClass('d-none');
+      $('#form-opera').append(`<input type="hidden" name="autore" value="${res.codice}">`);
+      inviaFormOpera();
+    })
+    .fail(xhr => {
+      const err = xhr.responseJSON?.error || 'Errore durante inserimento autore';
+      $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+    });
+});
+
 
     e.preventDefault();
     const url = $('#codice').val() ? "{% url 'gallery:api_opera_update' %}" : "{% url 'gallery:api_opera_create' %}";
@@ -166,15 +283,38 @@ $(function () {
     $(this).addClass('d-none');
   });
 
-  $('#elimina-selezionate').on('click', function () {
-    const codici = $('.seleziona-opera:checked').map((_, el) => el.value).get();
-    if (!codici.length) return alert("Seleziona almeno un'opera da eliminare.");
-    if (!confirm(`Confermi l'eliminazione di ${codici.length} opera/e?`)) return;
-    $.post("{% url 'gallery:api_opere_delete' %}", { codici }, res => {
-      $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
-      caricaOpere({}, 1);
-    });
+  let codiciDaEliminare = [];
+
+$('#elimina-selezionate').on('click', function () {
+  codiciDaEliminare = $('.seleziona-opera:checked').map((_, el) => el.value).get();
+  if (!codiciDaEliminare.length) {
+    mostraMessaggio("Seleziona almeno un'opera da eliminare.", 'danger');
+    return;
+  }
+  $('#testo-conferma').text(`Confermi l'eliminazione di ${codiciDaEliminare.length} opera/e?`);
+  $('#conferma-eliminazione').removeClass('d-none');
+});
+
+$('#btn-annulla-elimina').on('click', function () {
+  codiciDaEliminare = [];
+  $('#conferma-eliminazione').addClass('d-none');
+});
+
+$('#btn-conferma-elimina').on('click', function () {
+  $.post("{% url 'gallery:api_opere_delete' %}", { codici: codiciDaEliminare }, res => {
+    mostraMessaggio(res.msg, 'success');
+    caricaOpere(raccogliFiltri(), 1);
+    $('#conferma-eliminazione').addClass('d-none');
   });
+});
+
+function mostraMessaggio(msg, tipo = 'success') {
+  const colore = tipo === 'success' ? 'success' : 'danger';
+  $('#messaggio').removeClass().addClass(`alert alert-${colore} mt-2`).html(msg).removeClass('d-none');
+  setTimeout(() => $('#messaggio').addClass('d-none'), 5000);
+}
+
+
 
   $('#corpo-tabella-opere').on('click', 'tr', function () {
     const id = $(this).data('id');
@@ -198,19 +338,22 @@ function raccogliFiltri() {
   const realMax = $('#annoRealizzazioneMax').val();
   const acqMin = $('#annoAcquistoMin').val();
   const acqMax = $('#annoAcquistoMax').val();
+
   return {
     annoRealizzazioneMin: realMin,
     annoRealizzazioneMax: realMax,
     annoAcquistoMin: acqMin,
     annoAcquistoMax: acqMax,
     titolo: $('#titolo').val(),
-    autore: $('#autoreId').val(),
-    tipo: $('#tipo').val(),
+    autore_nome: $('#autoreNomeCompleto').val(), // 👈 campo di testo, non ID
+    tipo: $('input[name="tipo"]:checked').val(),
     annoRealizzazione: $('#annoRealizzazione').val(),
     annoAcquisto: $('#annoAcquisto').val(),
     salaId: $('#espostaInSalaId').val()
   };
 }
+
+
 
 function caricaOpere(filtri, pagina = 1) {
   filtri.pagina = pagina;
@@ -221,18 +364,62 @@ function caricaOpere(filtri, pagina = 1) {
       $tbody.append('<tr><td colspan="7" class="text-center">Nessun risultato.</td></tr>');
     } else {
       opere.forEach(o => {
-        $tbody.append(`
-          <tr data-id="${o.codice}" style="cursor:pointer;">
-            <td><input type="checkbox" class="form-check-input seleziona-opera" value="${o.codice}"></td>
-            <td>${o.titolo}</td>
-            <td>${o.autore}</td>
-            <td>${o.tipo}</td>
-            <td>${o.annoRealizzazione}</td>
-            <td>${o.annoAcquisto}</td>
-            <td>${o.sala ?? '—'}</td>
-          </tr>
-        `);
-      });
+  const autore = `<a href="/autori/${o.autore_id}/">${o.autore}</a>`;
+  const sala = o.sala_id
+    ? `<a href="/sale/${o.sala_id}/">${o.sala}</a>`
+    : '<span class="text-muted">Non esposta</span>';
+
+  $tbody.append(`
+    <tr data-id="${o.codice}" style="cursor:pointer;">
+      <td><input type="checkbox" class="form-check-input seleziona-opera" value="${o.codice}"></td>
+      <td>${o.titolo}</td>
+      <td>${autore}</td>
+      <td>${o.tipo}</td>
+      <td class="text-end">${o.annoRealizzazione}</td>
+      <td class="text-end">${o.annoAcquisto}</td>
+      <td>${sala}</td>
+    </tr>
+  `);
+});
+// --- PAGINAZIONE INTELLIGENTE ---
+const totalePagine = Math.ceil(totale / limite);
+const $nav = $('#paginazione');
+$nav.empty();
+
+if (totalePagine > 1) {
+  const form = $(`
+    <div class="input-group input-group-sm" style="max-width: 300px;">
+      <button class="btn btn-outline-primary" id="pagina-prev" title="Pagina precedente">&laquo;</button>
+      <span class="input-group-text">Pagina <strong id="pagina-attuale">${pagina}</strong> di <strong id="pagina-totale">${totalePagine}</strong></span>
+      <input type="number" min="1" max="${totalePagine}" class="form-control" id="salta-pagina" placeholder="n°" />
+      <button class="btn btn-outline-primary" id="pagina-next" title="Pagina successiva">&raquo;</button>
+    </div>
+  `);
+  $nav.append(form);
+
+  // Gestione click frecce
+  $('#pagina-prev').on('click', () => {
+    if (pagina > 1) caricaOpere(filtri, pagina - 1);
+  });
+
+  $('#pagina-next').on('click', () => {
+    if (pagina < totalePagine) caricaOpere(filtri, pagina + 1);
+  });
+
+  // Gestione input invio
+  $('#salta-pagina').on('keydown', e => {
+    if (e.key === 'Enter') {
+      const richiesta = parseInt(e.target.value);
+      if (!isNaN(richiesta) && richiesta >= 1 && richiesta <= totalePagine) {
+        caricaOpere(filtri, richiesta);
+      } else {
+        e.target.value = '';
+      }
+    }
+  });
+}
+
+
     }
   });
 }
