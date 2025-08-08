@@ -1,6 +1,7 @@
 Django>=5.0,<5.1
-python-dotenv
-whitenoise
-Pillow
-django-bootstrap5
-pip install psycopg2-binary 
+django-bootstrap5>=24.2
+dj-database-url>=2.2.0
+python-dotenv>=1.0.1
+whitenoise>=6.7.0
+psycopg2-binary>=2.9.9
+Pillow>=10.0.0

@@ -1,0 +1,13 @@
+cd "PERCORSO\cartella\del\progetto"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+psql -U postgres -c "CREATE USER museo_user WITH PASSWORD 'museo_pw';"
+psql -U postgres -c "ALTER USER museo_user CREATEDB;"
+psql -U postgres -c "CREATE DATABASE museo_db OWNER museo_user;"
+psql -U museo_user -d museo_db -f dump.sql
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver 0.0.0.0:8000
+
