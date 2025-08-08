@@ -5,8 +5,9 @@
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from .models import Autore, Sala, Opera
+from django.shortcuts import get_object_or_404
 
 # ---- Autori ----
 
@@ -126,9 +127,31 @@ def autori_update(request):
 
 # ---- Sale ----
 
-def sale_lista(request):
-    sale = Sala.objects.all().values("numero", "nome")
-    return JsonResponse(list(sale), safe=False)
+
+
+@require_GET
+def sala_dettaglio_con_opere_api(request, pk):
+    from django.shortcuts import get_object_or_404
+
+    sala = get_object_or_404(Sala, pk=pk)
+
+    opere = Opera.objects.filter(esposta_in_sala=sala).select_related("autore").order_by("titolo")
+    opere_data = [{
+        "id": o.codice,
+        "titolo": o.titolo,
+        "autore": f"{o.autore.nome} {o.autore.cognome}",
+        "tipo": o.tipo,
+        "anno": o.anno_realizzazione
+    } for o in opere]
+
+    return JsonResponse({
+        "numero": sala.numero,
+        "nome": sala.nome,
+        "superficie": sala.superficie,
+        "tema": sala.tema.descrizione if sala.tema else None,
+        "tema_id": sala.tema.codice if sala.tema else None,
+        "opere": opere_data
+    })
 
 # ---- Opere comuni ----
 
@@ -494,9 +517,20 @@ def autore_detail_api(request, pk):
 
 # ---- Sale ----
 
+@require_GET
 def sale_lista(request):
-    sale = Sala.objects.all().values("numero", "nome")
-    return JsonResponse(list(sale), safe=False)
+    sale = Sala.objects.all().select_related("tema").order_by("numero")
+    dati = [
+        {
+            "numero": s.numero,
+            "nome": s.nome,
+            "superficie": s.superficie,
+            "tema": s.tema.descrizione if s.tema else None,
+        }
+        for s in sale
+    ]
+    return JsonResponse(dati, safe=False)
+
 
 def sala_detail_api(request, pk):
     sala = get_object_or_404(Sala, pk=pk)
@@ -507,6 +541,31 @@ def sala_detail_api(request, pk):
         "tema": sala.tema.descrizione if sala.tema else "—",
         "opere": opere
     })
+
+@csrf_exempt
+@require_POST
+def sala_update(request):
+    try:
+        data = request.POST
+        numero = data.get("numero")
+        nome = data.get("nome")
+        superficie = data.get("superficie")
+        tema_descrizione = data.get("tema")
+
+        sala = get_object_or_404(Sala, numero=numero)
+        sala.nome = nome
+        sala.superficie = superficie
+
+        if tema_descrizione:
+            from .models import Tema
+            tema = Tema.objects.filter(descrizione__iexact=tema_descrizione).first()
+            sala.tema = tema
+
+        sala.save()
+
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 #--------------AUTORI--------------#
@@ -562,4 +621,48 @@ def autori_search_form(request):
         "risultati": dati
     })
 
+
+#----------------TEMI----------------#
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from .models import Tema, Sala, Opera
+@require_GET
+def temi_con_sale(request):
+    DESCRIZIONI = {
+        "Impressionismo": "L'impressionismo usa luce e colore per catturare attimi fuggenti.",
+        "Cubismo": "Il cubismo scompone la realtà in forme geometriche multiple.",
+        "Surrealismo": "Il surrealismo esplora sogni, inconscio e simbolismo onirico.",
+        "Futurismo": "Il futurismo esalta velocità, tecnologia e modernità.",
+        "Espressionismo": "Espressione intensa di emozioni attraverso forme e colori distorti.",
+        "Realismo": "Rappresentazione oggettiva della vita quotidiana e sociale.",
+        "Brutalismo": "Stile architettonico massiccio, cemento a vista e funzionalità.",
+        "Barocco": "Stile ricco, drammatico e teatrale nato nel XVII secolo.",
+        "Minimalismo": "Riduzione all’essenziale: semplicità e pulizia formale.",
+        "Pop Art": "Celebra la cultura pop e i consumi, con colori forti e icone moderne."
+    }
+
+    risultato = []
+
+    for tema in Tema.objects.all().order_by("descrizione"):
+        nome_tema = tema.descrizione
+
+        sale_tema = Sala.objects.filter(tema=tema)
+        sale_info = []
+
+        for sala in sale_tema:
+            n_opere = Opera.objects.filter(esposta_in_sala=sala).count()
+            sale_info.append({
+                "nome": sala.nome,
+                "num_opere": n_opere
+            })
+
+        risultato.append({
+            "titolo": nome_tema,
+            "descrizione": DESCRIZIONI.get(nome_tema, nome_tema),
+            "immagine": f"{nome_tema.lower().replace(' ', '')}.jpg",
+            "sale": sale_info  # lista di oggetti {nome, num_opere}
+        })
+
+    return JsonResponse(risultato, safe=False)
 

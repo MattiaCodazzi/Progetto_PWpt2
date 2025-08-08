@@ -4,29 +4,46 @@
 {% block title %}Temi – Museo{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Temi artistici</h1>
+<div class="container py-4">
+  <h1 class="text-center mb-4">Temi artistici</h1>
 
-<!-- CARD dei temi -->
-<section id="contenitore-temi" class="row g-4 justify-content-center">
-  <!-- le card vengono iniettate via JS -->
-</section>
+  <!-- FORM DI RICERCA -->
+  <form id="form-ricerca-temi" class="row justify-content-center align-items-center mb-4 gx-2">
+    <div class="col-auto">
+      <input type="text" id="ricerca-descrizione" class="form-control" placeholder="Cerca tema...">
+    </div>
+    <div class="col-auto mb-3">
+      <button type="submit" class="btn btn-primary">Cerca tema</button>
+    </div>
+  </form>
 
-<!-- PAGINAZIONE -->
-<nav class="d-flex justify-content-between align-items-center mt-4" aria-label="Paginazione temi">
-  <button id="precedente-tema" class="btn btn-outline-secondary" disabled>« Precedente</button>
-  <button id="successivo-tema" class="btn btn-outline-secondary">Successivo »</button>
-</nav>
+  <!-- CARD dei temi -->
+  <section id="contenitore-temi" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+    <!-- le card vengono iniettate via JS -->
+  </section>
 
-<!-- POP-UP Bootstrap -->
-<div id="popup-tema" class="modal fade" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="popup-titolo" class="modal-title"></h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-      </div>
-      <div class="modal-body">
-        <p id="popup-testo"></p>
+  <!-- PAGINAZIONE -->
+  <div class="d-flex flex-column align-items-center gap-2 mt-4 p-3" style="background-color: #fbeeff; max-width: 220px; margin: auto;">
+    <button id="precedente-tema" class="btn btn-outline-primary w-100">«</button>
+    <div class="d-flex align-items-center justify-content-between w-100">
+      <span>Pagina <strong id="pagina-attuale">1</strong> di <strong id="tot-pagine">1</strong></span>
+      <input type="number" min="1" id="salta-pagina" class="form-control form-control-sm ms-2" style="width: 60px;" />
+    </div>
+    <button id="successivo-tema" class="btn btn-outline-primary w-100">»</button>
+  </div>
+
+  <!-- MODALE TEMI -->
+  <div class="modal fade" id="temaModal" tabindex="-1" aria-labelledby="temaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-dark" id="temaModalLabel">Dettaglio tema</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body text-dark">
+          <h4 id="popup-titolo"></h4>
+          <div id="popup-testo" class="mt-3"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -34,78 +51,156 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-/* ------------------------------------------------------------------
-   Dati statici (per ora) – puoi sostituirli con una chiamata AJAX
-   /api/temi se decidi di leggere i temi dal database.
-   ------------------------------------------------------------------ */
-const staticBase = "{% static 'museo/immagini/' %}";
-const temi = [
-  { titolo: "Impressionismo", immagine: staticBase + "impressionismo.jpg", descrizione: "L'impressionismo è un movimento artistico nato in Francia nel XIX secolo, focalizzato sulla luce e il colore." },
-  { titolo: "Cubismo",        immagine: staticBase + "cubismo.jpg",        descrizione: "Il cubismo è un'avanguardia che scompone la realtà in forme geometriche, reso famoso da Picasso e Braque." },
-  { titolo: "Surrealismo",    immagine: staticBase + "surrealismo.jpg",    descrizione: "Movimento che esplora il sogno e l'inconscio, con opere cariche di simbolismo e logiche oniriche." },
-  { titolo: "Futurismo",      immagine: staticBase + "futurismo.jpg",      descrizione: "Esalta velocità, tecnologia e modernità. Nato in Italia nei primi del '900." },
-  { titolo: "Espressionismo", immagine: staticBase + "espressionismo.jpg", descrizione: "Espressione drammatica di emozioni, forme distorte e colori intensi." },
-  { titolo: "Realismo",       immagine: staticBase + "realismo.jpg",       descrizione: "Rappresentazione fedele e oggettiva della realtà sociale e quotidiana." },
-  { titolo: "Brutalismo",     immagine: staticBase + "brutalismo.jpg",     descrizione: "Movimento architettonico e artistico noto per l'utilizzo massiccio del cemento e forme essenziali." },
-  { titolo: "Barocco",        immagine: staticBase + "barocco.jpg",        descrizione: "Stile teatrale, ricco e dinamico nato nel XVII secolo in Europa." },
-  { titolo: "Minimalismo",    immagine: staticBase + "minimalismo.jpg",    descrizione: "Movimento che punta sull'essenzialità, forme pure e riduzione del superfluo." },
-  { titolo: "Pop Art",        immagine: staticBase + "popart.jpg",         descrizione: "Nata negli anni '50, celebra la cultura pop, la pubblicità e l’arte dei consumi." }
-];
+<style>
+.modal-backdrop.show {
+  background-color: transparent !important;
+  pointer-events: none !important;
+}
+.modal {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+.modal-dialog {
+  max-width: 700px;
+  margin-top: 10vh !important;
+}
+.modal-content,
+.modal-body,
+.modal-footer,
+.modal-header {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 9999;
+}
+.modal label {
+  color: #000 !important;
+  font-weight: 600;
+}
+</style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let temi = [];
 let paginaCorrente = 1;
 const perPagina = 5;
 
-/* ----------------------
-   on-ready → prima pagina
-   ---------------------- */
 $(function () {
-  mostraTemi(paginaCorrente);
+  $.getJSON("/api/temi_con_sale/", function (data) {
+    temi = data;
+    mostraTemi(paginaCorrente);
+  });
 
-  $('#successivo-tema').on('click', () => { paginaCorrente++; mostraTemi(paginaCorrente); });
-  $('#precedente-tema').on('click', () => { paginaCorrente--; mostraTemi(paginaCorrente); });
+  $('#form-ricerca-temi').on('submit', function (e) {
+    e.preventDefault();
+    paginaCorrente = 1;
+    mostraTemi(paginaCorrente);
+  });
+
+  $('#precedente-tema').on('click', () => {
+    if (paginaCorrente > 1) {
+      paginaCorrente--;
+      mostraTemi(paginaCorrente);
+    }
+  });
+
+  $('#successivo-tema').on('click', () => {
+    paginaCorrente++;
+    mostraTemi(paginaCorrente);
+  });
+
+  $('#salta-pagina').on('change', function () {
+    const nuova = parseInt($(this).val());
+    const totPagine = Math.ceil(temiFiltrati().length / perPagina);
+    if (nuova >= 1 && nuova <= totPagine) {
+      paginaCorrente = nuova;
+      mostraTemi(paginaCorrente);
+    }
+  });
 });
 
-/* ---------------------------
-   Rendering + gestione popup
-   --------------------------- */
+function temiFiltrati() {
+  const query = $('#ricerca-descrizione').val()?.toLowerCase() || "";
+  return temi.filter(t => t.descrizione.toLowerCase().includes(query));
+}
+
 function mostraTemi(pagina) {
+  const filtrati = temiFiltrati();
+  const totPagine = Math.ceil(filtrati.length / perPagina);
+  pagina = Math.max(1, Math.min(pagina, totPagine));
+  paginaCorrente = pagina;
+
   const start = (pagina - 1) * perPagina;
-  const end   = pagina * perPagina;
-  const temiPagina = temi.slice(start, end);
+  const end = pagina * perPagina;
+  const paginati = filtrati.slice(start, end);
 
   const $contenitore = $('#contenitore-temi').empty();
 
-  if (!temiPagina.length) {
+  if (!paginati.length) {
     $contenitore.append('<p class="text-center">Nessun tema disponibile.</p>');
     return;
   }
 
-  temiPagina.forEach(tema => {
+  paginati.forEach(tema => {
+    const encodedSale = btoa(JSON.stringify(tema.sale));
     $contenitore.append(`
-      <div class="col-sm-6 col-lg-4">
-        <div class="card h-100 text-white shadow-sm"
-             style="background-image:url('${tema.immagine}'); background-size:cover; background-position:center; cursor:pointer"
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-light tema-card" role="button"
+             title="${tema.descrizione}"
              data-titolo="${tema.titolo}"
-             data-descrizione="${tema.descrizione}">
-          <div class="card-body d-flex align-items-end p-0">
-            <h3 class="card-title bg-dark bg-opacity-50 w-100 m-0 p-3">${tema.titolo}</h3>
+             data-sale="${encodedSale}">
+          <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 120px;">
+            <h5 class="card-title text-center mb-0">${tema.titolo}</h5>
           </div>
         </div>
       </div>
     `);
   });
 
-  /* click su card → modal Bootstrap */
-  $('#contenitore-temi .card').on('click', function () {
-    $('#popup-titolo').text($(this).data('titolo'));
-    $('#popup-testo') .text($(this).data('descrizione'));
-    new bootstrap.Modal(document.getElementById('popup-tema')).show();
+  $('.tema-card').on('click', function () {
+    const titolo = $(this).data('titolo');
+    let sale = [];
+
+    try {
+      const encoded = $(this).attr('data-sale');
+      const decoded = atob(encoded);
+      sale = JSON.parse(decoded);
+    } catch {
+      sale = [];
+    }
+
+    let contenuto = "";
+
+    if (sale.length) {
+  contenuto = "<p class='text-dark'>Sale associate:</p><ul class='mb-0 text-dark'>";
+  sale.forEach(s => {
+    contenuto += `<li>${s.nome} – ${s.num_opere} ${s.num_opere === 1 ? 'opera' : 'opere'}</li>`;
+  });
+  contenuto += "</ul>";
+} else {
+  contenuto = "<p class='text-dark'>Nessuna sala associata a questo tema.</p>";
+}
+
+
+    $('#popup-titolo').text(titolo);
+    $('#popup-testo').html(contenuto);
+
+    const modal = new bootstrap.Modal(document.getElementById('temaModal'), {
+      backdrop: true,
+      keyboard: true
+    });
+    modal.show();
   });
 
-  $('#precedente-tema').prop('disabled', pagina === 1);
-  $('#successivo-tema').prop('disabled', end >= temi.length);
+  $('#pagina-attuale').text(paginaCorrente);
+  $('#tot-pagine').text(totPagine);
+  $('#salta-pagina').val(paginaCorrente);
+  $('#precedente-tema').prop('disabled', paginaCorrente <= 1);
+  $('#successivo-tema').prop('disabled', paginaCorrente >= totPagine);
 }
 </script>
 {% endblock %}
+
+
+
+

@@ -29,6 +29,10 @@ urlpatterns = [
 
     # API Sale
     path("api/sale/",              api_views.sale_lista,            name="api_sale_lista"),
+    path("api/sale/<int:pk>/dettaglio/", api_views.sala_dettaglio_con_opere_api, name="api_sala_dettaglio_completo"),
+    path("api/sale/update/", api_views.sala_update, name="api_sala_update"),
+
+
 
     # API Opere – inserimento/ricerca
     path("api/opere/",             api_views.opera_create,          name="api_opera_create"),
@@ -51,6 +55,10 @@ urlpatterns = [
     # pagina autori
     path("api/autori/search/form/", api_views.autori_search_form, name="api_autori_search_form"),
     path("api/autori/delete/", api_views.autori_delete, name="api_autori_delete"),
+
+    # API temi
+    path("api/temi_con_sale/", api_views.temi_con_sale, name="temi_con_sale"),
+
 
 
 ]
