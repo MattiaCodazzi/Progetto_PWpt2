@@ -172,6 +172,10 @@ def opera_create(request):
         autore = Autore.objects.get(pk=autore_id)
         sala = Sala.objects.get(pk=sala_id) if sala_id not in [None, ""] else None
 
+        # Controllo coerenza anni (anche per anni < 1000 va bene: sono int)
+        if int(anno_acquisto) < int(anno_realizzazione):
+            return JsonResponse({"error": "L'anno di acquisto non può essere precedente a quello di realizzazione."},status=400)
+
 
         Opera.objects.create(
             autore=autore,
@@ -205,6 +209,11 @@ def opere_search(request):
     anno_real_max = request.POST.get("annoRealizzazioneMax", "")
     anno_acq_min = request.POST.get("annoAcquistoMin", "")
     anno_acq_max = request.POST.get("annoAcquistoMax", "")
+    anno_real_singolo = request.POST.get("annoRealizzazione", "")
+    anno_acq_singolo = request.POST.get("annoAcquisto", "")
+
+
+
 
     pagina = int(request.POST.get("pagina", 1))
     limite = 10
@@ -232,6 +241,13 @@ def opere_search(request):
         filtri &= Q(anno_acquisto__gte=int(anno_acq_min))
     if anno_acq_max:
         filtri &= Q(anno_acquisto__lte=int(anno_acq_max))
+    
+
+    if anno_real_singolo:
+        filtri &= Q(anno_realizzazione=int(anno_real_singolo))
+    if anno_acq_singolo:
+        filtri &= Q(anno_acquisto=int(anno_acq_singolo))
+
 
     queryset = Opera.objects.filter(filtri).select_related("autore", "esposta_in_sala")
     totale = queryset.count()
@@ -316,13 +332,16 @@ def opera_get(request):
     opera = get_object_or_404(Opera, pk=codice)
 
     return JsonResponse({
-        "codice": opera.codice,
-        "titolo": opera.titolo,
-        "annoRealizzazione": opera.anno_realizzazione,
-        "annoAcquisto": opera.anno_acquisto,
-        "tipo": opera.tipo,
-        "espostaInSala": opera.esposta_in_sala.numero if opera.esposta_in_sala else None
-    })
+    "codice": opera.codice,
+    "titolo": opera.titolo,
+    "annoRealizzazione": opera.anno_realizzazione,
+    "annoAcquisto": opera.anno_acquisto,
+    "tipo": opera.tipo,
+    "espostaInSala": opera.esposta_in_sala.numero if opera.esposta_in_sala else None,
+    "autoreId": opera.autore.codice,                         # NEW
+    "autoreNome": f"{opera.autore.nome} {opera.autore.cognome}"  # NEW
+})
+
 
 
 @csrf_exempt

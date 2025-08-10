@@ -132,23 +132,25 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js">
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
 function entraInModalitaModifica() {
-  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').closest('.d-flex').parent().hide();
+  // Nascondo range
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().hide();
+  // Mostro singoli
   $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show();
 }
-
 function esciDaModalitaModifica() {
-  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').closest('.d-flex').parent().show();
-  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').hide();
+  // Mostro sia range che singoli
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().show();
+  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show();
 }
-$(document).ready(function() {
-  esciDaModalitaModifica(); // di default mostra i range
-});
-
+$(document).ready(function(){ esciDaModalitaModifica(); });
 </script>
 <script>
+
 $(function () {
   // Popola select autore e sala
   $.getJSON("{% url 'gallery:api_autori_lista' %}", data => {
@@ -183,15 +185,14 @@ $(function () {
 	
 	function inviaFormOpera() {
   const real = parseInt($('#annoRealizzazione').val(), 10);
-  const acq = parseInt($('#annoAcquisto').val(), 10);
+  const acq  = parseInt($('#annoAcquisto').val(), 10);
   if (!isNaN(real) && !isNaN(acq) && acq < real) {
-    $('#messaggio').html('<div class="alert alert-danger">L\'anno di acquisto non può precedere quello di realizzazione.</div>');
+    mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger');
     return;
   }
-
   const nomeAutore = $('#autoreNomeCompleto').val().trim();
   if (!nomeAutore) {
-    $('#messaggio').html('<div class="alert alert-danger">Inserisci il nome completo dell\'autore.</div>');
+    mostraMessaggio("Inserisci il nome completo dell'autore.", 'danger');
     return;
   }
 
@@ -201,30 +202,35 @@ $(function () {
         $('input[name=autore]').remove();
         $('#form-opera').append(`<input type="hidden" name="autore" value="${res.codice}">`);
 
-        // 🔧 Disattiva i filtri da-a solo per inserimento
+        // disabilita i range solo per la serialize
         $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', true);
         const data = $('#form-opera').serialize();
         $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', false);
 
-        const url = $('#codice').val() ? "{% url 'gallery:api_opera_update' %}" : "{% url 'gallery:api_opera_create' %}";
+        const url = $('#codice').val()
+          ? "{% url 'gallery:api_opera_update' %}"
+          : "{% url 'gallery:api_opera_create' %}";
+
         $.post(url, data)
           .done(res => {
-            $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
+            mostraMessaggio(res.msg || "Operazione completata", 'success', 5000);
             $('#form-opera')[0].reset();
+            esciDaModalitaModifica();
             $('#btn-cancel').addClass('d-none');
             $('#form-title').text("Inserisci o cerca opera");
             $('#btn-inserisci').text("Inserisci");
             caricaOpere({}, 1);
           })
           .fail(xhr => {
-            const err = xhr.responseJSON?.error || 'Errore.';
-            $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+            mostraMessaggio(xhr.responseJSON?.error || 'Errore.', 'danger', 5000);
           });
       } else {
         $('#form-nuovo-autore').removeClass('d-none');
+        mostraMessaggio("Autore non presente. Puoi crearlo qui sotto.", 'warning', 5000);
       }
     });
 }
+
 
 
 $('#btn-inserisci').on('click', function (e) {
@@ -275,13 +281,20 @@ $('#btn-autore-salva').on('click', function () {
       });
   });
 
-  $('#btn-cancel').on('click', function () {
-    $('#form-opera')[0].reset();
-    $('#codice').val('');
-    $('#btn-inserisci').text("Inserisci");
-    $('#form-title').text("Inserisci o cerca opera");
-    $(this).addClass('d-none');
-  });
+  $('#btn-cancel').off('click').on('click', function () {
+  $('#form-opera')[0].reset();
+  $('#codice').val('');
+  $('#btn-inserisci').text("Inserisci");
+  $('#form-title').text("Inserisci o cerca opera");
+  $(this).addClass('d-none');
+
+  // Forza visibilità range + singoli
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().show().css('display', '');
+  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show().css('display', '');
+
+  esciDaModalitaModifica();
+});
 
   let codiciDaEliminare = [];
 
@@ -308,29 +321,34 @@ $('#btn-conferma-elimina').on('click', function () {
   });
 });
 
-function mostraMessaggio(msg, tipo = 'success') {
-  const colore = tipo === 'success' ? 'success' : 'danger';
-  $('#messaggio').removeClass().addClass(`alert alert-${colore} mt-2`).html(msg).removeClass('d-none');
-  setTimeout(() => $('#messaggio').addClass('d-none'), 5000);
+function mostraMessaggio(msg, tipo='success', millis=5000) {
+  const colore = tipo === 'success' ? 'success' : (tipo === 'warning' ? 'warning' : 'danger');
+  const $box = $('#messaggio');
+  $box.removeClass().addClass(`alert alert-${colore} mt-2`).html(msg).removeClass('d-none');
+  if (millis) setTimeout(() => $box.addClass('d-none'), millis);
 }
 
 
 
+
   $('#corpo-tabella-opere').on('click', 'tr', function () {
-    const id = $(this).data('id');
-    $.getJSON("{% url 'gallery:api_opera_get' %}?codice=" + id, opera => {
-      $('#codice').val(opera.codice);
-      $('#titolo').val(opera.titolo);
-      $('#annoRealizzazione').val(opera.annoRealizzazione);
-      $('#annoAcquisto').val(opera.annoAcquisto);
-      $('#autoreId').val(opera.autoreId);
-      $('#espostaInSalaId').val(opera.espostaInSala);
-      $('#tipo').val(opera.tipo);
-      $('#btn-inserisci').text("Salva modifiche");
-      $('#btn-cancel').removeClass("d-none");
-      $('#form-title').text("Modifica opera");
-    });
+  const id = $(this).data('id');
+  $.getJSON("{% url 'gallery:api_opera_get' %}?codice=" + id, opera => {
+    $('#codice').val(opera.codice);
+    $('#titolo').val(opera.titolo);
+    $('#annoRealizzazione').val(opera.annoRealizzazione);
+    $('#annoAcquisto').val(opera.annoAcquisto);
+    $('#autoreNomeCompleto').val(opera.autoreNome || '');   // NEW
+    $('#espostaInSalaId').val(opera.espostaInSala || '');
+    $(`input[name="tipo"][value="${opera.tipo}"]`).prop('checked', true);
+
+    entraInModalitaModifica();
+    $('#btn-inserisci').text("Salva modifiche");
+    $('#btn-cancel').removeClass("d-none");
+    $('#form-title').text("Modifica opera");
   });
+});
+
 });
 
 function raccogliFiltri() {
@@ -338,6 +356,8 @@ function raccogliFiltri() {
   const realMax = $('#annoRealizzazioneMax').val();
   const acqMin = $('#annoAcquistoMin').val();
   const acqMax = $('#annoAcquistoMax').val();
+  const real = $('#annoRealizzazione').val();
+  const acq = $('#annoAcquisto').val();
 
   return {
     annoRealizzazioneMin: realMin,
@@ -361,8 +381,22 @@ function caricaOpere(filtri, pagina = 1) {
     const { opere, totale, limite } = res;
     const $tbody = $('#corpo-tabella-opere').empty();
     if (!opere.length) {
-      $tbody.append('<tr><td colspan="7" class="text-center">Nessun risultato.</td></tr>');
-    } else {
+  $tbody.append('<tr><td colspan="7" class="text-center">Nessun risultato.</td></tr>');
+
+  const autoreTxt = (filtri.autore_nome || '').trim();
+  if (autoreTxt) {
+    $.post("/api/autore/check/", { nome_completo: autoreTxt })
+      .done(r => {
+        if (!r.esiste) {
+          mostraMessaggio("Autore non presente nel database.", 'warning');
+        } else {
+          mostraMessaggio("Nessuna opera trovata per l'autore con questi filtri.", 'warning');
+        }
+      });
+  }
+
+  return; // fermati qui, niente paginazione
+} else {
       opere.forEach(o => {
   const autore = `<a href="/autori/${o.autore_id}/">${o.autore}</a>`;
   const sala = o.sala_id
@@ -425,4 +459,5 @@ if (totalePagine > 1) {
 }
 </script>
 {% endblock %}
+
 
