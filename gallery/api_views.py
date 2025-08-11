@@ -597,22 +597,61 @@ def autori_search_form(request):
     nome_completo = request.POST.get("nomeCompleto", "").strip()
     nazione = request.POST.get("nazione", "").strip()
     tipo = request.POST.get("tipo", "").strip()
+
+    # Date esatte (compatibilità UI esistente)
     data_nascita = request.POST.get("dataNascita", "").strip()
     data_morte = request.POST.get("dataMorte", "").strip()
-    pagina = int(request.POST.get("pagina", 1))
-    limite = int(request.POST.get("limite", 10))
+
+    # --- Periodo (anni) su data di nascita ---
+    def _get_period_val(*keys):
+        for k in keys:
+            v = request.POST.get(k, "").strip()
+            if v:
+                return v
+        return ""
+
+    periodo_min = _get_period_val("periodomin", "periodoMin", "periodo_min")
+    periodo_max = _get_period_val("periodomax", "periodoMax", "periodo_max")
+
+    # Paginazione
+    try:
+        pagina = int(request.POST.get("pagina", 1))
+    except ValueError:
+        pagina = 1
+    try:
+        limite = int(request.POST.get("limite", 10))
+    except ValueError:
+        limite = 10
 
     filtri = Q()
+
+    # Nome completo -> prova nome+cognome oppure match singolo su entrambi
     if nome_completo:
         parti = nome_completo.split()
         if len(parti) == 1:
             filtri &= Q(nome__icontains=parti[0]) | Q(cognome__icontains=parti[0])
         else:
             filtri &= Q(nome__icontains=parti[0]) & Q(cognome__icontains=" ".join(parti[1:]))
+
     if nazione:
         filtri &= Q(nazione__icontains=nazione)
+
     if tipo:
         filtri &= Q(tipo=tipo)
+
+    # --- Filtro per periodo su ANNO di nascita ---
+    if periodo_min:
+        try:
+            filtri &= Q(data_nascita__year__gte=int(periodo_min))
+        except ValueError:
+            pass
+    if periodo_max:
+        try:
+            filtri &= Q(data_nascita__year__lte=int(periodo_max))
+        except ValueError:
+            pass
+
+    # --- Filtri esatti (se presenti) ---
     if data_nascita:
         filtri &= Q(data_nascita=data_nascita)
     if data_morte:
@@ -639,6 +678,7 @@ def autori_search_form(request):
         "pagina": pagina,
         "risultati": dati
     })
+
 
 
 #----------------TEMI----------------#
