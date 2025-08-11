@@ -1,3 +1,4 @@
+
 {% extends "museo/base.html" %}
 {% load static %}
 
@@ -16,58 +17,200 @@
   <button id="precedente" class="btn btn-outline-secondary" disabled>« Precedente</button>
   <button id="successivo" class="btn btn-outline-secondary">Successivo »</button>
 </nav>
+
+<!-- MODALE SALA -->
+<div class="modal fade" id="salaModal" tabindex="-1" aria-labelledby="salaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="salaModalLabel">Dettaglio sala</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-modifica-sala">
+          <input type="hidden" id="sala-id">
+          <div class="mb-3">
+            <label for="sala-nome" class="form-label">Nome sala</label>
+            <input type="text" class="form-control" id="sala-nome">
+          </div>
+          <div class="mb-3">
+            <label for="sala-superficie" class="form-label">Superficie (m²)</label>
+            <input type="number" class="form-control" id="sala-superficie">
+          </div>
+          <div class="mb-3">
+            <label for="sala-tema" class="form-label">Tema</label>
+            <input type="text" class="form-control" id="sala-tema">
+          </div>
+        </form>
+
+        <hr>
+
+        <h6>Opere esposte</h6>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Titolo</th>
+              <th>Autore</th>
+              <th>Tipo</th>
+              <th>Anno</th>
+            </tr>
+          </thead>
+          <tbody id="tabella-opere-sala">
+            <!-- contenuto dinamico -->
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        <button type="button" class="btn btn-primary" id="salva-modifica-sala">Salva modifiche</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
+
+
+
+
 {% block extra_js %}
+<style>
+.modal-backdrop.show {
+  background-color: transparent !important;
+  pointer-events: none !important;
+}
+
+.modal {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.modal-dialog {
+  max-width: 700px;
+  margin-top: 10vh !important; /* abbassa il popup */
+}
+
+.modal-content,
+.modal-body,
+.modal-footer,
+.modal-header {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 9999;
+}
+
+.modal label {
+  color: #000 !important; /* etichette in nero */
+  font-weight: 600;
+}
+</style>
+
+
+
+
+<!-- Forza overlay trasparente e rendi cliccabile il modale -->
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-/* =======================================================================
-   AJAX  ➜  /api/sale/  (definita come api_sale_lista in gallery/urls.py)
-   ======================================================================= */
-let tutteLeSale   = [];
+let tutteLeSale = [];
 let paginaCorrente = 1;
-const perPagina    = 10;
+const perPagina = 5;
+let modal;
 
 $(function () {
-  // 1) Carica tutte le sale al load
   $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
     tutteLeSale = data;
     mostraPagina(1);
   });
 
-  // 2) Pulsanti paginazione
   $('#successivo').on('click', () => { paginaCorrente++; mostraPagina(paginaCorrente); });
   $('#precedente').on('click', () => { paginaCorrente--; mostraPagina(paginaCorrente); });
+
+  $('#salva-modifica-sala').on('click', salvaModificaSala);
 });
 
 function mostraPagina(pagina) {
   const start = (pagina - 1) * perPagina;
-  const end   = pagina * perPagina;
+  const end = pagina * perPagina;
   const salePagina = tutteLeSale.slice(start, end);
-
   const $contenitore = $('#contenitore-sale').empty();
 
   if (!salePagina.length) {
     $contenitore.append('<p class="text-center">Nessuna sala disponibile.</p>');
   } else {
     salePagina.forEach(sala => {
+      const superficie = (sala.superficie && sala.superficie !== '0') ? sala.superficie : 'Non definita';
+      const tema = sala.tema?.trim() ? sala.tema : 'Non definito';
       $contenitore.append(`
-        <div class="col-sm-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
+        <div class="col-sm-12 col-md-6">
+          <div class="card h-100 shadow-sm sala-card" data-id="${sala.numero}" style="cursor: pointer;">
             <div class="card-body">
               <h5 class="card-title">${sala.nome}</h5>
-              <p class="card-text mb-1"><strong>Superficie:</strong> ${sala.superficie} m²</p>
-              <p class="card-text"><strong>Tema:</strong> ${sala.tema}</p>
+              <p class="card-text mb-1"><strong>Superficie:</strong> ${superficie} m²</p>
+              <p class="card-text"><strong>Tema:</strong> ${tema}</p>
             </div>
           </div>
         </div>
       `);
+    });
+    $('.sala-card').on('click', function () {
+      const salaId = $(this).data('id');
+      apriPopupSala(salaId);
     });
   }
 
   $('#precedente').prop('disabled', pagina === 1);
   $('#successivo').prop('disabled', end >= tutteLeSale.length);
 }
+
+function apriPopupSala(salaId) {
+  $.getJSON(`/api/sale/${salaId}/dettaglio/`, data => {
+    $('#sala-id').val(data.numero);
+    $('#sala-nome').val(data.nome);
+    $('#sala-superficie').val(data.superficie);
+    $('#sala-tema').val(data.tema ?? '');
+
+    const $tbody = $('#tabella-opere-sala').empty();
+    if (data.opere.length === 0) {
+      $tbody.append(`<tr><td colspan="4" class="text-center text-muted">Nessuna opera presente</td></tr>`);
+    } else {
+      data.opere.slice(0, 5).forEach(opera => {
+        $tbody.append(`<tr><td>${opera.titolo}</td><td>${opera.autore}</td><td>${opera.tipo}</td><td>${opera.anno}</td></tr>`);
+      });
+    }
+
+    modal = new bootstrap.Modal(document.getElementById('salaModal'), {
+      backdrop: true,
+      keyboard: true
+    });
+    modal.show();
+  });
+}
+
+function salvaModificaSala() {
+  const numero = $('#sala-id').val();
+  const nome = $('#sala-nome').val();
+  const superficie = $('#sala-superficie').val();
+  const tema = $('#sala-tema').val();
+
+  $.post('/api/sale/update/', {
+    numero: numero,
+    nome: nome,
+    superficie: superficie,
+    tema: tema,
+    csrfmiddlewaretoken: '{{ csrf_token }}'
+  }, function(response) {
+    modal.hide();
+    location.reload();
+  }).fail(function(xhr) {
+    alert('Errore durante il salvataggio: ' + (xhr.responseJSON?.error || 'errore generico'));
+  });
+}
 </script>
 {% endblock %}
+
+
+
 

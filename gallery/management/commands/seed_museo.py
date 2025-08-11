@@ -14,7 +14,6 @@ CHUNK = 500  # bulk_create chunk size
 # ----------------------------------------------------------------------
 
 def _grouper(iterable, n):
-    """Yield fixed-length chunks from *iterable* (chunk size *n*)."""
     it = iter(iterable)
     while True:
         chunk = list(itertools.islice(it, n))
@@ -22,40 +21,27 @@ def _grouper(iterable, n):
             return
         yield chunk
 
-
 def _parse_date(value: str):
-    """Accetta 'YYYY-MM-DD' oppure 'DD/MM/YYYY' e restituisce datetime.date."""
     if not value:
         return None
     if '/' in value:
         return datetime.strptime(value, "%d/%m/%Y").date()
     return datetime.strptime(value, "%Y-%m-%d").date()
 
-# ----------------------------------------------------------------------
-#  MANAGEMENT COMMAND
-# ----------------------------------------------------------------------
 class Command(BaseCommand):
     help = (
         "Popola il database Museo con dati di test o da CSV.\n\n"
         "Esempi:\n"
-        "  python manage.py seed_museo --fake 1000              # dati faker\n"
-        "  python manage.py seed_museo --csv ./dati             # 4 csv nella cartella\n"
+        "  python manage.py seed_museo --fake 1000\n"
+        "  python manage.py seed_museo --csv ./dati\n"
     )
 
-    # -------------------------
-    #  ARGUMENTI
-    # -------------------------
     def add_arguments(self, parser):
         group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument("--fake", type=int, metavar="N",
-                           help="Numero di opere da generare con Faker (auto-scala autori/sale/temi)")
-        group.add_argument("--csv", type=Path,
-                           help="Cartella con temas.csv, salas.csv, autores.csv, operas.csv — intestazioni snake_case")
+        group.add_argument("--fake", type=int, metavar="N", help="Numero di opere da generare con Faker")
+        group.add_argument("--csv", type=Path, help="Cartella con temas.csv, salas.csv, autores.csv, operas.csv")
         parser.add_argument("--flush", action="store_true", help="Svuota le tabelle prima di importare")
 
-    # -------------------------
-    #  MAIN
-    # -------------------------
     def handle(self, *args, **opts):
         if opts["flush"]:
             self._flush_tables()
@@ -65,9 +51,6 @@ class Command(BaseCommand):
         else:
             self._generate_fake(opts["fake"])
 
-    # -------------------------
-    #  HELPERS
-    # -------------------------
     def _flush_tables(self):
         self.stdout.write("\n» Pulizia tabelle…", ending=" ")
         Opera.objects.all().delete()
@@ -76,7 +59,6 @@ class Command(BaseCommand):
         Tema.objects.all().delete()
         self.stdout.write(self.style.SUCCESS("ok"))
 
-    # --- CSV ----------------------------------------------------------
     def _import_from_csv(self, folder: Path):
         self.stdout.write(f"\n» Import CSV da {folder.resolve()}")
         expected = {
@@ -98,7 +80,6 @@ class Command(BaseCommand):
         with file.open(newline='', encoding='utf-8') as fh:
             yield from csv.DictReader(fh)
 
-    # --- Faker --------------------------------------------------------
     def _generate_fake(self, n_opere: int):
         fake = Faker("it_IT")
         self.stdout.write(f"\n» Genero dati faker: {n_opere} opere…")
@@ -106,11 +87,9 @@ class Command(BaseCommand):
         n_temi   = 8
         n_sale   = 10
 
-        # TEMI
         temi_objs = [Tema(descrizione=fake.word()) for _ in range(n_temi)]
         temi = self._bulk_save(Tema, temi_objs)
 
-        # SALE
         sale_objs = [
             Sala(
                 nome=f"Sala {i+1}",
@@ -121,38 +100,51 @@ class Command(BaseCommand):
         ]
         sale = self._bulk_save(Sala, sale_objs)
 
-        # AUTORI
         autori_objs = []
         for _ in range(n_autori):
-            data_nascita = fake.date_of_birth(minimum_age=20, maximum_age=90)
+            nome = fake.first_name()
+            cognome = fake.last_name()
+            nazione = "IT" 
+            data_nascita = fake.date_of_birth(minimum_age=30, maximum_age=90)
             tipo = random.choice([Autore.VIVO, Autore.MORTO])
             data_morte = None
             if tipo == Autore.MORTO:
-                # tra 20 e 90 anni dopo la nascita, ma prima di oggi
-                death_age = random.randint(20, 90)
-                data_morte = min(datetime.today().date() - timedelta(days=1),
-                                  data_nascita + timedelta(days=death_age * 365))
+                death_age = random.randint(50, 90)
+                data_morte = data_nascita + timedelta(days=death_age * 365)
+                if data_morte > datetime.today().date():
+                    data_morte = datetime.today().date() - timedelta(days=random.randint(30, 365))
             autori_objs.append(
                 Autore(
-                    nome=fake.first_name(),
-                    cognome=fake.last_name(),
-                    nazione=fake.country_code(),
+                    nome=nome,
+                    cognome=cognome,
+                    nazione=nazione,
                     data_nascita=data_nascita,
                     tipo=tipo,
-                    data_morte=data_morte,
+                    data_morte=data_morte if tipo == Autore.MORTO else None,
                 )
             )
         autori = self._bulk_save(Autore, autori_objs)
 
-        # OPERE
         opere = []
+        oggi = datetime.today().year
         for _ in range(n_opere):
+            autore = random.choice(autori)
+            min_anno = autore.data_nascita.year + 20
+            max_anno = autore.data_nascita.year + 90
+            if autore.data_morte:
+                max_anno = min(max_anno, autore.data_morte.year)
+            max_anno = min(max_anno, oggi)
+            if min_anno > max_anno:
+                min_anno = max_anno - 1
+            anno_realizzazione = random.randint(min_anno, max_anno)
+            anno_acquisto = random.randint(anno_realizzazione, oggi)
+
             opere.append(
                 Opera(
-                    autore=random.choice(autori),
+                    autore=autore,
                     titolo=fake.sentence(nb_words=3),
-                    anno_acquisto=random.randint(1800, 2025),
-                    anno_realizzazione=random.randint(1500, 2024),
+                    anno_realizzazione=anno_realizzazione,
+                    anno_acquisto=anno_acquisto,
                     tipo=random.choice([Opera.QUADRO, Opera.SCULTURA]),
                     esposta_in_sala=random.choice(sale) if random.random() < 0.7 else None,
                 )
@@ -160,7 +152,6 @@ class Command(BaseCommand):
         self._bulk_save(Opera, opere)
         self.stdout.write(self.style.SUCCESS("✓ Popolamento completato"))
 
-    # ---------------- CSV row-to-model builders -----------------------
     def _row_tema(self, row):
         return Tema(pk=int(row.get('codice') or row.get('id') or 0) or None,
                     descrizione=row['descrizione'])
@@ -195,12 +186,11 @@ class Command(BaseCommand):
             esposta_in_sala=Sala.objects.filter(pk=row.get('esposta_in_sala')).first(),
         )
 
-    # ---------------- BULK SAVE --------------------------------------
     def _bulk_save(self, model, objs):
-        """Bulk‑insert *objs* and return the saved queryset so that PKs are guaranteed."""
         if not objs:
             return []
         with transaction.atomic():
             for chunk in _grouper(objs, CHUNK):
-                model.objects.bulk_create(chunk)  # PKs returned by Postgres
+                model.objects.bulk_create(chunk)
         return list(model.objects.filter(pk__in=[o.pk for o in objs]))
+

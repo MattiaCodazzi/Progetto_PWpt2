@@ -1,0 +1,14 @@
+{% extends "museo/base.html" %}
+{% block content %}
+  <h2>Sala {{ sala.numero }} - {{ sala.nome }}</h2>
+  <p>Superficie: {{ sala.superficie }} m²</p>
+  <p>Tema: {{ sala.tema.descrizione }}</p>
+  <h3>Opere esposte:</h3>
+  <ul>
+    {% for opera in opere %}
+      <li>{{ opera.titolo }} di {{ opera.autore.nome }} {{ opera.autore.cognome }}</li>
+    {% empty %}
+      <li>Nessuna opera presente</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

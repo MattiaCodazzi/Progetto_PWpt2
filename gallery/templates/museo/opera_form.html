@@ -1,103 +1,463 @@
 {% extends "museo/base.html" %}
 {% load static %}
 
-{% block title %}Nuova opera{% endblock %}
+{% block title %}Gestione opere{% endblock %}
+
+{% block extra_head %}
+<link href="{% static 'museo/css/tabella_opere.css' %}" rel="stylesheet"/>
+{% endblock %}
 
 {% block content %}
 <div class="row">
-  <!-- ───────────────────────── FORM INSERIMENTO ────────────────────────── -->
-  <aside class="col-md-4 mb-4">
-    <h2 class="h5 mb-3">Inserisci nuova opera</h2>
+<aside class="col-md-4 mb-4">
+<h2 class="h5 mb-3" id="form-title">Inserisci o cerca opera</h2>
+<form class="vstack gap-3" id="form-opera">
+<input id="codice" name="codice" type="hidden"/>
+<div>
+  <label class="form-label" for="autoreNomeCompleto">Autore</label>
+  <input class="form-control" id="autoreNomeCompleto" name="autoreNomeCompleto" type="text" placeholder="Nome Cognome" />
+</div>
 
-    <form id="form-opera" class="vstack gap-3">
-      <div>
-        <label for="autoreId" class="form-label">Autore</label>
-        <select id="autoreId" name="autore" class="form-select" required></select>
-      </div>
+<!-- Form nuovo autore nascosto -->
 
-      <div>
-        <label for="titolo" class="form-label">Titolo</label>
-        <input type="text" id="titolo" name="titolo" class="form-control" required>
-      </div>
+<div>
+<label class="form-label" for="titolo">Titolo</label>
+<input class="form-control" id="titolo" name="titolo" type="text"/>
+</div>
+<div>
+<label class="form-label" for="annoRealizzazioneMin">Anno di realizzazione (da - a)</label>
+<div class="d-flex gap-2">
+<input class="form-control" id="annoRealizzazioneMin"  placeholder="min" type="number"/>
+<input class="form-control" id="annoRealizzazioneMax"  placeholder="max" type="number"/>
+</div>
+</div>
+<div>
+<label class="form-label" for="annoAcquistoMin">Anno di acquisto (da - a)</label>
+<div class="d-flex gap-2">
+<input class="form-control" id="annoAcquistoMin"  placeholder="min" type="number"/>
+<input class="form-control" id="annoAcquistoMax"  placeholder="max" type="number"/>
+</div>
+</div>
+<div id="blocco-anno-acquisto">
+<label class="form-label" for="annoAcquisto">Anno di acquisto</label>
+<input class="form-control" id="annoAcquisto" name="annoAcquisto" type="number"/>
+</div><div id="blocco-anno-realizzazione">
+<label class="form-label" for="annoRealizzazione">Anno di realizzazione</label>
+<input class="form-control" id="annoRealizzazione" name="annoRealizzazione" type="number"/>
+</div>
+<div>
+  <label class="form-label d-block">Tipo</label>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_tutti" value="" checked>
+    <label class="form-check-label" for="tipo_tutti">Tutti</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_quadro" value="Quadro">
+    <label class="form-check-label" for="tipo_quadro">Quadro</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="tipo" id="tipo_scultura" value="Scultura">
+    <label class="form-check-label" for="tipo_scultura">Scultura</label>
+  </div>
+</div>
 
-      <div>
-        <label for="annoRealizzazione" class="form-label">Anno di realizzazione</label>
-        <input type="number" id="annoRealizzazione" name="annoRealizzazione" class="form-control" required>
-      </div>
+<div>
+<label class="form-label" for="espostaInSalaId">Sala (opzionale)</label>
+<select class="form-select" id="espostaInSalaId" name="sala">
+<option value="">— Nessuna —</option>
+</select>
+</div>
+<div class="d-flex gap-2">
+<button class="btn btn-success w-100" id="btn-cerca" type="button">Cerca</button>
+<button class="btn btn-primary w-100" id="btn-inserisci" type="submit">Inserisci</button>
+</div>
+<button class="btn btn-secondary d-none" id="btn-cancel" type="button">Annulla modifica</button>
+</form>
+<div id="form-nuovo-autore" class="d-none border p-2 mt-2 bg-light">
+  <div class="mb-2">L'autore non esiste. Vuoi inserirlo?</div>
+  <div class="mb-2">
+    <input class="form-control mb-2" id="nuovo-nome" name="nome" placeholder="Nome" required />
+    <input class="form-control mb-2" id="nuovo-cognome" name="cognome" placeholder="Cognome" required />
+    <input class="form-control mb-2" id="nuovo-nazione" name="nazione" placeholder="Nazione" required />
+    <input class="form-control mb-2" id="nuovo-data-nascita" name="data_nascita" type="date" required />
+    <select class="form-select mb-2" id="nuovo-tipo" name="tipo">
+      <option value="vivo">Vivo</option>
+      <option value="morto">Morto</option>
+    </select>
+    <input class="form-control mb-2" id="nuovo-data-morte" name="data_morte" type="date" placeholder="Data di morte (se morto)" />
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-sm btn-success" id="btn-autore-salva">Salva autore</button>
+    <button type="button" class="btn btn-sm btn-secondary" id="btn-autore-annulla">Annulla</button>
+  </div>
+</div>
+<div class="mt-3" id="messaggio"></div>
+</aside>
+<section class="col-md-8">
+<h2 class="h5 mb-3">Risultati</h2>
+<div class="d-flex justify-content-between align-items-center mb-2">
+<button class="btn btn-danger btn-sm" id="elimina-selezionate">Elimina selezionate</button>
+<div id="conferma-eliminazione" class="alert alert-warning d-none mt-2">
+  <span id="testo-conferma"></span>
+  <div class="mt-2">
+    <button class="btn btn-danger btn-sm me-2" id="btn-conferma-elimina">Conferma</button>
+    <button class="btn btn-secondary btn-sm" id="btn-annulla-elimina">Annulla</button>
+  </div>
+</div>
 
-      <div>
-        <label for="annoAcquisto" class="form-label">Anno di acquisto</label>
-        <input type="number" id="annoAcquisto" name="annoAcquisto" class="form-control" required>
-      </div>
 
-      <div>
-        <label for="tipo" class="form-label">Tipo</label>
-        <select id="tipo" name="tipo" class="form-select" required>
-          <option value="Quadro">Quadro</option>
-          <option value="Scultura">Scultura</option>
-        </select>
-      </div>
 
-      <div>
-        <label for="espostaInSalaId" class="form-label">Sala (opzionale)</label>
-        <select id="espostaInSalaId" name="sala" class="form-select">
-          <option value="">— Nessuna —</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Inserisci</button>
-    </form>
-  </aside>
-
-  <!-- ───────────────────────── AREA MESSAGGI ──────────────────────────── -->
-  <section class="col-md-8">
-    <h2 class="h5 mb-3">Esito operazione</h2>
-    <div id="messaggio"></div>
-  </section>
+</div>
+<div class="table-responsive">
+<table class="table table-striped align-middle" id="tabella-opere">
+<thead class="table-light">
+<tr>
+<th><input id="seleziona-tutte" type="checkbox"/></th>
+<th>Titolo</th>
+<th>Autore</th>
+<th>Tipo</th>
+<th>Anno real.</th>
+<th>Anno acq.</th>
+<th>Sala</th>
+</tr>
+</thead>
+<tbody id="corpo-tabella-opere"></tbody>
+</table>
+<nav class="d-flex justify-content-center align-items-center gap-2 mt-3" id="paginazione">
+  <!-- Il contenuto sarà generato dinamicamente via JavaScript -->
+</nav>
+</div>
+</section>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-/* =======================================================================
-   AJAX endpoint (già definiti in gallery/urls.py):
-     – gallery:api_autori_lista  (GET)
-     – gallery:api_sale_lista    (GET)
-     – gallery:api_opera_create  (POST)
-   ======================================================================= */
+function entraInModalitaModifica() {
+  // Nascondo range
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().hide();
+  // Mostro singoli
+  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show();
+}
+function esciDaModalitaModifica() {
+  // Mostro sia range che singoli
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().show();
+  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show();
+}
+$(document).ready(function(){ esciDaModalitaModifica(); });
+</script>
+<script>
+
 $(function () {
-
-  /* ---------- popola select Autori ---------- */
-  $.getJSON("{% url 'gallery:api_autori_lista' %}", function (data) {
-    data.forEach(a =>
-      $('#autoreId').append(`<option value="${a.codice}">${a.cognome} ${a.nome}</option>`)
-    );
+  // Popola select autore e sala
+  $.getJSON("{% url 'gallery:api_autori_lista' %}", data => {
+    data.forEach(a => {
+      $('#autoreId').append(`<option value="${a.codice}">${a.cognome} ${a.nome}</option>`);
+    });
+  });
+  $.getJSON("{% url 'gallery:api_sale_lista' %}", data => {
+    data.forEach(s => {
+      $('#espostaInSalaId').append(`<option value="${s.numero}">${s.nome}</option>`);
+    });
   });
 
-  /* ---------- popola select Sale ---------- */
-  $.getJSON("{% url 'gallery:api_sale_lista' %}", function (data) {
-    data.forEach(s =>
-      $('#espostaInSalaId').append(`<option value="${s.numero}">${s.nome}</option>`)
-    );
+  caricaOpere({}, 1);
+
+  $('#seleziona-tutte').on('change', function () {
+    $('.seleziona-opera').prop('checked', this.checked);
   });
 
-  /* ---------- invio form ---------- */
+  $('#btn-cerca').on('click', function () {
+    caricaOpere(raccogliFiltri(), 1);
+  });
+
   $('#form-opera').on('submit', function (e) {
-    e.preventDefault();
+    const real = parseInt($('#annoRealizzazione').val(), 10);
+    const acq = parseInt($('#annoAcquisto').val(), 10);
+    if (!isNaN(real) && !isNaN(acq) && acq < real) {
+      e.preventDefault();
+      $('#messaggio').html('<div class="alert alert-danger">L\'anno di acquisto non può precedere quello di realizzazione.</div>');
+      return;
+    }
+	
+	function inviaFormOpera() {
+  const real = parseInt($('#annoRealizzazione').val(), 10);
+  const acq  = parseInt($('#annoAcquisto').val(), 10);
+  if (!isNaN(real) && !isNaN(acq) && acq < real) {
+    mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger');
+    return;
+  }
+  const nomeAutore = $('#autoreNomeCompleto').val().trim();
+  if (!nomeAutore) {
+    mostraMessaggio("Inserisci il nome completo dell'autore.", 'danger');
+    return;
+  }
 
-    $.post("{% url 'gallery:api_opera_create' %}", $(this).serialize())
+  $.post("/api/autore/check/", { nome_completo: nomeAutore })
+    .done(res => {
+      if (res.esiste) {
+        $('input[name=autore]').remove();
+        $('#form-opera').append(`<input type="hidden" name="autore" value="${res.codice}">`);
+
+        // disabilita i range solo per la serialize
+        $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', true);
+        const data = $('#form-opera').serialize();
+        $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax').prop('disabled', false);
+
+        const url = $('#codice').val()
+          ? "{% url 'gallery:api_opera_update' %}"
+          : "{% url 'gallery:api_opera_create' %}";
+
+        $.post(url, data)
+          .done(res => {
+            mostraMessaggio(res.msg || "Operazione completata", 'success', 5000);
+            $('#form-opera')[0].reset();
+            esciDaModalitaModifica();
+            $('#btn-cancel').addClass('d-none');
+            $('#form-title').text("Inserisci o cerca opera");
+            $('#btn-inserisci').text("Inserisci");
+            caricaOpere({}, 1);
+          })
+          .fail(xhr => {
+            mostraMessaggio(xhr.responseJSON?.error || 'Errore.', 'danger', 5000);
+          });
+      } else {
+        $('#form-nuovo-autore').removeClass('d-none');
+        mostraMessaggio("Autore non presente. Puoi crearlo qui sotto.", 'warning', 5000);
+      }
+    });
+}
+
+
+
+$('#btn-inserisci').on('click', function (e) {
+  e.preventDefault();
+  inviaFormOpera();
+});
+
+$('#btn-autore-annulla').on('click', function () {
+  $('#form-nuovo-autore').addClass('d-none');
+});
+
+$('#btn-autore-salva').on('click', function () {
+  const data = {
+    nome: $('#nuovo-nome').val(),
+    cognome: $('#nuovo-cognome').val(),
+    nazione: $('#nuovo-nazione').val(),
+    data_nascita: $('#nuovo-data-nascita').val(),
+    tipo: $('#nuovo-tipo').val(),
+    data_morte: $('#nuovo-data-morte').val()
+  };
+  $.post("/api/autore/create/", data)
+    .done(res => {
+      $('#form-nuovo-autore').addClass('d-none');
+      $('#form-opera').append(`<input type="hidden" name="autore" value="${res.codice}">`);
+      inviaFormOpera();
+    })
+    .fail(xhr => {
+      const err = xhr.responseJSON?.error || 'Errore durante inserimento autore';
+      $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+    });
+});
+
+
+    e.preventDefault();
+    const url = $('#codice').val() ? "{% url 'gallery:api_opera_update' %}" : "{% url 'gallery:api_opera_create' %}";
+    $.post(url, $(this).serialize())
       .done(res => {
         $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
         this.reset();
+        $('#btn-cancel').addClass('d-none');
+        $('#form-title').text("Inserisci o cerca opera");
+        $('#btn-inserisci').text("Inserisci");
+        caricaOpere({}, 1);
       })
       .fail(xhr => {
-        const err = xhr.responseJSON?.error || 'Errore sconosciuto';
+        const err = xhr.responseJSON?.error || 'Errore.';
         $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
       });
   });
 
+  $('#btn-cancel').off('click').on('click', function () {
+  $('#form-opera')[0].reset();
+  $('#codice').val('');
+  $('#btn-inserisci').text("Inserisci");
+  $('#form-title').text("Inserisci o cerca opera");
+  $(this).addClass('d-none');
+
+  // Forza visibilità range + singoli
+  $('#annoRealizzazioneMin, #annoRealizzazioneMax, #annoAcquistoMin, #annoAcquistoMax')
+    .closest('.d-flex').parent().show().css('display', '');
+  $('#blocco-anno-realizzazione, #blocco-anno-acquisto').show().css('display', '');
+
+  esciDaModalitaModifica();
 });
+
+  let codiciDaEliminare = [];
+
+$('#elimina-selezionate').on('click', function () {
+  codiciDaEliminare = $('.seleziona-opera:checked').map((_, el) => el.value).get();
+  if (!codiciDaEliminare.length) {
+    mostraMessaggio("Seleziona almeno un'opera da eliminare.", 'danger');
+    return;
+  }
+  $('#testo-conferma').text(`Confermi l'eliminazione di ${codiciDaEliminare.length} opera/e?`);
+  $('#conferma-eliminazione').removeClass('d-none');
+});
+
+$('#btn-annulla-elimina').on('click', function () {
+  codiciDaEliminare = [];
+  $('#conferma-eliminazione').addClass('d-none');
+});
+
+$('#btn-conferma-elimina').on('click', function () {
+  $.post("{% url 'gallery:api_opere_delete' %}", { codici: codiciDaEliminare }, res => {
+    mostraMessaggio(res.msg, 'success');
+    caricaOpere(raccogliFiltri(), 1);
+    $('#conferma-eliminazione').addClass('d-none');
+  });
+});
+
+function mostraMessaggio(msg, tipo='success', millis=5000) {
+  const colore = tipo === 'success' ? 'success' : (tipo === 'warning' ? 'warning' : 'danger');
+  const $box = $('#messaggio');
+  $box.removeClass().addClass(`alert alert-${colore} mt-2`).html(msg).removeClass('d-none');
+  if (millis) setTimeout(() => $box.addClass('d-none'), millis);
+}
+
+
+
+
+  $('#corpo-tabella-opere').on('click', 'tr', function () {
+  const id = $(this).data('id');
+  $.getJSON("{% url 'gallery:api_opera_get' %}?codice=" + id, opera => {
+    $('#codice').val(opera.codice);
+    $('#titolo').val(opera.titolo);
+    $('#annoRealizzazione').val(opera.annoRealizzazione);
+    $('#annoAcquisto').val(opera.annoAcquisto);
+    $('#autoreNomeCompleto').val(opera.autoreNome || '');   // NEW
+    $('#espostaInSalaId').val(opera.espostaInSala || '');
+    $(`input[name="tipo"][value="${opera.tipo}"]`).prop('checked', true);
+
+    entraInModalitaModifica();
+    $('#btn-inserisci').text("Salva modifiche");
+    $('#btn-cancel').removeClass("d-none");
+    $('#form-title').text("Modifica opera");
+  });
+});
+
+});
+
+function raccogliFiltri() {
+  const realMin = $('#annoRealizzazioneMin').val();
+  const realMax = $('#annoRealizzazioneMax').val();
+  const acqMin = $('#annoAcquistoMin').val();
+  const acqMax = $('#annoAcquistoMax').val();
+  const real = $('#annoRealizzazione').val();
+  const acq = $('#annoAcquisto').val();
+
+  return {
+    annoRealizzazioneMin: realMin,
+    annoRealizzazioneMax: realMax,
+    annoAcquistoMin: acqMin,
+    annoAcquistoMax: acqMax,
+    titolo: $('#titolo').val(),
+    autore_nome: $('#autoreNomeCompleto').val(), // 👈 campo di testo, non ID
+    tipo: $('input[name="tipo"]:checked').val(),
+    annoRealizzazione: $('#annoRealizzazione').val(),
+    annoAcquisto: $('#annoAcquisto').val(),
+    salaId: $('#espostaInSalaId').val()
+  };
+}
+
+
+
+function caricaOpere(filtri, pagina = 1) {
+  filtri.pagina = pagina;
+  $.post("{% url 'gallery:api_opere_search' %}", filtri, res => {
+    const { opere, totale, limite } = res;
+    const $tbody = $('#corpo-tabella-opere').empty();
+    if (!opere.length) {
+  $tbody.append('<tr><td colspan="7" class="text-center">Nessun risultato.</td></tr>');
+
+  const autoreTxt = (filtri.autore_nome || '').trim();
+  if (autoreTxt) {
+    $.post("/api/autore/check/", { nome_completo: autoreTxt })
+      .done(r => {
+        if (!r.esiste) {
+          mostraMessaggio("Autore non presente nel database.", 'warning');
+        } else {
+          mostraMessaggio("Nessuna opera trovata per l'autore con questi filtri.", 'warning');
+        }
+      });
+  }
+
+  return; // fermati qui, niente paginazione
+} else {
+      opere.forEach(o => {
+  const autore = `<a href="/autori/${o.autore_id}/">${o.autore}</a>`;
+  const sala = o.sala_id
+    ? `<a href="/sale/${o.sala_id}/">${o.sala}</a>`
+    : '<span class="text-muted">Non esposta</span>';
+
+  $tbody.append(`
+    <tr data-id="${o.codice}" style="cursor:pointer;">
+      <td><input type="checkbox" class="form-check-input seleziona-opera" value="${o.codice}"></td>
+      <td>${o.titolo}</td>
+      <td>${autore}</td>
+      <td>${o.tipo}</td>
+      <td class="text-end">${o.annoRealizzazione}</td>
+      <td class="text-end">${o.annoAcquisto}</td>
+      <td>${sala}</td>
+    </tr>
+  `);
+});
+// --- PAGINAZIONE INTELLIGENTE ---
+const totalePagine = Math.ceil(totale / limite);
+const $nav = $('#paginazione');
+$nav.empty();
+
+if (totalePagine > 1) {
+  const form = $(`
+    <div class="input-group input-group-sm" style="max-width: 300px;">
+      <button class="btn btn-outline-primary" id="pagina-prev" title="Pagina precedente">&laquo;</button>
+      <span class="input-group-text">Pagina <strong id="pagina-attuale">${pagina}</strong> di <strong id="pagina-totale">${totalePagine}</strong></span>
+      <input type="number" min="1" max="${totalePagine}" class="form-control" id="salta-pagina" placeholder="n°" />
+      <button class="btn btn-outline-primary" id="pagina-next" title="Pagina successiva">&raquo;</button>
+    </div>
+  `);
+  $nav.append(form);
+
+  // Gestione click frecce
+  $('#pagina-prev').on('click', () => {
+    if (pagina > 1) caricaOpere(filtri, pagina - 1);
+  });
+
+  $('#pagina-next').on('click', () => {
+    if (pagina < totalePagine) caricaOpere(filtri, pagina + 1);
+  });
+
+  // Gestione input invio
+  $('#salta-pagina').on('keydown', e => {
+    if (e.key === 'Enter') {
+      const richiesta = parseInt(e.target.value);
+      if (!isNaN(richiesta) && richiesta >= 1 && richiesta <= totalePagine) {
+        caricaOpere(filtri, richiesta);
+      } else {
+        e.target.value = '';
+      }
+    }
+  });
+}
+
+
+    }
+  });
+}
 </script>
 {% endblock %}
+
 
