@@ -1,13 +1,15 @@
 cd "PERCORSO\cartella\del\progetto"
-python -m venv .venv
+py -m venv .venv
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+#chiudi la console riapri e metti il percorso
 .\.venv\Scripts\Activate.ps1
 pip install --upgrade pip
 pip install -r requirements.txt
 psql -U postgres -c "CREATE USER museo_user WITH PASSWORD 'museo_pw';"
 psql -U postgres -c "ALTER USER museo_user CREATEDB;"
 psql -U postgres -c "CREATE DATABASE museo_db OWNER museo_user;"
-psql -U museo_user -d museo_db -f dump.sql
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver 0.0.0.0:8000
-
+psql -U museo_user -d museo_db -f "path/dump.sql"
+py manage.py migrate
+py manage.py createsuperuser
+py manage.py runserver
+ctrl click su http dopo runserver
