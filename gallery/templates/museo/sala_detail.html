@@ -1,14 +1,206 @@
 {% extends "museo/base.html" %}
+
+{% block title %}{{ sala.nome }} – Sala{% endblock %}
+
 {% block content %}
-  <h2>Sala {{ sala.numero }} - {{ sala.nome }}</h2>
-  <p>Superficie: {{ sala.superficie }} m²</p>
-  <p>Tema: {{ sala.tema.descrizione }}</p>
-  <h3>Opere esposte:</h3>
-  <ul>
-    {% for opera in opere %}
-      <li>{{ opera.titolo }} di {{ opera.autore.nome }} {{ opera.autore.cognome }}</li>
-    {% empty %}
-      <li>Nessuna opera presente</li>
-    {% endfor %}
-  </ul>
+<div class="container py-4">
+
+  <!-- HERO SALA -->
+  <section class="rounded-3 p-4 p-md-5 mb-4 text-white position-relative overflow-hidden"
+           style="background: radial-gradient(1200px 500px at -10% -20%, rgba(255, 182, 193, .55), transparent),
+                    radial-gradient(900px 400px at 110% 0%, rgba(255, 105, 180, .35), transparent),
+                    linear-gradient(135deg, #2b2b2b 0%, #3a3a3a 100%);">
+    <div class="row align-items-center g-4">
+      <div class="col-12 col-md-auto">
+        <!-- Avatar numerico ricavato dal NOME (Sala 1..10) -->
+        <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
+             style="width: 96px; height: 96px; background: rgba(255,255,255,.15); backdrop-filter: blur(2px);">
+          <span class="fw-bold fs-3" id="avatar-num">–</span>
+        </div>
+      </div>
+
+      <div class="col">
+        <h1 class="h2 mb-2">{{ sala.nome }}</h1>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
+          <span class="badge rounded-pill" style="background-color: rgba(255,192,203,0.85); color:#2b2b2b;">
+            Superficie: <strong class="ms-1">{{ sala.superficie|default:"—" }}</strong> m²
+          </span>
+
+          <span class="badge rounded-pill" style="background-color: rgba(255,192,203,0.85); color:#2b2b2b;">
+            Tema: <strong class="ms-1">
+              {% if sala.tema and sala.tema.descrizione %}{{ sala.tema.descrizione }}{% else %}Non assegnato{% endif %}
+            </strong>
+          </span>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="col-12 col-md-auto ms-md-auto text-md-end">
+        <div class="d-flex gap-3">
+          <div class="card border-0 shadow-sm" style="border-top: 4px solid #ffb6c1;">
+            <div class="card-body py-3 px-4">
+              <div class="small text-muted">Opere esposte</div>
+              <div class="display-6 fw-semibold" id="tot-opere">{{ opere|length }}</div>
+            </div>
+          </div>
+          <div class="card border-0 shadow-sm d-none d-md-block" style="border-top: 4px solid #ff69b4;">
+            <div class="card-body py-3 px-4">
+              <div class="small text-muted">Metri quadri</div>
+              <div class="display-6 fw-semibold">{{ sala.superficie|default:"—" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DETTAGLI & LISTA OPERE -->
+  <section class="row g-4">
+    <!-- Scheda sala -->
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #ff69b4;">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Dettagli sala</h2>
+          <dl class="row mb-0">
+            <dt class="col-5 col-sm-4 text-muted">Nome</dt>
+            <dd class="col-7 col-sm-8">{{ sala.nome }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Superficie</dt>
+            <dd class="col-7 col-sm-8">{{ sala.superficie|default:"—" }} m²</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Tema</dt>
+            <dd class="col-7 col-sm-8">
+              {% if sala.tema and sala.tema.descrizione %}{{ sala.tema.descrizione }}{% else %}Non assegnato{% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opere con paginazione (10 per pagina) -->
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #ffb6c1;">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h2 class="h5 mb-0">Opere esposte</h2>
+            <span class="badge" style="background-color:#ff69b4;" id="badge-count">{{ opere|length }}</span>
+          </div>
+
+          <ul id="lista-opere" class="list-group list-group-flush">
+            {% for opera in opere %}
+              <li class="list-group-item d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="badge rounded-pill" style="background-color:#ffc0cb; color:#2b2b2b;">
+                    {{ opera.anno_realizzazione|default:"—" }}
+                  </span>
+                  <div>
+                    <div class="fw-semibold">{{ opera.titolo }}</div>
+                    <div class="small text-muted">
+                      di {{ opera.autore.nome }} {{ opera.autore.cognome }}
+                      {% if opera.tipo %} • {{ opera.tipo }}{% endif %}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">Nessuna opera presente</li>
+            {% endfor %}
+          </ul>
+
+          <!-- PAGINAZIONE -->
+          <div class="d-flex flex-column align-items-center gap-2 mt-4 p-3 rounded-3"
+               style="background-color: #fbeeff; max-width: 280px; margin: 18px auto 0;">
+            <div class="w-100 d-flex gap-2">
+              <button id="pg-prev" class="btn btn-outline-secondary w-100" aria-label="Pagina precedente">«</button>
+              <button id="pg-next" class="btn btn-outline-primary w-100" aria-label="Pagina successiva"
+                      style="background-color:#ff69b4; border-color:#ff69b4; color:#fff;">»</button>
+            </div>
+            <div class="small">
+              Pagina <strong id="pg-current">1</strong> di <strong id="pg-total">1</strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Script: avatar = numero dal nome + paginazione 10/pg -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const PAGE_SIZE = 10;              // <<< 10 opere per pagina
+    const list = document.getElementById('lista-opere');
+    if (!list) return;
+
+    // Prende SOLO i <li> della lista
+    const items = Array.from(list.querySelectorAll('li.list-group-item'));
+
+    const btnPrev = document.getElementById('pg-prev');
+    const btnNext = document.getElementById('pg-next');
+    const lblCur  = document.getElementById('pg-current');
+    const lblTot  = document.getElementById('pg-total');
+
+    let current = 1;
+    const total = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+    if (lblTot) lblTot.textContent = total;
+
+    function showPage(p) {
+      // clamp
+      p = Math.min(Math.max(1, p), total);
+
+      const start = (p - 1) * PAGE_SIZE;
+      const end   = p * PAGE_SIZE;
+
+      // nascondi/mostra con d-none (niente conflitti con CSS bootstrap)
+      for (let i = 0; i < items.length; i++) {
+        if (i >= start && i < end) {
+          items[i].classList.remove('d-none');
+        } else {
+          items[i].classList.add('d-none');
+        }
+      }
+
+      // UI bottoni + label pagina
+      if (lblCur) lblCur.textContent = p;
+      if (btnPrev) btnPrev.disabled = (p <= 1);
+      if (btnNext) btnNext.disabled = (p >= total);
+
+      current = p;
+    }
+
+    // Eventi
+    btnPrev && btnPrev.addEventListener('click', () => showPage(current - 1));
+    btnNext && btnNext.addEventListener('click', () => showPage(current + 1));
+
+    // Inizializza: nasconde subito le oltre 10
+    showPage(1);
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // --- Numero avatar ricavato dal NOME (es. "Sala 10" -> 10) ---
+    var el = document.getElementById('avatar-num');
+    if (!el) return;
+
+    var nome = "{{ sala.nome|escapejs }}";
+    var m = nome.match(/\d+/);                 // cerca la prima sequenza di cifre
+    var n = m ? parseInt(m[0], 10) : NaN;
+
+    if (Number.isFinite(n)) {
+      // clamp a 1..10
+      if (n < 1) n = 1;
+      if (n > 10) n = 10;
+      el.textContent = String(n);
+    } else {
+      // fallback elegante se non c'è numero nel nome
+      el.textContent = '1';
+    }
+  });
+</script>
+
 {% endblock %}
+
+
+

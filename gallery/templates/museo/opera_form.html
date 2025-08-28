@@ -3,9 +3,7 @@
 
 {% block title %}Gestione opere{% endblock %}
 
-{% block extra_head %}
-<link href="{% static 'museo/css/tabella_opere.css' %}" rel="stylesheet"/>
-{% endblock %}
+
 
 {% block content %}
 <div class="row">
@@ -458,6 +456,20 @@ if (totalePagine > 1) {
   });
 }
 </script>
+<script>
+// 1) Non aprire la modifica quando clicco sulla checkbox
+$('#corpo-tabella-opere')
+  .on('click', '.seleziona-opera', function(e){ e.stopPropagation(); })
+  .on('click', 'label, a, button, input, select', function(e){ e.stopPropagation(); });
+
+// 2) "Seleziona tutte" si aggiorna quando spunto a mano le righe
+$('#corpo-tabella-opere').on('change', '.seleziona-opera', function(){
+  const tot = $('.seleziona-opera').length;
+  const on  = $('.seleziona-opera:checked').length;
+  $('#seleziona-tutte').prop('checked', tot && tot === on);
+});
+</script>
+
 {% endblock %}
 
 

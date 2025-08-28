@@ -1,4 +1,3 @@
-
 /* === RESET & BASE === */
 * {
   box-sizing: border-box;
@@ -11,20 +10,16 @@ body {
   background-size: cover;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  background-color: #fff4e6;
+  background-color: #565656;
   color: #fff;
-  
   min-height: 100vh;
-  
 }
 
-
-
-body > * {
+/* RIMOSSO perché creava conflitti di z-index */
+/* body > * {
   position: relative;
   z-index: 2;
-}
-
+} */
 
 /* === HEADER === */
 header {
@@ -32,8 +27,8 @@ header {
   color: #fff;
   text-align: center;
   padding: 2rem 1rem;
-  z-index: 1000;
   position: relative;
+  z-index: 1; /* abbassato rispetto a prima */
 }
 
 header h1 {
@@ -44,8 +39,8 @@ header h1 {
 }
 
 nav {
-  background-color: hsl(314, 100%, 95%);     /* colore coerente con header */
-  
+  background-color: hsl(314, 100%, 95%);
+  z-index: 1;  /* resta sotto a card/popup */
   justify-content: center;
   gap: 2rem;
   padding: 1rem 0;
@@ -65,11 +60,8 @@ nav a:hover {
   background-color:#ffa3d5;
 }
 
-
-
 /* === INFO MUSEO AFFIANCATO A LOGIN === */
 main {
-  
   flex-direction: row;
   justify-content: flex-start;
   gap: 4rem;
@@ -78,23 +70,11 @@ main {
   align-items: flex-start;
 }
 
-.login-wrapper {
-  display: block;
-  width: auto;
-}
-
-.info-wrapper {
-  flex: 1;
-  text-align: center;
-}
-
-.info-section {
-  max-width: 800px;
-  margin: 0 auto;
-}
+.login-wrapper { display: block; width: auto; }
+.info-wrapper { flex: 1; text-align: center; }
+.info-section { max-width: 800px; margin: 0 auto; }
 
 .info-boxes {
-  
   justify-content: center;
   gap: 2rem;
   flex-wrap: wrap;
@@ -102,7 +82,6 @@ main {
 }
 
 .form-container {
-  
   align-items: flex-start;
   justify-content: flex-start;
   gap: 2rem;
@@ -111,7 +90,6 @@ main {
 }
 
 .form-box {
-  
   gap: 0.8rem;
   width: 300px;
 }
@@ -123,11 +101,7 @@ main {
   text-align: left;
 }
 
-.accesso-box {
-  margin-bottom: 2rem;
-}
-
-
+.accesso-box { margin-bottom: 2rem; }
 
 .info-box {
   background: #7d7878;
@@ -156,7 +130,6 @@ main {
   box-shadow: 0 0 8px rgba(0,0,0,0.1);
 }
 
-
 /* === FORM === */
 form label {
   display: block;
@@ -182,27 +155,26 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #ffa3d5;
-}
+button:hover { background-color: #ffa3d5; }
 
 .logo-museo img {
   position: absolute;
   top: 190px;
   right: 20px;
-  width: 60px; /* regola la dimensione */
+  width: 60px;
   height: auto;
-  z-index: 1000;
+  z-index: 10; /* non deve coprire i popup */
 }
-
 
 footer {
   margin-top: auto;
   padding: 1rem;
   text-align: center;
   font-size: 0.9rem;
+  z-index: 0;
 }
 
+/* === MESSAGGI === */
 .messaggio {
   max-width: 500px;
   padding: 1rem;
@@ -254,12 +226,7 @@ footer {
   z-index: 999;
 }
 
-.logout-absolute:hover {
-  background-color: #c9302c;
-}
-
-
-
+.logout-absolute:hover { background-color: #c9302c; }
 
 /* === RESPONSIVE === */
 @media screen and (max-width: 768px) {
@@ -267,15 +234,11 @@ footer {
     flex-direction: column;
     padding: 1rem;
   }
-
   .login-section {
     align-items: left;
     text-align:left;
   }
-
-  .info-boxes {
-    justify-content: center;
-  }
+  .info-boxes { justify-content: center; }
 }
 
 .contenuto-dashboard {
@@ -288,15 +251,12 @@ footer {
   box-shadow: 0 0 10px rgba(0,0,0,0.15);
 }
 
-
 /* === COLORI PALETTE PERSONALIZZATI === */
 .bg-light-pink   { background-color: hsl(314 100% 95%); }
 .text-light-pink { color:            hsl(314 100% 95%); }
 
+/* === MODALI === */
 .modal-backdrop.show {
   background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
-.modal-backdrop.show {
-  background-color: transparent !important;
-}

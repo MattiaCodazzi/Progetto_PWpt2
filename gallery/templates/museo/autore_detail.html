@@ -1,17 +1,160 @@
 {% extends "museo/base.html" %}
+
+{% block title %}{{ autore.nome }} {{ autore.cognome }} – Autore{% endblock %}
+
 {% block content %}
-  <h2>{{ autore.nome }} {{ autore.cognome }}</h2>
-  <p>Nazione: {{ autore.nazione }}</p>
-  <p>Data di nascita: {{ autore.data_nascita }}</p>
-  {% if autore.data_morte %}
-    <p>Data di morte: {{ autore.data_morte }}</p>
-  {% endif %}
-  <h3>Opere dell'autore:</h3>
-  <ul>
-    {% for opera in opere %}
-      <li>{{ opera.titolo }} ({{ opera.anno_realizzazione }})</li>
-    {% empty %}
-      <li>Nessuna opera registrata</li>
-    {% endfor %}
-  </ul>
+<div class="container py-4">
+
+  <!-- HERO -->
+  <section class="rounded-3 p-4 p-md-5 mb-4 text-white position-relative overflow-hidden"
+           style="background: radial-gradient(1200px 500px at -10% -20%, rgba(255, 182, 193, .55), transparent),
+                    radial-gradient(900px 400px at 110% 0%, rgba(255, 105, 180, .35), transparent),
+                    linear-gradient(135deg, #2b2b2b 0%, #3a3a3a 100%);">
+    <div class="row align-items-center g-4">
+      <div class="col-12 col-md-auto">
+        <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
+             style="width: 96px; height: 96px; background: rgba(255,255,255,.15); backdrop-filter: blur(2px);">
+          <span class="fw-bold fs-3">
+            {{ autore.nome|first }}{{ autore.cognome|first }}
+          </span>
+        </div>
+      </div>
+
+      <div class="col">
+        <h1 class="h2 mb-2">{{ autore.nome }} <span class="fw-bold">{{ autore.cognome }}</span></h1>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="badge rounded-pill" style="background-color: rgba(255,192,203,0.85); color:#2b2b2b;">
+            <span class="opacity-75 me-1">Nazione:</span> {{ autore.nazione|default:"—" }}
+          </span>
+
+          <span class="badge rounded-pill" style="background-color: rgba(255,192,203,0.85); color:#2b2b2b;">
+            <span class="opacity-75 me-1">Nato/a:</span>
+            {{ autore.data_nascita|date:"d F Y"|default:"—" }}
+          </span>
+
+          {% if autore.data_morte %}
+            <span class="badge rounded-pill" style="background-color: rgba(255,182,193,0.85); color:#2b2b2b;">
+              <span class="opacity-75 me-1">Morto/a:</span>
+              {{ autore.data_morte|date:"d F Y" }}
+            </span>
+          {% else %}
+            <span class="badge rounded-pill text-bg-success">
+              <span class="me-1">●</span> In vita
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-12 col-md-auto ms-md-auto text-md-end">
+        <div class="card border-0 shadow-sm" style="border-top: 4px solid #ffb6c1;">
+          <div class="card-body py-3 px-4">
+            <div class="small text-muted">Opere registrate</div>
+            <div class="display-6 fw-semibold">{{ opere|length }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFO & TIMELINE -->
+  <section class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #ff69b4;">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Profilo</h2>
+          <dl class="row mb-0">
+            <dt class="col-5 col-sm-4 text-muted">Nome</dt>
+            <dd class="col-7 col-sm-8">{{ autore.nome }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Cognome</dt>
+            <dd class="col-7 col-sm-8">{{ autore.cognome }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Nazione</dt>
+            <dd class="col-7 col-sm-8">{{ autore.nazione|default:"—" }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Data di nascita</dt>
+            <dd class="col-7 col-sm-8">{{ autore.data_nascita|date:"d F Y"|default:"—" }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted">Data di morte</dt>
+            <dd class="col-7 col-sm-8">
+              {% if autore.data_morte %}{{ autore.data_morte|date:"d F Y" }}{% else %}—{% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #ff69b4;">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Panoramica attività</h2>
+          {% if opere %}
+            <ul class="list-unstyled mb-0">
+              <li class="d-flex align-items-center gap-2">
+                <span class="badge" style="background-color:#ff69b4;">#</span>
+                <span>Totale opere catalogate: <strong>{{ opere|length }}</strong></span>
+              </li>
+              <li class="d-flex align-items-center gap-2 mt-2">
+                <span class="badge" style="background-color:#ff69b4;">🗓️</span>
+                <span>Primo/ultimo anno:
+                  <strong id="anno-min">—</strong> –
+                  <strong id="anno-max">—</strong>
+                </span>
+              </li>
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">Non sono presenti opere associate a questo autore.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERE -->
+  <section class="card border-0 shadow-sm" style="border-top: 4px solid #ffb6c1;">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Opere dell'autore</h2>
+
+      <ul id="lista-opere" class="list-group list-group-flush">
+        {% for opera in opere|dictsortreversed:"anno_realizzazione" %}
+          <li class="list-group-item d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-3">
+              <span class="badge rounded-pill" style="background-color:#ffc0cb; color:#2b2b2b;">
+                {{ opera.anno_realizzazione|default:"—" }}
+              </span>
+              <div>
+                <div class="fw-semibold">{{ opera.titolo }}</div>
+                <div class="small text-muted">Tipo: {{ opera.tipo|default:"—" }}</div>
+              </div>
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">Nessuna opera registrata</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<!-- Script per calcolo range anni -->
+<script>
+  (function(){
+    function setAnniRange(){
+      const anni = Array.from(document.querySelectorAll('#lista-opere .badge'))
+        .map(b => parseInt(b.textContent.trim(), 10))
+        .filter(n => !Number.isNaN(n));
+      if (anni.length) {
+        document.getElementById('anno-min').textContent = Math.min(...anni);
+        document.getElementById('anno-max').textContent = Math.max(...anni);
+      }
+    }
+    setAnniRange();
+  })();
+</script>
 {% endblock %}
+
+
+
+

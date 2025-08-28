@@ -1,0 +1,131 @@
+
+/* =============================================================
+   TABLES – OPERE & AUTORI (visual-only)
+   Targets the table with id="tabella-opere" used in both pages.
+   Works with Bootstrap .table, .table-striped, .table-light.
+   No JS/functionality changes.
+   ============================================================= */
+
+/* Wrapper: make the .table-responsive look like a card */
+.table-responsive {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.08);
+  overflow: hidden; /* ensure rounded corners on table */
+}
+
+/* Table base */
+#tabella-opere.table {
+  margin: 0; /* remove inner margin because wrapper has spacing */
+  color: #2b2f37;
+  --row-hover: rgba(226,79,144,.10);   /* rose-600 @ 10% */
+  --row-stripe: rgba(0,0,0,.02);
+  --cell-border: rgba(0,0,0,.08);
+}
+
+/* Head (keeps Bootstrap's .table-light but improves contrast) */
+#tabella-opere thead.table-light th {
+  background: linear-gradient(180deg, #ffe4ef, #ffd6e6); /* rose-100 -> rose-150 */
+  color: #61203e; /* rose-900 */
+  font-weight: 800;
+  letter-spacing: .2px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+/* Header cells */
+#tabella-opere thead th {
+  padding: .75rem .9rem;
+  font-size: .92rem;
+  text-transform: uppercase;
+}
+
+/* Body cells */
+#tabella-opere tbody td {
+  padding: .70rem .9rem;
+  border-top: 1px solid var(--cell-border);
+  vertical-align: middle;
+  font-size: .95rem;
+}
+
+/* Row stripe and hover (compatible with .table-striped) */
+#tabella-opere.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: var(--row-stripe);
+}
+
+#tabella-opere tbody tr:hover > * {
+  background: var(--row-hover) !important;
+}
+
+/* Links (Autore / Sala cliccabili) */
+#tabella-opere a {
+  color: #9e2f62; /* rose-800 */
+  font-weight: 600;
+  text-decoration: none;
+}
+#tabella-opere a:hover,
+#tabella-opere a:focus-visible {
+  color: #c43b7a; /* rose-700 */
+  text-decoration: underline;
+  outline: none;
+}
+
+/* Checkbox column: keep compact and aligned */
+#tabella-opere thead th:first-child,
+#tabella-opere tbody td:first-child {
+  width: 42px;
+  text-align: center;
+  white-space: nowrap;
+}
+#tabella-opere input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: #e24f90; /* rose-600 */
+}
+
+/* Number columns (right-align) */
+#tabella-opere td.text-end {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state cell */
+#tabella-opere tbody tr td.colspan-empty,
+#tabella-opere tbody tr:only-child td[colspan] {
+  text-align: center;
+  color: #6c7484;
+  background: #f9f2f6;
+}
+
+/* Pagination area inside the page (keep subtle) */
+#paginazione .btn {
+  border-radius: 999px;
+  padding: .4rem .8rem;
+}
+#paginazione .btn-outline-primary {
+  --bs-btn-color: #9e2f62;           /* rose-800 */
+  --bs-btn-border-color: #ff8fbe;    /* rose-400 */
+  --bs-btn-hover-bg: #ff8fbe;
+  --bs-btn-hover-border-color: #ff8fbe;
+  --bs-btn-hover-color: #fff;
+}
+
+/* Table row interactive cursor (but not on controls) */
+#tabella-opere tbody tr { cursor: pointer; }
+#tabella-opere tbody tr input,
+#tabella-opere tbody tr button,
+#tabella-opere tbody tr a,
+#tabella-opere tbody tr label,
+#tabella-opere tbody tr select { cursor: auto; }
+
+/* Compact alerts near the table */
+#messaggio .alert {
+  border-radius: 12px;
+  border-left: 6px solid #e24f90;
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  #tabella-opere thead th { font-size: .85rem; }
+  #tabella-opere tbody td { font-size: .9rem; }
+}
