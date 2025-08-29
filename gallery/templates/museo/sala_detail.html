@@ -109,17 +109,17 @@
           </ul>
 
           <!-- PAGINAZIONE -->
-          <div class="d-flex flex-column align-items-center gap-2 mt-4 p-3 rounded-3"
-               style="background-color: #fbeeff; max-width: 280px; margin: 18px auto 0;">
-            <div class="w-100 d-flex gap-2">
-              <button id="pg-prev" class="btn btn-outline-secondary w-100" aria-label="Pagina precedente">«</button>
-              <button id="pg-next" class="btn btn-outline-primary w-100" aria-label="Pagina successiva"
-                      style="background-color:#ff69b4; border-color:#ff69b4; color:#fff;">»</button>
-            </div>
-            <div class="small">
-              Pagina <strong id="pg-current">1</strong> di <strong id="pg-total">1</strong>
-            </div>
-          </div>
+          <div class="d-flex justify-content-center mt-4">
+  <div class="input-group input-group-sm" style="max-width: 320px;">
+    <button id="pg-prev" class="btn btn-outline-secondary" aria-label="Pagina precedente">&laquo;</button>
+    <span class="input-group-text">
+      Pagina <strong id="pg-current" class="mx-1">1</strong> di <strong id="pg-total" class="ms-1">1</strong>
+    </span>
+    <input type="number" min="1" class="form-control" id="pg-jump" placeholder="n°" />
+    <button id="pg-next" class="btn btn-outline-primary" aria-label="Pagina successiva">»</button>
+  </div>
+</div>
+
 
         </div>
       </div>
@@ -147,29 +147,44 @@
     const total = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
     if (lblTot) lblTot.textContent = total;
 
-    function showPage(p) {
-      // clamp
-      p = Math.min(Math.max(1, p), total);
+   // ...dentro DOMContentLoaded principale...
+const inputJump = document.getElementById('pg-jump');
 
-      const start = (p - 1) * PAGE_SIZE;
-      const end   = p * PAGE_SIZE;
+function showPage(p) {
+  p = Math.min(Math.max(1, p), total);
+  const start = (p - 1) * PAGE_SIZE;
+  const end   = p * PAGE_SIZE;
 
-      // nascondi/mostra con d-none (niente conflitti con CSS bootstrap)
-      for (let i = 0; i < items.length; i++) {
-        if (i >= start && i < end) {
-          items[i].classList.remove('d-none');
-        } else {
-          items[i].classList.add('d-none');
-        }
-      }
+  for (let i = 0; i < items.length; i++) {
+    if (i >= start && i < end) items[i].classList.remove('d-none');
+    else items[i].classList.add('d-none');
+  }
 
-      // UI bottoni + label pagina
-      if (lblCur) lblCur.textContent = p;
-      if (btnPrev) btnPrev.disabled = (p <= 1);
-      if (btnNext) btnNext.disabled = (p >= total);
+  if (lblCur) lblCur.textContent = p;
+  if (btnPrev) btnPrev.disabled = (p <= 1);
+  if (btnNext) btnNext.disabled = (p >= total);
 
-      current = p;
+  current = p;
+}
+
+// Eventi frecce (già presenti)
+btnPrev && btnPrev.addEventListener('click', () => showPage(current - 1));
+btnNext && btnNext.addEventListener('click', () => showPage(current + 1));
+
+// ✨ Salto diretto con Invio
+inputJump && inputJump.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const richiesta = parseInt(e.target.value, 10);
+    if (!Number.isNaN(richiesta) && richiesta >= 1 && richiesta <= total) {
+      showPage(richiesta);
     }
+    e.target.value = '';
+  }
+});
+
+// Inizializza
+showPage(1);
+
 
     // Eventi
     btnPrev && btnPrev.addEventListener('click', () => showPage(current - 1));

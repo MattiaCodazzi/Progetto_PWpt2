@@ -11,15 +11,17 @@
   <section id="contenitore-sale"></section>
 
   <!-- PAGINAZIONE STILE TEMI -->
-  <div class="d-flex flex-column align-items-center gap-2 mt-4 p-3"
-       style="background-color: #fbeeff; max-width: 220px; margin: auto;">
-    <button id="precedente-sale" class="btn btn-outline-primary w-100">«</button>
-    <div class="d-flex align-items-center justify-content-between w-100">
-      <span>Pagina <strong id="pagina-attuale">1</strong> di <strong id="tot-pagine">1</strong></span>
-      <input type="number" min="1" id="salta-pagina" class="form-control form-control-sm ms-2" style="width: 60px;" />
-    </div>
-    <button id="successivo-sale" class="btn btn-outline-primary w-100">»</button>
+  <div class="pagination-box d-flex flex-column align-items-center gap-2 mt-4">
+  <div class="d-flex align-items-center gap-2">
+    <button id="precedente-sale" class="btn btn-outline-primary btn-sm">«</button>
+    <span>Pagina <strong id="pagina-attuale">1</strong> di <strong id="tot-pagine">1</strong></span>
+    <input type="number" min="1" id="salta-pagina"
+           class="form-control form-control-sm text-center" style="width: 60px;" />
+    <button id="successivo-sale" class="btn btn-outline-primary btn-sm">»</button>
   </div>
+</div>
+
+
 
   <!-- MODALE SALA (immutato) -->
   <div class="modal fade" id="salaModal" tabindex="-1" aria-labelledby="salaModalLabel" aria-hidden="true">

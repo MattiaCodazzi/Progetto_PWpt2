@@ -22,15 +22,21 @@
     <!-- righe iniettate via JS -->
   </section>
 
-  <!-- PAGINAZIONE -->
-  <div class="d-flex flex-column align-items-center gap-2 mt-4 p-3" style="background-color: #fbeeff; max-width: 220px; margin: auto;">
-    <button id="precedente-tema" class="btn btn-outline-primary w-100">«</button>
-    <div class="d-flex align-items-center justify-content-between w-100">
-      <span>Pagina <strong id="pagina-attuale">1</strong> di <strong id="tot-pagine">1</strong></span>
-      <input type="number" min="1" id="salta-pagina" class="form-control form-control-sm ms-2" style="width: 60px;" />
-    </div>
-    <button id="successivo-tema" class="btn btn-outline-primary w-100">»</button>
+ <!-- PAGINAZIONE (uguale a sale) -->
+<div class="pagination-box d-flex flex-column align-items-center gap-2 mt-4">
+  <div class="d-flex align-items-center gap-2">
+    <button id="precedente-tema" class="btn btn-outline-primary btn-sm">«</button>
+    <span>Pagina <strong id="pagina-attuale">1</strong> di <strong id="tot-pagine">1</strong></span>
+    <input type="number" min="1" id="salta-pagina"
+           class="form-control form-control-sm text-center" style="width: 60px;" />
+    <button id="successivo-tema" class="btn btn-outline-primary btn-sm">»</button>
   </div>
+</div>
+
+
+
+
+
 
   <!-- MODALE TEMI -->
   <div class="modal fade" id="temaModal" tabindex="-1" aria-labelledby="temaModalLabel" aria-hidden="true">

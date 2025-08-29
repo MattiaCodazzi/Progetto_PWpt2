@@ -184,51 +184,93 @@ $(function () {
   }
 
   function aggiornaTabella(filtri = {}) {
-    filtri.pagina = paginaCorrente;
-    filtri.limite = 10;
+  filtri.pagina = paginaCorrente;
+  filtri.limite = 10;
 
-    $.post("/api/autori/search/form/", filtri, function (data) {
-      const autori = data.risultati || [];
-      const totale = data.totale || autori.length;
-      const limite = data.limite || 10;
-      const pagineTotali = Math.ceil(totale / limite);
+  $.post("/api/autori/search/form/", filtri, function (data) {
+    const autori = data.risultati || [];
+    const totale = data.totale || autori.length;
+    const limite = data.limite || 10;
+    const pagineTotali = Math.ceil(totale / limite);
 
-      tableBody.empty();
+    tableBody.empty();
 
-      if (!autori.length) {
-        tableBody.append('<tr><td colspan="7" class="text-center">Nessun autore trovato.</td></tr>');
-        paginazione.empty();
-        return;
-      }
+    if (!autori.length) {
+      tableBody.append('<tr><td colspan="7" class="text-center">Nessun autore trovato.</td></tr>');
+      paginazione.empty();
+      return;
+    }
 
-      autori.forEach(a => {
-        tableBody.append(`
-          <tr style="cursor:pointer;"
-              data-codice="${a.codice}"
-              data-nome="${a.nome}"
-              data-cognome="${a.cognome}"
-              data-nazione="${a.nazione}"
-              data-datanascita="${a.dataNascita}"
-              data-datamorte="${a.dataMorte}"
-              data-tipo="${a.tipo}">
-            <td><input class="form-check-input seleziona-autore" type="checkbox" value="${a.codice}" /></td>
-            <td><a href="/autori/${a.codice}/">${a.nome}</a></td>
-            <td>${a.cognome}</td>
-            <td>${a.nazione}</td>
-            <td class="text-end">${formatDateIT(a.dataNascita)}</td>
-            <td>${a.tipo}</td>
-            <td class="text-end">${formatDateIT(a.dataMorte)}</td>
-          </tr>
-        `);
+    autori.forEach(a => {
+      tableBody.append(`
+        <tr style="cursor:pointer;"
+            data-codice="${a.codice}"
+            data-nome="${a.nome}"
+            data-cognome="${a.cognome}"
+            data-nazione="${a.nazione}"
+            data-datanascita="${a.dataNascita}"
+            data-datamorte="${a.dataMorte}"
+            data-tipo="${a.tipo}">
+          <td><input class="form-check-input seleziona-autore" type="checkbox" value="${a.codice}" /></td>
+          <td><a href="/autori/${a.codice}/">${a.nome}</a></td>
+          <td>${a.cognome}</td>
+          <td>${a.nazione}</td>
+          <td class="text-end">${formatDateIT(a.dataNascita)}</td>
+          <td>${a.tipo}</td>
+          <td class="text-end">${formatDateIT(a.dataMorte)}</td>
+        </tr>
+      `);
+    });
+
+    // --- nuova paginazione stile opere_form ---
+    paginazione.empty();
+
+    if (pagineTotali > 1) {
+      const html = `
+        <div class="input-group input-group-sm" style="max-width: 360px;">
+          <button class="btn btn-outline-primary" id="pagina-prev" title="Pagina precedente">&laquo;</button>
+          <span class="input-group-text">
+            Pagina <strong id="pagina-attuale" class="mx-1">${paginaCorrente}</strong> di <strong id="pagina-totale" class="ms-1">${pagineTotali}</strong>
+          </span>
+          <input type="number" min="1" max="${pagineTotali}" class="form-control" id="salta-pagina" placeholder="n°" />
+          <button class="btn btn-outline-primary" id="pagina-next" title="Pagina successiva">&raquo;</button>
+        </div>
+      `;
+      paginazione.append(html);
+
+      $('#pagina-prev').prop('disabled', paginaCorrente <= 1);
+      $('#pagina-next').prop('disabled', paginaCorrente >= pagineTotali);
+
+      const filtriCorrenti = form.serializeObject();
+
+      $('#pagina-prev').on('click', function () {
+        if (paginaCorrente > 1) {
+          paginaCorrente -= 1;
+          aggiornaTabella(filtriCorrenti);
+        }
       });
 
-      paginazione.empty();
-      for (let i = 1; i <= pagineTotali; i++) {
-        const active = i === paginaCorrente ? 'active' : '';
-        paginazione.append(`<button type="button" class="btn btn-sm btn-outline-primary ${active}" data-pagina="${i}">${i}</button>`);
-      }
-    });
-  }
+      $('#pagina-next').on('click', function () {
+        if (paginaCorrente < pagineTotali) {
+          paginaCorrente += 1;
+          aggiornaTabella(filtriCorrenti);
+        }
+      });
+
+      $('#salta-pagina').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+          const richiesta = parseInt(this.value, 10);
+          if (!Number.isNaN(richiesta) && richiesta >= 1 && richiesta <= pagineTotali) {
+            paginaCorrente = richiesta;
+            aggiornaTabella(filtriCorrenti);
+          }
+          this.value = '';
+        }
+      });
+    }
+  });
+}
+
 
   paginazione.on('click', 'button[data-pagina]', function () {
     paginaCorrente = parseInt($(this).data('pagina'));

@@ -1,262 +1,268 @@
 /* === RESET & BASE === */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---------- Palette & tokens ---------- */
+:root{
+  /* Pergamena / superfici */
+  --bg-page: #111315;            /* scuro per far risaltare la hero */
+  --overlay-grad-top: rgba(17,19,21,.25);
+  --overlay-grad-bottom: rgba(17,19,21,.55);
+  --surface: #f5f2ea;            /* pergamena chiara */
+  --surface-2: #efe8d9;          /* pergamena più intensa */
+  --surface-3: #e6dcc6;
+
+  /* Testi */
+  --ink-900: #1b1e20;
+  --ink-800: #2b3136;
+  --ink-700: #40464c;
+  --ink-200: #c9cfd6;
+  --ink-50:  #f5f7f9;
+
+  /* Accenti ottone/bronzo */
+  --accent: #c6a564;
+  --accent-600:#a78a53;
+  --accent-700:#8c7a5e;
+  --accent-800:#5f523e;
+
+  /* Feedback */
+  --ok-bg: #e7f7ee;   --ok-border:#9bd4b1; --ok-text:#155b2d;
+  --warn-bg:#fff4d6;  --warn-border:#ffd37a; --warn-text:#7a4f00;
+
+  /* Effetti */
+  --radius: 14px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 6px 16px rgba(0,0,0,.10);
+  --shadow-md: 0 12px 36px rgba(0,0,0,.18);
+  --focus: 0 0 0 3px rgba(198,165,100,.35);
 }
 
-body {
-  background: url('../immagini/opera_in_evidenza.jpg') no-repeat center center fixed;
+/* ---------- Base ---------- */
+body{
+  background-image: url("/static/img_ottimizzate/bg_chiaro_bg.webp");
   background-size: cover;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
-  background-color: #565656;
-  color: #fff;
+  color: var(--ink-50);
   min-height: 100vh;
-}
-
-/* RIMOSSO perché creava conflitti di z-index */
-/* body > * {
   position: relative;
-  z-index: 2;
-} */
+}
+@supports (background: color(display-p3 1 1 1)) { /* per browser moderni, no cambio colori specifico, solo placeholder per future estensioni */ }
+
+
+/* Velo per migliorare il contrasto su hero */
+body::before{
+  content:"";
+  position: fixed; inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, rgba(198,165,100,.18), transparent 60%),
+    linear-gradient(to bottom, var(--overlay-grad-top), var(--overlay-grad-bottom));
+  z-index: 0;
+}
 
 /* === HEADER === */
-header {
-  background-color: hsl(314, 100%, 95%);
-  color: #fff;
+header{
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  color: var(--ink-900);
   text-align: center;
   padding: 2rem 1rem;
   position: relative;
-  z-index: 1; /* abbassato rispetto a prima */
+  z-index: 1;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+header h1{
+  font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+  font-size: 2.4rem; font-weight: 700; color: var(--ink-900); margin: 0;
+  letter-spacing: .2px;
 }
 
-header h1 {
-  font-size: 2.4rem;
-  font-weight: bold;
-  color:#7d7878;
-  margin: 0;
-}
-
-nav {
-  background-color: hsl(314, 100%, 95%);
-  z-index: 1;  /* resta sotto a card/popup */
+/* === NAV === */
+nav{
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  z-index: 1;
   justify-content: center;
   gap: 2rem;
   padding: 1rem 0;
+  display: flex;
 }
-
-nav a {
-  color: #7d7878;
+nav a{
+  color: var(--ink-900);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1rem;
-  padding: 0.5rem 1rem;
-  transition: background-color 0.3s ease;
-  border-radius: 4px;
+  padding: .55rem 1rem;
+  border-radius: 999px;
+  transition: filter .15s ease, transform .15s ease, background .15s ease;
+}
+nav a:hover, nav a:focus-visible{
+  background: var(--surface-3);
+  outline: none;
+  transform: translateY(-1px);
 }
 
-nav a:hover {
-  background-color:#ffa3d5;
-}
-
-/* === INFO MUSEO AFFIANCATO A LOGIN === */
-main {
+/* === LAYOUT HERO/MAIN === */
+main{
+  display: flex;
   flex-direction: row;
   justify-content: flex-start;
   gap: 4rem;
   padding: 2rem 1rem;
   width: 100%;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
-.login-wrapper { display: block; width: auto; }
-.info-wrapper { flex: 1; text-align: center; }
-.info-section { max-width: 800px; margin: 0 auto; }
+/* Colonne */
+.login-wrapper{ display: block; width: auto; }
+.info-wrapper{ flex: 1; text-align: center; }
+.info-section{ max-width: 900px; margin: 0 auto; }
 
-.info-boxes {
+/* Box informativi */
+.info-boxes{
+  display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
   margin-bottom: 2rem;
 }
+.info-box{
+  background: rgba(255,255,255,.82);
+  color: var(--ink-900);
+  padding: 1.2rem 1.3rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  width: 200px;
+  border: 1px solid rgba(0,0,0,.06);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.info-box:hover{ transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.emoji{ font-size: 2rem; display:block; margin-bottom:.4rem; }
+.frase-dinamica{
+  font-style: italic; color: rgba(255,255,255,.92);
+  margin-bottom: 2rem; font-size: 1.15rem;
+}
+.immagine-opera img{
+  max-width: 100%; border-radius: 12px; box-shadow: var(--shadow-md);
+}
 
-.form-container {
+/* === FORM === */
+.form-container{
+  display: flex;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 2rem;
   margin-top: 2rem;
-  width: 400px;
+  width: 420px;
 }
+.form-box{ display:flex; flex-direction:column; gap:.8rem; width: 320px; }
 
-.form-box {
-  gap: 0.8rem;
-  width: 300px;
-}
-
-.login-section {
-  width: 320px;
+.login-section{
+  width: 340px;
   margin-left: 100px;
   align-items: flex-start;
   text-align: left;
 }
 
-.accesso-box { margin-bottom: 2rem; }
+.accesso-box{ margin-bottom: 2rem; }
 
-.info-box {
-  background: #7d7878;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 0 8px #fff;
-  width: 180px;
+form label{
+  display:block; margin-top:.75rem; font-weight: 700; color: var(--ink-900);
+}
+input, select, button{
+  width: 100%; padding: .6rem .8rem; margin-bottom: .6rem;
+  border: 1px solid var(--surface-3); border-radius: 10px;
+  font-size: 1rem; background: #fff; color: var(--ink-900);
+  transition: box-shadow .12s ease, border-color .12s ease;
+}
+input::placeholder, textarea::placeholder{ color: var(--ink-700); opacity:.6; }
+input:focus, select:focus, textarea:focus{
+  outline: none; border-color: var(--accent-600); box-shadow: var(--focus);
 }
 
-.emoji {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 0.5rem;
+/* Pulsanti */
+button{
+  background: linear-gradient(135deg, var(--accent-600), var(--accent));
+  color: #fff; border: none; margin-top: .6rem; cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  border-radius: 999px; font-weight: 700;
+  box-shadow: 0 6px 16px rgba(198,165,100,.28);
+}
+button:hover{ filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(198,165,100,.32); }
+button:disabled{ opacity:.85; background: linear-gradient(135deg,#8b8f95,#6f767e); box-shadow:none; }
+button:focus-visible{ outline: none; box-shadow: var(--focus); }
+
+/* === LOGO === */
+.logo-museo img{
+  position: absolute; top: 190px; right: 20px; width: 60px; height: auto; z-index: 10;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
 }
 
-.frase-dinamica {
-  font-style: italic;
-  color: hsl(0, 0%, 100%);
-  margin-bottom: 2rem;
-  font-size: 1.2rem;
+/* === FOOTER === */
+footer{
+  margin-top: auto; padding: 1rem; text-align: center; font-size: .95rem; z-index: 0;
+  color: var(--ink-200);
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.22));
+  border-top: 1px solid rgba(255,255,255,.08);
 }
 
-.immagine-opera img {
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+/* === MESSAGGI / ALERT === */
+.messaggio{
+  max-width: 520px; padding: 1rem 1.1rem; border-radius: 12px; font-weight: 700; font-size: .98rem;
+  box-shadow: var(--shadow-sm); margin-left: 10rem; background: rgba(255,255,255,.9); color: var(--ink-900);
+  border-left: 6px solid var(--accent-600);
+}
+.messaggio.errore{
+  background-color: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border);
+}
+.messaggio.errore::before{ content: "⚠️ "; margin-right: .3rem; }
+.messaggio.successo{
+  background-color: var(--ok-bg); color: var(--ok-text); border: 1px solid var(--ok-border);
+}
+.errore-popup{
+  background-color: var(--warn-bg); color: var(--warn-text);
+  border-left: 5px solid #ffc107; padding: .8rem 1rem; margin-top: 1rem; border-radius: 10px;
+  font-size: .95rem; max-width: 320px; box-shadow: var(--shadow-sm);
 }
 
-/* === FORM === */
-form label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: bold;
+/* === LOGOUT BTN === */
+.logout-absolute{
+  position: absolute; top: 20px; right: 20px;
+  background: linear-gradient(135deg, #de4b48, #c13835);
+  color: #fff; padding: .55rem 1rem; text-decoration: none; border-radius: 999px;
+  z-index: 999; font-weight: 700; box-shadow: 0 6px 16px rgba(193,56,53,.28);
+  transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
 }
-
-input, select, button {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-button {
-  background-color: hsl(314, 100%, 95%);
-  color: #7d7878;
-  border: none;
-  margin-top: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover { background-color: #ffa3d5; }
-
-.logo-museo img {
-  position: absolute;
-  top: 190px;
-  right: 20px;
-  width: 60px;
-  height: auto;
-  z-index: 10; /* non deve coprire i popup */
-}
-
-footer {
-  margin-top: auto;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  z-index: 0;
-}
-
-/* === MESSAGGI === */
-.messaggio {
-  max-width: 500px;
-  padding: 1rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-  margin-left: 10rem;
-}
-
-.messaggio.errore {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-}
-
-.messaggio.errore::before {
-  content: "⚠️ ";
-  margin-right: 0.3rem;
-}
-
-.messaggio.successo {
-  background-color: #e6ffea;
-  color: #2a6c3f;
-  border: 1px solid #7ed6a0;
-}
-
-.errore-popup {
-  background-color: #fff3cd;
-  color: #856404;
-  border-left: 5px solid #ffc107;
-  padding: 0.8rem 1rem;
-  margin-top: 1rem;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  max-width: 300px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
-.logout-absolute {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: #d9534f;
-  color: white;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  border-radius: 5px;
-  z-index: 999;
-}
-
-.logout-absolute:hover { background-color: #c9302c; }
+.logout-absolute:hover{ filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(193,56,53,.34); }
 
 /* === RESPONSIVE === */
-@media screen and (max-width: 768px) {
-  main {
-    flex-direction: column;
-    padding: 1rem;
-  }
-  .login-section {
-    align-items: left;
-    text-align:left;
-  }
-  .info-boxes { justify-content: center; }
+@media screen and (max-width: 992px){
+  .login-section{ margin-left: 40px; width: 100%; max-width: 520px; }
+}
+@media screen and (max-width: 768px){
+  main{ flex-direction: column; padding: 1rem; gap: 1.25rem; }
+  .login-section{ align-items: flex-start; text-align:left; margin-left: 0; width: 100%; }
+  .info-boxes{ justify-content: center; }
+  .logo-museo img{ top: 140px; right: 16px; width: 52px; }
 }
 
-.contenuto-dashboard {
-  background-color: hsl(314, 100%, 95%);
-  color: #7d7878;
+/* === CONTENUTO DASHBOARD === */
+.contenuto-dashboard{
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  color: var(--ink-900);
   padding: 2rem;
   margin: 2rem auto;
   max-width: 1000px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(0,0,0,.06);
 }
 
-/* === COLORI PALETTE PERSONALIZZATI === */
-.bg-light-pink   { background-color: hsl(314 100% 95%); }
-.text-light-pink { color:            hsl(314 100% 95%); }
+/* === COLORI UTILITY (rinominati ma mantenendo le classi esistenti) === */
+.bg-light-pink   { background-color: var(--surface) !important; }
+.text-light-pink { color: var(--surface) !important; }
 
 /* === MODALI === */
-.modal-backdrop.show {
-  background-color: rgba(0, 0, 0, 0.4) !important;
-}
+.modal-backdrop.show{ background-color: rgba(0,0,0,.45) !important; }
+
 
