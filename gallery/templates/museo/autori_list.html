@@ -69,7 +69,11 @@
   </aside>
 
   <section class="col-md-8">
-    <h2 class="h5 mb-3">Risultati</h2>
+   <h2 class="h5 mb-3">
+  Risultati
+  <span id="conteggio-autori" class="badge bg-secondary align-middle ms-2">0</span>
+</h2>
+ 
 
     <div class="d-flex justify-content-between align-items-center mb-2">
       <button class="btn btn-danger btn-sm" id="elimina-selezionate" type="button">Elimina selezionate</button>
@@ -192,6 +196,7 @@ $(function () {
     const totale = data.totale || autori.length;
     const limite = data.limite || 10;
     const pagineTotali = Math.ceil(totale / limite);
+     $('#conteggio-autori').text(totale);
 
     tableBody.empty();
 
