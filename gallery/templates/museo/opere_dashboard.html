@@ -74,7 +74,7 @@
         <div class="card shadow-sm rounded-4 h-100 w-100">
           <div class="card-body d-flex flex-column">
             <h3 class="h6">Novità operative</h3>
-            <ul class="small text-muted mb-0">
+            <ul class="small text-dark mb-0">
               <li>Opere: filtri migliorati e messaggistica più chiara.</li>
               <li>Autori: validazione date (morte ≥ nascita) e messaggi a tempo.</li>
               <li>Temi: impaginazione 3+2 e descrizioni su hover riviste.</li>
@@ -92,7 +92,7 @@
               <small class="text-muted">Aggiornate</small>
             </div>
             <p class="small text-muted mb-3">
-              Linee guida interne su sale, “non esposto”, link da griglia Opere e messaggistica.
+              Riapertura stagione autunnale 1 settebre 2025.
             </p>
             <div class="mt-auto">
               <span class="btn btn-outline-secondary btn-sm">Leggi articolo completo</span>
@@ -156,15 +156,37 @@
     $('#card-informazioni').on('click', function () {
       const titolo = 'Comunicazione interna – Linee guida esposizioni';
       const corpo = `
-        <p>Dal 1° settembre le richieste di esposizione temporanea devono essere caricate nella sezione <strong>Sale</strong> indicando tema, superficie e periodo. I dati mancanti bloccano l’approvazione.</p>
-        <p>Per le opere non esposte, usare la dicitura <em>non esposto</em> (evitare <em>NULL</em>). In caso di collegamenti autore/sala, assicurarsi che i link siano attivi dalla griglia Opere.</p>
-        <ul>
-          <li>Messaggi di errore: visibili, non persistenti, senza alert browser.</li>
-          <li>Tipo opera: usare i radio button (quadro/scultura).</li>
-          <li>Paginazione: non solo sequenziale; indicare pagina corrente.</li>
-        </ul>
-        <p class="mb-0">Riferimento: Linee Guida Progetto #1 e #2.</p>
-      `;
+        <p>A partire dal <strong>1° settembre</strong> il museo riaprirà ufficialmente al pubblico dopo la consueta pausa estiva. 
+Tale riapertura richiede la massima collaborazione di tutto il personale, al fine di garantire un’organizzazione efficiente e conforme agli standard qualitativi richiesti dalla direzione.</p>
+
+<p>Si ricorda che le attività di allestimento delle sale dovranno essere completate entro il 30 agosto, con particolare attenzione a:</p>
+<ul>
+  <li>Verifica dello stato di conservazione delle opere rientrate dal deposito.</li>
+  <li>Aggiornamento delle schede inventariali e delle informazioni nel database gestionale.</li>
+  <li>Controllo della corretta esposizione e illuminazione di quadri e sculture.</li>
+  <li>Segnalazione immediata di eventuali anomalie (danni, cornici compromesse, supporti instabili).</li>
+</ul>
+
+<p>In vista dell’incremento di flusso previsto nei mesi autunnali, il personale di sala dovrà attenersi scrupolosamente ai turni definiti dal coordinamento interno. Ogni modifica di orario dovrà essere comunicata con almeno 48 ore di anticipo.</p>
+
+<p>Si ribadisce inoltre l’importanza di mantenere un atteggiamento professionale con il pubblico e una collaborazione costante tra i reparti. Gli operatori tecnici e amministrativi sono invitati a sincronizzare le proprie attività con il settore didattico e con l’ufficio comunicazione, così da evitare sovrapposizioni e garantire uniformità nelle informazioni diffuse.</p>
+
+<p>Per quanto riguarda la sicurezza, a partire dal 1° settembre entreranno in vigore le nuove procedure di evacuazione aggiornate. Tutto il personale è obbligato a partecipare alla sessione formativa fissata per il 28 agosto.</p>
+
+<p>Indicazioni operative aggiuntive:</p>
+<ul>
+  <li>Tutte le richieste di esposizione temporanea dovranno essere inoltrate tramite modulo digitale, non più in formato cartaceo.</li>
+  <li>Le opere non esposte andranno registrate come <em>non esposte</em> (evitare valori NULL).</li>
+  <li>Gli autori e le sale dovranno essere sempre correttamente collegati nel sistema informatico.</li>
+  <li>I messaggi di sistema devono essere chiari, visibili e non persistenti, evitando alert a comparsa del browser.</li>
+  <li>Per le tipologie di opere usare i radio button (quadro/scultura) e non menu a tendina.</li>
+  <li>Nella gestione delle ricerche, implementare paginazione non solo sequenziale, con indicazione della pagina corrente.</li>
+</ul>
+
+<p>Il rispetto di tali linee guida consentirà di affrontare la riapertura con efficienza, riducendo criticità organizzative e garantendo al pubblico un servizio di qualità.</p>
+
+<p class="mb-0"><strong>Riferimento:</strong> Direzione Generale – Comunicazione interna n. 4/2025.</p>
+`;
       $('#popup-titolo').text(titolo);
       $('#popup-testo').html(corpo);
       new bootstrap.Modal(document.getElementById('temaModal')).show();
