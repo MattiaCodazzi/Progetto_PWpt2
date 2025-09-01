@@ -20,23 +20,19 @@
 
 5. Nel wizard:
    - usare **Sfoglia** per selezionare la **cartella principale del progetto** (quella con `manage.py`)  
-   - usare **...** per selezionare il file `dump.sql` che si trova nella cartella datbase
+   - usare **...** per selezionare il file `dump.sql` che si trova nella cartella database
+   - inserire nel campo Postgres admin pass la propria password postgreSQL (quella scelta al momento dell'istallazione)
    - lasciare invariati gli altri campi
 
 <img src="image-1.png" alt="Screenshot" width="500">
 
 6. **Cliccare Avvia**
-7. Dopo pochi secondi compare la scritta **“configuro PostgreSQL”**  
-   - nella shell viene richiesta la **password PostgreSQL**, quella scelta al momento dell'istallazione di Postgre (non appare mentre si scrive, ma viene letta)  
-   - inserire la password due volte
+7. A questo punto il wizard procede nell'istallazione automaticamente, a fine download si apriranno:
+   - il sito sul proprio browser predefinito 
+   - una power shell dove vengono visionati tutti i log
 
-<img src="image-3.png" alt="Screenshot" width="900">
 
-8. Dopo l’inserimento della password il wizard **prosegue automaticamente**
-9. Al termine:
-   - il sito si apre automaticamente nel browser  
-   - se non si apre, nel wizard compare un **link cliccabile** per accedere al sito  
-   - attendere alcuni secondi per l’avvio del server Django
+8. (Opzionale) Nel caso non si dovesse aprire il sito, (a primo impatto il sito non si carica, bisogna aspettare il caricamento del server django (pochi istanti)), sopra la console dei log del wizard o all'interno della power shell viene mostrato il link cliccabile dove viene aperto il sito 
 
 ---
 
