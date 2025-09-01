@@ -476,7 +476,7 @@ h1,h2,h3,.fw-semibold{letter-spacing:.2px}
 /* ---- HERO ---- */
 .hero{
   min-height: 72vh;
-  /*background-image: url("../img/hero_museum.jpg"); */
+  
   background-size: cover;
   background-position: center;
   position: relative;

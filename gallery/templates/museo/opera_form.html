@@ -185,7 +185,7 @@ $(function () {
     const acq = parseInt($('#annoAcquisto').val(), 10);
     if (!isNaN(real) && !isNaN(acq) && acq < real) {
       e.preventDefault();
-      $('#messaggio').html('<div class="alert alert-danger">L\'anno di acquisto non può precedere quello di realizzazione.</div>');
+      mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger', 5000);
       return;
     }
 	
@@ -194,24 +194,24 @@ $(function () {
   const real = parseInt($('#annoRealizzazione').val(), 10);
   const acq  = parseInt($('#annoAcquisto').val(), 10);
   if (isNaN(real) || isNaN(acq)) {
-  mostraMessaggio("Inserisci anni validi (numeri interi).", 'danger'); return;
+  mostraMessaggio("Inserisci anni validi (numeri interi).", 'danger', 5000); return;
 }
 if (real < 0 || acq < 0) {
-  mostraMessaggio("L'anno non può essere negativo.", 'danger'); return;
+  mostraMessaggio("L'anno non può essere negativo.", 'danger', 5000); return;
 }
 if (real > LIMITE_ANNO || acq > LIMITE_ANNO) {
-  mostraMessaggio(`L'anno non può superare ${LIMITE_ANNO}.`, 'danger'); return;
+  mostraMessaggio(`L'anno non può superare ${LIMITE_ANNO}.`, 'danger', 5000); return;
 }
 if (acq < real) {
-  mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger'); return;
+  mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger', 5000); return;
 }
   if (!isNaN(real) && !isNaN(acq) && acq < real) {
-    mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger');
+    mostraMessaggio("L'anno di acquisto non può precedere quello di realizzazione.", 'danger', 5000);
     return;
   }
   const nomeAutore = $('#autoreNomeCompleto').val().trim();
   if (!nomeAutore) {
-    mostraMessaggio("Inserisci il nome completo dell'autore.", 'danger');
+    mostraMessaggio("Inserisci il nome completo dell'autore.", 'danger', 5000);
     return;
   }
 
@@ -278,7 +278,7 @@ $('#btn-autore-salva').on('click', function () {
     })
     .fail(xhr => {
       const err = xhr.responseJSON?.error || 'Errore durante inserimento autore';
-      $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+      mostraMessaggio(err || "Errore durante inserimento autore", 'danger', 5000);
     });
 });
 
@@ -287,7 +287,7 @@ $('#btn-autore-salva').on('click', function () {
     const url = $('#codice').val() ? "{% url 'gallery:api_opera_update' %}" : "{% url 'gallery:api_opera_create' %}";
     $.post(url, $(this).serialize())
       .done(res => {
-        $('#messaggio').html(`<div class="alert alert-success">${res.msg}</div>`);
+        mostraMessaggio(res.msg || "Operazione completata", 'success', 5000);
         this.reset();
         $('#btn-cancel').addClass('d-none');
         $('#form-title').text("Inserisci o cerca opera");
@@ -296,7 +296,7 @@ $('#btn-autore-salva').on('click', function () {
       })
       .fail(xhr => {
         const err = xhr.responseJSON?.error || 'Errore.';
-        $('#messaggio').html(`<div class="alert alert-danger">${err}</div>`);
+        mostraMessaggio(err || "Errore.", 'danger', 5000);
       });
   });
 
@@ -320,7 +320,7 @@ $('#btn-autore-salva').on('click', function () {
 $('#elimina-selezionate').on('click', function () {
   codiciDaEliminare = $('.seleziona-opera:checked').map((_, el) => el.value).get();
   if (!codiciDaEliminare.length) {
-    mostraMessaggio("Seleziona almeno un'opera da eliminare.", 'danger');
+    mostraMessaggio("Seleziona almeno un'opera da eliminare.", 'danger', 5000);
     return;
   }
   $('#testo-conferma').text(`Confermi l'eliminazione di ${codiciDaEliminare.length} opera/e?`);
@@ -334,7 +334,7 @@ $('#btn-annulla-elimina').on('click', function () {
 
 $('#btn-conferma-elimina').on('click', function () {
   $.post("{% url 'gallery:api_opere_delete' %}", { codici: codiciDaEliminare }, res => {
-    mostraMessaggio(res.msg, 'success');
+    mostraMessaggio(res.msg, 'success', 5000);
     caricaOpere(raccogliFiltri(), 1);
     $('#conferma-eliminazione').addClass('d-none');
   });
@@ -408,9 +408,9 @@ function caricaOpere(filtri, pagina = 1) {
     $.post("/api/autore/check/", { nome_completo: autoreTxt })
       .done(r => {
         if (!r.esiste) {
-          mostraMessaggio("Autore non presente nel database.", 'warning');
+          mostraMessaggio("Autore non presente nel database.", 'warning', 5000);
         } else {
-          mostraMessaggio("Nessuna opera trovata per l'autore con questi filtri.", 'warning');
+          mostraMessaggio("Nessuna opera trovata per l'autore con questi filtri.", 'warning', 5000);
         }
       });
   }

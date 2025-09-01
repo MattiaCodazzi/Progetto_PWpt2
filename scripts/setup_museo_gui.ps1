@@ -36,11 +36,36 @@ function Get-SystemPy {
 
 # ----------------- UI -----------------
 $form = New-Object System.Windows.Forms.Form
+# --- STILE GLOBALE (aggiungi subito dopo la creazione del $form)
+$fontBase = New-Object System.Drawing.Font("Segoe UI", 10)
+$form.Font      = $fontBase
+$form.BackColor = [System.Drawing.Color]::WhiteSmoke
+$form.AutoScaleMode = 'Dpi'
+
 $form.Text = "Installazione Progetto Museo"
 $form.StartPosition = "CenterScreen"
-$form.Size = New-Object System.Drawing.Size(950, 700)
+$form.Size = New-Object System.Drawing.Size(1100, 700)
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
+
+# --- TEMA GRAFICO (incolla dopo: $form = New-Object System.Windows.Forms.Form)
+# Assicurati di avere già: Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+
+# Palette + font
+$ui_FontName   = 'Segoe UI'
+$ui_FontSize   = 10
+$ui_FormBack   = [System.Drawing.Color]::WhiteSmoke
+$ui_TextDark   = [System.Drawing.Color]::FromArgb(44,62,80)
+$ui_PanelLight = [System.Drawing.Color]::Gainsboro
+$ui_Primary    = [System.Drawing.Color]::FromArgb(41,128,185)  # blu
+$ui_PrimaryHov = [System.Drawing.Color]::FromArgb(30,108,165)  # blu hover
+$ui_Secondary  = [System.Drawing.Color]::FromArgb(236,240,241) # grigio chiaro
+$ui_SecondaryH = [System.Drawing.Color]::FromArgb(220,224,225)
+
+# Applica font/sfondo al form
+$form.Font      = New-Object System.Drawing.Font($ui_FontName, $ui_FontSize)
+$form.BackColor = $ui_FormBack
+
 
 $lblTitle = New-Object System.Windows.Forms.Label
 $lblTitle.Text = "Installazione Progetto (Django + PostgreSQL)"
@@ -54,13 +79,18 @@ function TB([int]$w,[int]$x,[int]$y){ $t=New-Object System.Windows.Forms.TextBox
 
 $form.Controls.Add($lblTitle)
 
-$form.Controls.Add((LBL "Cartella progetto (dove c'è manage.py):" 16 $y0))
+$form.Controls.Add((LBL "Cartella progetto (dove si trova manage.py):" 16 $y0))
 $tbProject = TB 560 200 $y0; $tbProject.Text = (Split-Path (Get-Location).Path -Parent)
 
 $btnBrowse = New-Object System.Windows.Forms.Button
-$btnBrowse.Text="Sfoglia"
-$btnBrowse.Location=New-Object System.Drawing.Point(770, ($y0 - 2))
-$btnBrowse.Width=40
+$btnBrowse.Text = "Sfoglia"
+$btnBrowse.AutoSize = $false
+$btnBrowse.Width = 80
+$btnBrowse.Height = 30
+$btnBrowse.Location = New-Object System.Drawing.Point(770, ($y0 - 4))
+# (opzionale, se usi le funzioni di stile)
+# Set-SecondaryButtonStyle $btnBrowse
+
 
 # --- DB ---
 $form.Controls.Add((LBL "DB Name:" 16 ($y0 + 38)))
@@ -73,11 +103,24 @@ $form.Controls.Add((LBL "DB Pass:" 16 ($y0 + 72)))
 $tbDbPass = TB 180 200 ($y0 + 69); $tbDbPass.Text = "museo_pw"; $tbDbPass.UseSystemPasswordChar = $true
 
 $form.Controls.Add((LBL "Dump .sql (facoltativo):" 400 ($y0 + 72)))
-$tbDump = TB 260 560 ($y0 + 69); $tbDump.Text = ""
+
+# TextBox dump: più larga e in primo piano
+$tbDump = TB 360 560 ($y0 + 69)
+$tbDump.Text = ""
+$tbDump.BackColor  = [System.Drawing.Color]::White
+$tbDump.BorderStyle = 'FixedSingle'
+$tbDump.BringToFront()
+
+# Bottone "…" allineato alla textbox (niente coordinate fisse)
 $btnBrowseDump = New-Object System.Windows.Forms.Button
-$btnBrowseDump.Text="..."
-$btnBrowseDump.Location=New-Object System.Drawing.Point(830, ($y0 + 67))
-$btnBrowseDump.Width=20
+$btnBrowseDump.Text      = "..."
+$btnBrowseDump.AutoSize  = $false
+$btnBrowseDump.Width     = 34     # 34–40 ok per "..."
+$btnBrowseDump.Height    = 30
+$btnBrowseDump.Location  = New-Object System.Drawing.Point(($tbDump.Right + 8), ($tbDump.Top - 1))
+
+
+
 
 # --- SUPERUSER ---
 $form.Controls.Add((LBL "Superuser:" 16 ($y0 + 110)))
@@ -143,6 +186,69 @@ $btnBrowseDump.Add_Click({
     $od.Filter = "SQL Dump|*.sql|Tutti i file|*.*"
     if($od.ShowDialog() -eq "OK"){ $tbDump.Text = $od.FileName }
 })
+
+
+
+
+# --- FUNZIONI DI STILE (incolla prima di $form.ShowDialog())
+
+function Set-PrimaryButtonStyle([System.Windows.Forms.Button]$btn) {
+    $btn.FlatStyle = 'Flat'
+    $btn.UseVisualStyleBackColor = $false
+    $btn.BackColor = $ui_Primary
+    $btn.ForeColor = [System.Drawing.Color]::White
+    if ($btn.Height -lt 32) { $btn.Height = 32 }
+    # hover
+    $btn.Add_MouseEnter({ param($s,$e) $s.BackColor = $ui_PrimaryHov })
+    $btn.Add_MouseLeave({ param($s,$e) $s.BackColor = $ui_Primary })
+}
+
+function Set-SecondaryButtonStyle([System.Windows.Forms.Button]$btn) {
+    $btn.FlatStyle = 'Flat'
+    $btn.UseVisualStyleBackColor = $false
+    $btn.BackColor = $ui_Secondary
+    $btn.ForeColor = $ui_TextDark
+    if ($btn.Height -lt 30) { $btn.Height = 30 }
+    # hover
+    $btn.Add_MouseEnter({ param($s,$e) $s.BackColor = $ui_SecondaryH })
+    $btn.Add_MouseLeave({ param($s,$e) $s.BackColor = $ui_Secondary })
+}
+
+function Style-AllControls([System.Windows.Forms.Control]$root) {
+    foreach ($c in $root.Controls) {
+
+        if ($c -is [System.Windows.Forms.Button]) {
+            # prova a capire se è il "bottone principale" (Avvia/Start/Esegui)
+            if ($c.Name -match 'btnStart|btnAvvia' -or $c.Text -match '^(Avvia|Start|Esegui)') {
+                Set-PrimaryButtonStyle $c
+            } else {
+                Set-SecondaryButtonStyle $c
+            }
+        }
+        elseif ($c -is [System.Windows.Forms.Label]) {
+            $c.ForeColor = $ui_TextDark
+        }
+        elseif ($c -is [System.Windows.Forms.ProgressBar]) {
+            # solo estetica, non tocca la logica
+            try { $c.Style = 'Continuous' } catch {}
+            if ($c.Height -lt 20) { $c.Height = 20 }
+            # NB: il colore della progress bar spesso non è personalizzabile in WinForms classico
+        }
+        elseif ($c -is [System.Windows.Forms.Panel] -and $c.Dock -eq 'Bottom') {
+            # se hai un pannello docked in basso (anche con nome diverso da $footer), rendilo più "footer"
+            $c.BackColor = $ui_PanelLight
+        }
+
+        # ricorsione sui figli
+        if ($c.Controls.Count -gt 0) {
+            Style-AllControls $c
+        }
+    }
+}
+
+# Applica il tema all’intero form (non richiede $header/$footer esistenti)
+Style-AllControls $form
+
 
 # ----------------- helpers -----------------
 function Exec {
