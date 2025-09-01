@@ -9,7 +9,7 @@
 
 ## Installazione (Windows)
 
-1. **Estrarre il progetto** in una cartella
+1. **Estrarre il progetto** in una cartella oppure clonarlo da github
 2. **Aprire la cartella** ed entrare in `scripts`
 3. **Fare doppio click** su `start_setup.bat`
 4. Si aprono:
