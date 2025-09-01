@@ -341,7 +341,8 @@ if (-not (Test-Path -LiteralPath ".\manage.py") -and (Test-Path -LiteralPath ".\
 
         # Scegli eseguibile Python: priorità al venv locale
         $script:PYEXE = $null
-        $venvPy = Join-Path (Get-Location) ".venv\Scripts\python.exe"
+        $venvPy = Join-Path (Get-Location).Path ".venv\Scripts\python.exe"
+
         if (Test-Path $venvPy) {
             $script:PYEXE = $venvPy
             Log "Uso Python del venv: $PYEXE" "Gray"
@@ -384,25 +385,26 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
                 Log "Database $DbName creato" "Green"
             } else { Log "Database $DbName già esiste" "Cyan" }
 
-           if($DumpPath -and (Test-Path $DumpPath)){
+           if ($DumpPath -and (Test-Path -LiteralPath $DumpPath)) {
+
     SetStep ($step++) $total "Import dump SQL"
 
     # 1) Se il DB ha tabelle nello schema public, lo resetto (DROP+CREATE) usando postgres
     $env:PGPASSWORD = $PgAdminPass
-    try {
+    try{
         $hasTables = & psql -h 127.0.0.1 -U postgres -w -d $DbName -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
         if ([int]$hasTables -gt 0) {
             Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Yellow"
             & psql -h 127.0.0.1 -U postgres -w -d $DbName -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION $DbUser; GRANT ALL ON SCHEMA public TO $DbUser; GRANT ALL ON SCHEMA public TO public;"
         }
     }
-    finally {
+    finally{
         Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
     }
 
     # 2) Import del dump (password non interattiva per museo_user)
     $env:PGPASSWORD = $DbPass
-    try {
+    try{
         ExecNative "psql" @(
             "-h","127.0.0.1",
             "-U",$DbUser,
@@ -415,7 +417,7 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         )
         Log "Dump importato: $DumpPath" "Green"
     }
-    finally {
+    finally{
         Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
     }
 }
@@ -465,12 +467,14 @@ try {
 
         if($RunServer){
     # URL locale visibile/correttamente cliccabile
-    $serverUrl = "http://127.0.0.1:8000"
+$serverUrl = "http://127.0.0.1:8000"
 
-    SetStep ($step++) $total "Avvio server Django"
-    # avvio server in una nuova PS, ma bind su 127.0.0.1 (così la console mostra l’URL giusto)
-    $projPath = "`"$([System.IO.Path]::GetFullPath($(Get-Location)))`""
-    Start-Process "powershell" "-NoExit -Command cd $projPath; & `"$PYEXE`" `".\manage.py`" runserver 127.0.0.1:8000"
+SetStep ($step++) $total "Avvio server Django"
+# avvio server in una nuova PS, usando Set-Location -LiteralPath (robusto con spazi)
+$projPath = [System.IO.Path]::GetFullPath((Get-Location).Path)
+$args = "-NoExit -Command Set-Location -LiteralPath `"$projPath`"; & `"$PYEXE`" `".\manage.py`" runserver 127.0.0.1:8000"
+Start-Process "powershell" $args
+
 
 
     # evidenzio il link nel wizard e apro il browser
