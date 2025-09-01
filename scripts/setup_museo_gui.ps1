@@ -103,6 +103,12 @@ $form.Controls.Add((LBL "DB Pass:" 16 ($y0 + 72)))
 $tbDbPass = TB 180 200 ($y0 + 69); $tbDbPass.Text = "museo_pw"; $tbDbPass.UseSystemPasswordChar = $true
 
 $form.Controls.Add((LBL "Dump .sql (facoltativo):" 400 ($y0 + 72)))
+$tbDump = TB 260 560 ($y0 + 69)
+
+# NUOVO CAMPO: Postgres admin pass (subito sotto DB Pass, a sinistra)
+$form.Controls.Add((LBL "Postgres admin pass:" 16 ($y0 + 106)))
+$tbPgAdminPass = TB 180 200 ($y0 + 103); $tbPgAdminPass.UseSystemPasswordChar = $true
+
 
 # TextBox dump: più larga e in primo piano
 $tbDump = TB 360 560 ($y0 + 69)
@@ -173,9 +179,10 @@ $btnStart.Height=28
 
 $form.Controls.AddRange(@(
   $tbProject,$btnBrowse,
-  $tbDbName,$tbDbUser,$tbDbPass,$tbDump,$btnBrowseDump,
+  $tbDbName,$tbDbUser,$tbDbPass,$tbDump,$btnBrowseDump,$tbPgAdminPass,
   $tbSU,$tbEmail,$tbSUPass,$chkRun,$progress,$lblStatus,$tbLog,$btnStart
 ))
+
 
 $btnBrowse.Add_Click({
     $fd = New-Object System.Windows.Forms.FolderBrowserDialog
@@ -300,7 +307,9 @@ function Invoke-Setup {
         [string]$ProjectPath,
         [string]$DbName, [string]$DbUser, [string]$DbPass, [string]$DumpPath,
         [string]$SuperUser, [string]$SuperEmail, [string]$SuperPass,
+        [string]$PgAdminPass, 
         [bool]$RunServer = $true
+
     )
     try{
         $btnStart.Enabled = $false
@@ -334,24 +343,53 @@ function Invoke-Setup {
         SetStep ($step++) $total "Configuro PostgreSQL (se necessario)"
         $psql = Get-Command psql -ErrorAction SilentlyContinue
         if ($psql) {
-            $existsUser = & psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DbUser';"
+            $env:PGPASSWORD = $PgAdminPass
+            $existsUser = & psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DbUser';"
+            Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
             if($existsUser.Trim() -ne "1"){
-                ExecNative "psql" @("-U","postgres","-c","CREATE USER $DbUser WITH PASSWORD '$DbPass';")
-                ExecNative "psql" @("-U","postgres","-c","ALTER USER $DbUser CREATEDB;")
+                $env:PGPASSWORD = $PgAdminPass
+ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE USER $DbUser WITH PASSWORD '$DbPass';")
+Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
+                $env:PGPASSWORD = $PgAdminPass
+ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","ALTER USER $DbUser CREATEDB;")
+Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
                 Log "Utente $DbUser creato" "Green"
             } else { Log "Utente $DbUser già esiste" "Cyan" }
 
-            $existsDb = & psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '$DbName';"
+            $env:PGPASSWORD = $PgAdminPass
+$existsDb = & psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_database WHERE datname = '$DbName';"
+Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
             if($existsDb.Trim() -ne "1"){
-                ExecNative "psql" @("-U","postgres","-c","CREATE DATABASE $DbName OWNER $DbUser;")
+                $env:PGPASSWORD = $PgAdminPass
+ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE DATABASE $DbName OWNER $DbUser;")
+Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
                 Log "Database $DbName creato" "Green"
             } else { Log "Database $DbName già esiste" "Cyan" }
 
            if($DumpPath -and (Test-Path $DumpPath)){
     SetStep ($step++) $total "Import dump SQL"
-    # Password non interattiva per l'utente museo_user
+
+    # 1) Se il DB ha tabelle nello schema public, lo resetto (DROP+CREATE) usando postgres
+    $env:PGPASSWORD = $PgAdminPass
+    try {
+        $hasTables = & psql -h 127.0.0.1 -U postgres -w -d $DbName -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+        if ([int]$hasTables -gt 0) {
+            Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Yellow"
+            & psql -h 127.0.0.1 -U postgres -w -d $DbName -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION $DbUser; GRANT ALL ON SCHEMA public TO $DbUser; GRANT ALL ON SCHEMA public TO public;"
+        }
+    }
+    finally {
+        Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+    }
+
+    # 2) Import del dump (password non interattiva per museo_user)
     $env:PGPASSWORD = $DbPass
-    try{
+    try {
         ExecNative "psql" @(
             "-h","127.0.0.1",
             "-U",$DbUser,
@@ -363,10 +401,12 @@ function Invoke-Setup {
         )
         Log "Dump importato: $DumpPath" "Green"
     }
-    finally{
+    finally {
         Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
     }
 }
+
+
 
 
         } else {
@@ -440,6 +480,7 @@ $btnStart.Add_Click({
     Invoke-Setup -ProjectPath $tbProject.Text `
              -DbName $tbDbName.Text -DbUser $tbDbUser.Text -DbPass $tbDbPass.Text -DumpPath $tbDump.Text `
              -SuperUser $tbSU.Text -SuperEmail $tbEmail.Text -SuperPass $tbSUPass.Text `
+             -PgAdminPass $tbPgAdminPass.Text `
              -RunServer $chkRun.Checked
 })
 
