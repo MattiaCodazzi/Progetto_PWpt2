@@ -32,4 +32,5 @@ La documentazione del progetto è suddivisa in tre parti principali:
  
 
 ## Autori
-Progetto realizzato dagli studenti del corso di **Programmazione Web 2025**.
+- Codazzi Mattia 1088568 m.codazzi3@studenti.unibg.it
+- Cattaldo Andrea xxxxxx a.cattaldo@studenti.unibg.it
