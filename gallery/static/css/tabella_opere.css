@@ -1,7 +1,7 @@
+/* === TABELLA OPERE === */
 .tabella-opere {
   width: 90%;
   border-collapse: collapse;
-  margin-top: 1rem;
   margin: 1rem auto;
   font-size: 0.9rem;
   max-height: 500px;
@@ -10,6 +10,7 @@
   background-color: hsl(314, 100%, 97%);
   color: #5a5a5a;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 6px;
 }
 
 .tabella-opere th,
@@ -32,12 +33,15 @@
   cursor: pointer;
 }
 
+/* === PAGINAZIONE OPERE === */
 .pagination-container {
-  margin-top: 1.5rem;
+  margin: 1.5rem auto;
   text-align: center;
 }
 
-.pagina-btn {
+.pagina-btn,
+.pagina-avanti,
+.pagina-indietro {
   padding: 0.5rem 1rem;
   margin: 0 0.3rem;
   border: none;
@@ -46,16 +50,13 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.pagina-btn:hover {
+.pagina-btn:hover,
+.pagina-avanti:hover,
+.pagina-indietro:hover {
   background-color: #ffa3d5;
-}
-
-
-.pagination-container {
-  margin: 1rem auto;
-  text-align: center;
 }
 
 .pagina-corrente {
@@ -64,35 +65,7 @@
   color: #ffffff;
 }
 
-.pagina-avanti {
-  padding: 0.4rem 0.8rem;
-  background-color: hsl(314, 100%, 95%);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #7d7878;
-  font-weight: bold;
-}
-
-.pagina-avanti:hover {
-  background-color: #ffa3d5;
-}
-
-.pagina-indietro {
-  padding: 0.4rem 0.8rem;
-  background-color: hsl(314, 100%, 95%);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #7d7878;
-  font-weight: bold;
-  margin-right: 0.5rem;
-}
-
-.pagina-indietro:hover {
-  background-color: #ffa3d5;
-}
-
+/* === GRIGLIA SALE === */
 .griglia-sale {
   display: flex;
   flex-wrap: wrap;
@@ -110,6 +83,8 @@
   padding: 1rem;
   box-shadow: 0 0 6px rgba(0,0,0,0.1);
   text-align: center;
+  position: relative;
+  z-index: 10;
 }
 
 .paginazione-sale {
@@ -118,20 +93,20 @@
   gap: 1rem;
 }
 
+/* === GRIGLIA TEMI === */
 .griglia-temi {
-display: flex;
+  display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
   justify-content: center;
   margin-bottom: 2rem;
 }
 
-
 .card-tema {
   background-size: cover;
   background-position: center;
-  height: 220px; /* prima era ~160px */
-  width: 280px;  /* leggermente più larga per proporzione */
+  height: 220px;
+  width: 280px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -141,6 +116,7 @@ display: flex;
   cursor: pointer;
   transition: transform 0.3s ease;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  z-index: 10;
 }
 
 .card-tema:hover {
@@ -157,7 +133,6 @@ display: flex;
   text-align: center;
 }
 
-
 .card-tema .overlay {
   background: rgba(0, 0, 0, 0.5);
   color: white;
@@ -168,10 +143,21 @@ display: flex;
   border-radius: 0 0 8px 8px;
 }
 
-
 .paginazione-temi {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .card-sala,
+  .card-tema {
+    width: 90%;
+    max-width: 320px;
+  }
+  .tabella-opere {
+    font-size: 0.85rem;
+  }
 }

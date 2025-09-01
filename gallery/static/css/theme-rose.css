@@ -1,0 +1,593 @@
+/* =========================================================
+   THEME ROSE – override finale (caricare per ultimo)
+   Palette rosa moderna + contrasto migliorato + accessibilità
+   ========================================================= */
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Rosa “caldo” */
+  --rose-25:  #fff7fb;
+  --rose-50:  #fff1f7;
+  --rose-100: #ffe4ef;
+  --rose-200: #ffcfe2;
+  --rose-300: #ffb3d2;
+  --rose-400: #ff8fbe;
+  --rose-500: #ff66a6; /* primary */
+  --rose-600: #e24f90;
+  --rose-700: #c43b7a;
+  --rose-800: #9e2f62;
+  --rose-900: #61203e; /* più scuro (↑ contrasto) */
+
+  /* Neutri */
+  --ink-950: #0b0c0e;
+  --ink-900: #101114;
+  --ink-800: #1b1f25;
+  --ink-700: #2b2f37;
+  --ink-600: #3b404a;
+  --ink-500: #515866;
+  --ink-400: #6c7484;
+  --ink-300: #8f99ab;
+  --ink-200: #b6becd;
+  --ink-100: #dbe1ea;
+  --ink-50:  #eef3f8;
+
+  /* Effetti */
+  --glass-bg: rgba(255, 255, 255, 0.60);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --shadow-sm: 0 6px 16px rgba(16,17,20,0.10);
+  --shadow-md: 0 10px 30px rgba(16,17,20,0.16);
+  --radius: 14px;
+  --radius-lg: 18px;
+  --focus: 0 0 0 3px rgba(255,102,166,.40);
+}
+
+/* ---------- Sfondo pagina leggibile anche con immagine ---------- */
+body { position: relative; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, rgba(255,102,166,.22), transparent 60%),
+    linear-gradient(to bottom, rgba(16,17,20,.38), rgba(16,17,20,.38));
+  z-index: 0;
+}
+/* Tutto il contenuto sopra al velo */
+body > * { position: relative; z-index: 1; }
+
+/* ---------- Tipografia ---------- */
+h1, h2, h3, h4 { color: #fff; letter-spacing: .2px; }
+p, label, small, li, td, th { color: var(--ink-50); }
+
+/* Link */
+a { color: var(--rose-300); }
+a:hover, a:focus-visible { color: #fff; outline: none; text-decoration: underline; }
+
+/* ---------- Navbar / Header ---------- */
+header,
+nav.navbar,
+nav {
+  background: linear-gradient(180deg, var(--rose-50), var(--rose-25)) !important;
+  border-bottom: 1px solid var(--rose-100);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+nav a {
+  color: var(--rose-900) !important;         /* ↑ contrasto su bg chiaro */
+  font-weight: 700;
+  border-radius: 10px;
+}
+nav a:hover,
+nav a:focus-visible {
+  background: var(--rose-100);
+  outline: none;
+}
+
+/* ---------- Card generiche ---------- */
+.card,
+.card-sala,
+.card-tema,
+.contenuto-dashboard,
+.news-card {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: #fff;
+}
+.card:hover,
+.card-sala:hover,
+.card-tema:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md) !important;
+}
+.card h2, .card h3, .card h4,
+.card-sala h2, .card-tema h3 { color: #fff !important; }
+
+/* Testo su immagini/overlay: leggermente più leggibile */
+.card-tema h3,
+.news-card .overlay { text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+
+/* ---------- Pulsanti (button, paginazione, primari) ---------- */
+button,
+.btn,
+.pagina-btn,
+.pagina-avanti,
+.pagina-indietro {
+  background: linear-gradient(135deg, var(--rose-600), var(--rose-500)) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: .6rem 1.1rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 10px rgba(255,102,166,.28) !important;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  letter-spacing: .2px;
+  pointer-events: auto;
+}
+button:hover,
+.btn:hover,
+.pagina-btn:hover,
+.pagina-avanti:hover,
+.pagina-indietro:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255,102,166,.32) !important;
+}
+button:focus-visible,
+.btn:focus-visible,
+.paginazione-temi button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus) !important;
+}
+
+/* Stati disabilitati (↑ contrasto rispetto a bg) */
+button:disabled,
+.btn:disabled {
+  background: linear-gradient(135deg, var(--ink-600), var(--ink-500)) !important;
+  color: var(--ink-100) !important;
+  box-shadow: none !important;
+  opacity: .85;
+}
+
+/* ---------- Tabelle (tabella-opere) ---------- */
+.tabella-opere {
+  background: rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 12px;
+}
+.tabella-opere th {
+  background: linear-gradient(180deg, var(--rose-200), var(--rose-100)) !important;
+  color: var(--rose-900) !important;        /* ↑ contrasto header */
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+.tabella-opere td { color: #f4f7fb; }
+.tabella-opere tr:nth-child(even) td { background: rgba(255,255,255,.05); }
+.tabella-opere tr:hover td { background: rgba(255,102,166,.16) !important; }
+
+/* ---------- Messaggi / Alert ---------- */
+.messaggio.successo {
+  background: linear-gradient(180deg, #eafff2, #dbffe9);
+  border: 1px solid #98e9b6;
+  color: #145c32;
+}
+.messaggio.errore {
+  background: linear-gradient(180deg, #fff7e0, #fff0cc);
+  border: 1px solid #ffd37a;
+  color: #7a4f00;
+}
+
+/* ---------- Popup / Modali ---------- */
+.popup {
+  background-color: rgba(10,12,14,.66) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.popup-content,
+.modal-content {
+  background: linear-gradient(180deg, var(--rose-50), var(--rose-25)) !important;
+  color: var(--rose-900) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--rose-100) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Backdrop Bootstrap: visibile ma non troppo scuro */
+.modal-backdrop.show { background-color: rgba(10,12,14,0.45) !important; }
+
+/* ---------- Pulsante/icone di chiusura popup (X) – ALTISSIMO CONTRASTO ---------- */
+.popup .close,
+button.btn-close,
+button[aria-label="Close"],
+.modal-header .btn-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--rose-600) !important;   /* cerchio rosa scuro */
+  color: #fff !important;                    /* X sempre bianca */
+  line-height: 36px;
+  font-size: 22px;                           /* X grande e visibile */
+  font-weight: 800;
+  text-align: center;
+  opacity: 1 !important;                     /* niente fade */
+  box-shadow: 0 4px 12px rgba(255,102,166,.35);
+  cursor: pointer;
+}
+.popup .close:hover,
+button.btn-close:hover,
+.modal-header .btn-close:hover {
+  background: var(--rose-700) !important;
+  transform: scale(1.03);
+}
+.popup .close:focus-visible,
+button.btn-close:focus-visible,
+.modal-header .btn-close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus) !important;
+}
+
+/* Se la X è un'icona SVG/font, forziamo il colore */
+.popup .close svg,
+.modal-header .btn-close svg { fill: #fff !important; color: #fff !important; }
+
+/* ---------- News (overlay elegante) ---------- */
+.news-card { overflow: hidden; position: relative; }
+.news-card .overlay {
+  background: linear-gradient(to top, rgba(10,12,14,.85), rgba(10,12,14,.00));
+  color: #fff !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+
+/* ---------- Galleria ---------- */
+.galleria img { border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+
+/* ---------- Griglie (sale/temi) ---------- */
+.griglia-sale, .griglia-temi { gap: 1.2rem; }
+.card-sala {
+  background: linear-gradient(180deg, var(--rose-50), var(--rose-25)) !important;
+  color: var(--rose-900) !important;        /* ↑ contrasto testi */
+  border: 1px solid var(--rose-100) !important;
+}
+.card-tema h3 {
+  background: linear-gradient(180deg, rgba(10,12,14,.58), rgba(10,12,14,.36)) !important;
+  color: #fff !important;
+}
+
+/* ---------- FORM / INPUT (solo campi testuali) ---------- */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="url"],
+select,
+textarea {
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid var(--rose-300) !important;
+  color: var(--ink-900) !important;
+  border-radius: 10px !important;
+  transition: box-shadow .12s ease, border-color .12s ease;
+}
+input::placeholder, textarea::placeholder { color: var(--ink-400); }
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--rose-600) !important;
+  box-shadow: var(--focus) !important;
+}
+label { color: #fff !important; }
+
+/* ---------- CHECKBOX & RADIO (funzionalità intatte) ---------- */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--rose-600);
+  background: #fff;
+  border: 1px solid var(--rose-400);
+  width: 1.1rem;
+  height: 1.1rem;
+  vertical-align: middle;
+}
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--rose-600);
+  outline-offset: 2px;
+}
+/* Checkbox nella tabella sopra all’hover della riga */
+.tabella-opere th,
+.tabella-opere td { position: relative; }
+.tabella-opere input[type="checkbox"] {
+  position: relative;
+  z-index: 12;
+  pointer-events: auto;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.40)) !important;
+  color: var(--ink-200) !important;
+  border-top: 1px solid rgba(255,255,255,.15);
+  z-index: 0;
+}
+
+/* ---------- Accessibilità / Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+.modal-backdrop.show {
+  background-color: rgba(0,0,0,0) !important; /* trasparente */
+}
+
+
+/* =============================================================
+   TABLES – OPERE & AUTORI (visual-only)
+   Targets the table with id="tabella-opere" used in both pages.
+   Works with Bootstrap .table, .table-striped, .table-light.
+   No JS/functionality changes.
+   ============================================================= */
+
+/* Wrapper: make the .table-responsive look like a card */
+.table-responsive {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.08);
+  overflow: hidden; /* ensure rounded corners on table */
+}
+
+/* Table base */
+#tabella-opere.table {
+  margin: 0; /* remove inner margin because wrapper has spacing */
+  color: #2b2f37;
+  --row-hover: rgba(226,79,144,.10);   /* rose-600 @ 10% */
+  --row-stripe: rgba(0,0,0,.02);
+  --cell-border: rgba(0,0,0,.08);
+}
+
+/* Head (keeps Bootstrap's .table-light but improves contrast) */
+#tabella-opere thead.table-light th {
+  background: linear-gradient(180deg, #ffe4ef, #ffd6e6); /* rose-100 -> rose-150 */
+  color: #61203e; /* rose-900 */
+  font-weight: 800;
+  letter-spacing: .2px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+/* Header cells */
+#tabella-opere thead th {
+  padding: .75rem .9rem;
+  font-size: .92rem;
+  text-transform: uppercase;
+}
+
+/* Body cells */
+#tabella-opere tbody td {
+  padding: .70rem .9rem;
+  border-top: 1px solid var(--cell-border);
+  vertical-align: middle;
+  font-size: .95rem;
+}
+
+/* Row stripe and hover (compatible with .table-striped) */
+#tabella-opere.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: var(--row-stripe);
+}
+
+#tabella-opere tbody tr:hover > * {
+  background: var(--row-hover) !important;
+}
+
+/* Links (Autore / Sala cliccabili) */
+#tabella-opere a {
+  color: #9e2f62; /* rose-800 */
+  font-weight: 600;
+  text-decoration: none;
+}
+#tabella-opere a:hover,
+#tabella-opere a:focus-visible {
+  color: #c43b7a; /* rose-700 */
+  text-decoration: underline;
+  outline: none;
+}
+
+/* Checkbox column: keep compact and aligned */
+#tabella-opere thead th:first-child,
+#tabella-opere tbody td:first-child {
+  width: 42px;
+  text-align: center;
+  white-space: nowrap;
+}
+#tabella-opere input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: #e24f90; /* rose-600 */
+}
+
+/* Number columns (right-align) */
+#tabella-opere td.text-end {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state cell */
+#tabella-opere tbody tr td.colspan-empty,
+#tabella-opere tbody tr:only-child td[colspan] {
+  text-align: center;
+  color: #6c7484;
+  background: #f9f2f6;
+}
+
+/* Pagination area inside the page (keep subtle) */
+#paginazione .btn {
+  border-radius: 999px;
+  padding: .4rem .8rem;
+}
+#paginazione .btn-outline-primary {
+  --bs-btn-color: #9e2f62;           /* rose-800 */
+  --bs-btn-border-color: #ff8fbe;    /* rose-400 */
+  --bs-btn-hover-bg: #ff8fbe;
+  --bs-btn-hover-border-color: #ff8fbe;
+  --bs-btn-hover-color: #fff;
+}
+
+/* Table row interactive cursor (but not on controls) */
+#tabella-opere tbody tr { cursor: pointer; }
+#tabella-opere tbody tr input,
+#tabella-opere tbody tr button,
+#tabella-opere tbody tr a,
+#tabella-opere tbody tr label,
+#tabella-opere tbody tr select { cursor: auto; }
+
+/* Compact alerts near the table */
+#messaggio .alert {
+  border-radius: 12px;
+  border-left: 6px solid #e24f90;
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  #tabella-opere thead th { font-size: .85rem; }
+  #tabella-opere tbody td { font-size: .9rem; }
+}
+
+
+/* ---- Palette & tipografia ---- */
+:root{
+  --rose:#e8a6ba;          /* rosa guida */
+  --rose-600:#d77c9b;
+  --ink:#222;
+  --ink-70:rgba(34,34,34,.7);
+  --paper:#fff;
+  --paper-90:rgba(255,255,255,.9);
+}
+
+h1,h2,h3,.fw-semibold{letter-spacing:.2px}
+
+/* ---- HERO ---- */
+.hero{
+  min-height: 72vh;
+  
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display:flex;
+  align-items:center;
+}
+.hero-overlay{
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 20% 10%, rgba(0,0,0,.25), rgba(0,0,0,.55)),
+              linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,.55));
+}
+.hero-content{color:#fff; z-index:1;}
+.hero .logo{max-width:160px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25));}
+.text-light-70{color:rgba(255,255,255,.8) !important}
+
+/* ---- Buttons ---- */
+.btn-rose{
+  --bs-btn-bg: var(--rose);
+  --bs-btn-border-color: var(--rose);
+  --bs-btn-hover-bg: var(--rose-600);
+  --bs-btn-hover-border-color: var(--rose-600);
+  --bs-btn-color: #1a1a1a;
+  --bs-btn-hover-color:#fff;
+}
+.btn-outline-light:hover{color:#1a1a1a}
+
+/* ---- Feature cards ---- */
+.feature .feature-icon{
+  font-size:2rem; line-height:1; margin-bottom:.5rem;
+}
+.feature.card{border:0; border-radius:1rem}
+.feature.card:hover{transform:translateY(-2px); transition:.2s ease; box-shadow:0 8px 22px rgba(0,0,0,.08)}
+
+/* ---- Gallery ---- */
+.gallery-card{border:0; border-radius:1rem; overflow:hidden}
+.gallery-img{
+  background-size: cover; background-position:center;
+}
+.gallery-card:hover .gallery-img{filter:contrast(1.05) brightness(.95)}
+.gallery-card .card-body{background:var(--paper)}
+
+/* ---- About figure ---- */
+.about-figure{
+  background-size:cover; background-position:center;
+}
+
+/* ---- Utilities ---- */
+.bg-body{background:#f7f7f8}
+
+/* Rendi il bottone visibile, senza pallone rosa */
+.btn-close {
+  background: none !important;  /* elimina lo sfondo rosa */
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.btn-close::before {
+  content: "×";          /* classica X */
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Backdrop trasparente MA cliccabile */
+.modal-backdrop.show {
+  background-color: transparent !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Forza la X ad essere sempre sopra tutto e cliccabile */
+.modal-header .btn-close {
+  z-index: 1060 !important;   /* più alto del backdrop */
+  pointer-events: auto !important;
+  position: relative;
+}
+
+/* Forza testo scuro dentro al popup */
+#temaModal .modal-content,
+#temaModal .modal-body,
+#temaModal .modal-body * {
+  color: #212529 !important;   /* colore tipico Bootstrap per testo scuro */
+  opacity: 1 !important;       /* elimina eventuali trasparenze */
+}
+
+.pagination-box {
+  background: transparent !important;
+  max-width: fit-content;
+  margin: auto;
+}
+
+.pagination-box button {
+  min-width: 40px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.pagination-box span {
+  font-size: 0.9rem;
+  color: #fff; /* testo leggibile sullo sfondo scuro */
+}
+
+
+/* =========================================================
+   OVERRIDE DASHBOARD – testo leggibile (sovrascrive il grigio chiaro)
+   ========================================================= */
+
+/* Forza testi scuri nelle card della dashboard (Novità, Info ecc.) */
+.card-body p,
+.card-body li,
+.card-body small {
+  color: #212529 !important;   /* colore tipico Bootstrap per testo scuro */
+}
+

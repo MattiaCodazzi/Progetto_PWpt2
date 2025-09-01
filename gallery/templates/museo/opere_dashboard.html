@@ -1,38 +1,205 @@
 {% extends "museo/base.html" %}
 {% load static %}
 
-{% block title %}Dashboard – Museo{% endblock %}
+{% block title %}Museo – Strumenti Staff{% endblock %}
 
 {% block content %}
-<div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 200px);">
-  <div class="row justify-content-center w-100">
-    <div class="col-12 col-md-10 col-lg-8">
-      <div class="card shadow-lg p-5 bg-white rounded text-center">
+<div class="container py-4">
 
-        <!-- LOGO -->
-        <img src="{% static 'icon/logo.png' %}" 
-             alt="Logo Museo" 
-             class="img-fluid mx-auto mb-4" 
-             style="max-width: 200px;">
-
-        <!-- TITOLO -->
-        <h2 class="fw-bold text-dark mb-3">Benvenuto nella piattaforma di gestione del patrimonio museale</h2>
-
-        <!-- DESCRIZIONE -->
-        <p class="lead text-muted mb-3">
-          Utilizza il menù in alto per accedere alle opere, agli autori, alle sale e ai temi del museo.
-        </p>
-
-        <!-- CITAZIONE -->
-        <blockquote class="blockquote mt-4 mb-0">
-          <p class="fst-italic text-secondary">“Custodire l’arte significa dare voce al passato per illuminare il presente.”</p>
-        </blockquote>
-
+  <!-- Intro -->
+  <div class="card shadow-sm mb-4 rounded-4">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <img src="{% static 'icon/logo.png' %}" alt="MV" style="width:64px;height:64px;object-fit:contain">
+        <div>
+          <h1 class="h4 mb-1 text-dark">Pannello operativo Museo</h1>
+          <p class="text-muted mb-0">
+            Strumenti interni per la gestione di opere, autori, sale, temi e comunicazioni.
+          </p>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- VETRINA (colorata, immagini via JS come in Temi) -->
+  <section class="mb-4">
+    <h2 class="h5 mb-3">Vetrina</h2>
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="card gallery-card shadow-sm rounded-4">
+          <div class="ratio ratio-4x3 bg-cover rounded-top-4" data-img="gallery_1.jpg"></div>
+          <div class="card-body p-2">
+            <div class="small text-muted">Opera</div>
+            <div class="fw-semibold text-truncate text-dark">Sfumature</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card gallery-card shadow-sm rounded-4">
+          <div class="ratio ratio-4x3 bg-cover rounded-top-4" data-img="gallery_2.jpg"></div>
+          <div class="card-body p-2">
+            <div class="small text-muted">Opera</div>
+            <div class="fw-semibold text-truncate text-dark">Ibrido</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card gallery-card shadow-sm rounded-4">
+          <div class="ratio ratio-4x3 bg-cover rounded-top-4" data-img="gallery_3.jpg"></div>
+          <div class="card-body p-2">
+            <div class="small text-muted">Opera</div>
+            <div class="fw-semibold text-truncate text-dark">Boschetto</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card gallery-card shadow-sm rounded-4">
+          <div class="ratio ratio-4x3 bg-cover rounded-top-4" data-img="gallery_4.jpg"></div>
+          <div class="card-body p-2">
+            <div class="small text-muted">Opera</div>
+            <div class="fw-semibold text-truncate text-dark">Ultimo canto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Novità e informazioni (popup identico a Temi/Sale) -->
+  <section class="mb-4">
+    <h2 class="h5 mb-3">Novità e informazioni</h2>
+
+    <div class="row g-3 align-items-stretch">
+      <!-- Novità -->
+      <div class="col-12 col-lg-6 d-flex">
+        <div class="card shadow-sm rounded-4 h-100 w-100">
+          <div class="card-body d-flex flex-column">
+            <h3 class="h6">Novità operative</h3>
+            <ul class="small text-dark mb-0">
+              <li>Opere: filtri migliorati e messaggistica più chiara.</li>
+              <li>Autori: validazione date (morte ≥ nascita) e messaggi a tempo.</li>
+              <li>Temi: impaginazione 3+2 e descrizioni su hover riviste.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informazioni → apre modal -->
+      <div class="col-12 col-lg-6 d-flex">
+        <div id="card-informazioni" class="card shadow-sm rounded-4 h-100 w-100" role="button" tabindex="0">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h3 class="h6 mb-0">Informazioni</h3>
+              <small class="text-muted">Aggiornate</small>
+            </div>
+            <p class="small text-muted mb-3">
+              Riapertura stagione autunnale 1 settebre 2025.
+            </p>
+            <div class="mt-auto">
+              <span class="btn btn-outline-secondary btn-sm">Leggi articolo completo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODALE (stessi id/nome di Temi) -->
+  <div class="modal fade" id="temaModal" tabindex="-1" aria-labelledby="temaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-dark" id="temaModalLabel">Dettaglio tema</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+          <h4 id="popup-titolo" class="text-dark"></h4>
+          <div id="popup-testo" class="mt-3 text-dark"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<style>
+  /* Backdrop come in Temi (trasparente) */
+  .modal-backdrop.show { background-color: transparent !important; pointer-events: none !important; }
+  .modal { z-index: 9999 !important; pointer-events: auto !important; }
+  .modal-content, .modal-header, .modal-body { pointer-events: auto !important; }
+
+  /* Testo popup scuro e pieno */
+  #temaModal .modal-content,
+  #temaModal .modal-body,
+  #temaModal .modal-body * { color:#212529 !important; opacity:1 !important; }
+
+  /* Vetrina */
+  .bg-cover{ background-size:cover; background-position:center; }
+  .gallery-card:hover{ transform: translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.08); transition:.2s ease; }
+</style>
+
+<!-- Include come in Temi (se già nel base, puoi toglierli) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  $(function () {
+    /* Immagini vetrina via JS (pattern Temi) */
+    const STATIC_IMG_BASE_HOME = "{% static 'img_ottimizzate' %}";
+    $('[data-img]').each(function(){
+      const f = $(this).data('img');
+      if (f) $(this).css('background-image', "url('" + STATIC_IMG_BASE_HOME + "/" + f + "')");
+    });
+
+    /* Card Informazioni → apre il modal identico a Temi */
+    $('#card-informazioni').on('click', function () {
+      const titolo = 'Comunicazione interna – Linee guida esposizioni';
+      const corpo = `
+        <p>A partire dal <strong>1° settembre</strong> il museo riaprirà ufficialmente al pubblico dopo la consueta pausa estiva. 
+Tale riapertura richiede la massima collaborazione di tutto il personale, al fine di garantire un’organizzazione efficiente e conforme agli standard qualitativi richiesti dalla direzione.</p>
+
+<p>Si ricorda che le attività di allestimento delle sale dovranno essere completate entro il 30 agosto, con particolare attenzione a:</p>
+<ul>
+  <li>Verifica dello stato di conservazione delle opere rientrate dal deposito.</li>
+  <li>Aggiornamento delle schede inventariali e delle informazioni nel database gestionale.</li>
+  <li>Controllo della corretta esposizione e illuminazione di quadri e sculture.</li>
+  <li>Segnalazione immediata di eventuali anomalie (danni, cornici compromesse, supporti instabili).</li>
+</ul>
+
+<p>In vista dell’incremento di flusso previsto nei mesi autunnali, il personale di sala dovrà attenersi scrupolosamente ai turni definiti dal coordinamento interno. Ogni modifica di orario dovrà essere comunicata con almeno 48 ore di anticipo.</p>
+
+<p>Si ribadisce inoltre l’importanza di mantenere un atteggiamento professionale con il pubblico e una collaborazione costante tra i reparti. Gli operatori tecnici e amministrativi sono invitati a sincronizzare le proprie attività con il settore didattico e con l’ufficio comunicazione, così da evitare sovrapposizioni e garantire uniformità nelle informazioni diffuse.</p>
+
+<p>Per quanto riguarda la sicurezza, a partire dal 1° settembre entreranno in vigore le nuove procedure di evacuazione aggiornate. Tutto il personale è obbligato a partecipare alla sessione formativa fissata per il 28 agosto.</p>
+
+<p>Indicazioni operative aggiuntive:</p>
+<ul>
+  <li>Tutte le richieste di esposizione temporanea dovranno essere inoltrate tramite modulo digitale, non più in formato cartaceo.</li>
+  <li>Le opere non esposte andranno registrate come <em>non esposte</em> (evitare valori NULL).</li>
+  <li>Gli autori e le sale dovranno essere sempre correttamente collegati nel sistema informatico.</li>
+  <li>I messaggi di sistema devono essere chiari, visibili e non persistenti, evitando alert a comparsa del browser.</li>
+  <li>Per le tipologie di opere usare i radio button (quadro/scultura) e non menu a tendina.</li>
+  <li>Nella gestione delle ricerche, implementare paginazione non solo sequenziale, con indicazione della pagina corrente.</li>
+</ul>
+
+<p>Il rispetto di tali linee guida consentirà di affrontare la riapertura con efficienza, riducendo criticità organizzative e garantendo al pubblico un servizio di qualità.</p>
+
+<p class="mb-0"><strong>Riferimento:</strong> Direzione Generale – Comunicazione interna n. 4/2025.</p>
+`;
+      $('#popup-titolo').text(titolo);
+      $('#popup-testo').html(corpo);
+      new bootstrap.Modal(document.getElementById('temaModal')).show();
+    });
+  });
+</script>
+{% endblock %}
+
+
+
+
+
+
 
 
 

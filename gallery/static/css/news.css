@@ -1,16 +1,13 @@
+/* === LAYOUT PRINCIPALE === */
 main.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px); /* adattare se header/nav sono più alti */
+  min-height: calc(100vh - 200px); /* adatta se header/nav sono più alti */
   padding: 2rem;
 }
 
-.news-museo h2 {
-  margin-bottom: 0rem;
-  color: white;
-}
-
+/* === TESTI / WRAPPER === */
 .news-museo {
   text-align: center;
   position: relative;
@@ -19,6 +16,12 @@ main.container {
   transform: none;
   max-width: 1000px;
 }
+.news-museo h2 {
+  margin-bottom: 0rem;
+  color: #fff;
+}
+
+/* === GRIGLIA CARDS === */
 .news-container {
   display: flex;
   justify-content: center;
@@ -26,6 +29,8 @@ main.container {
   flex-wrap: wrap;
   padding: 1rem;
 }
+
+/* === CARD NEWS === */
 .news-card {
   width: 250px;
   height: 160px;
@@ -34,64 +39,93 @@ main.container {
   border-radius: 8px;
   position: relative;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
   box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  will-change: transform;
 }
 .news-card:hover {
   transform: scale(1.05);
 }
 .news-card .overlay {
   background: rgba(0, 0, 0, 0.5);
-  color: white;
+  color: #fff;
   position: absolute;
-  bottom: 0;
-  width: 100%;
+  inset: auto 0 0 0; /* bottom full width */
   padding: 0.5rem;
   border-radius: 0 0 8px 8px;
 }
 
-/* POPUP STILE */
+/* === POPUP === */
 .popup {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0,0,0,.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 1060; /* > 1050 Bootstrap modal */
+  overscroll-behavior: contain;
 }
 .popup.hidden {
   display: none;
 }
 .popup-content {
   background: hsl(314, 100%, 95%);
+  color: #7d7878;
   padding: 2rem;
   border-radius: 8px;
-  width: 80%;
-  max-width: 600px;
+  width: min(90vw, 600px);
+  max-height: 85vh;          /* evita che esca dallo schermo */
+  overflow: auto;            /* scroll interno se contenuto lungo */
   position: relative;
-  animation: fadeIn 0.3s ease-in-out;
+  z-index: 1061;
+  animation: fadeIn .3s ease-in-out;
 }
+
+/* titoli e paragrafi nel popup */
 .popup-content h3 {
   margin-top: 0;
   color: #7d7878;
 }
 .popup-content p {
-  color:#7d7878; /* oppure #000, white, ecc. */
+  color: #7d7878;
 }
 
-
+/* bottone chiusura */
 .popup .close {
   position: absolute;
   top: 10px;
   right: 15px;
   font-size: 1.4rem;
   cursor: pointer;
+  line-height: 1;
+  background: transparent;
+  border: 0;
+  color: #7d7878;
 }
+.popup .close:focus-visible {
+  outline: 2px solid #7d7878;    /* accessibilità */
+  outline-offset: 2px;
+}
+
+/* animazioni */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
+@media (prefers-reduced-motion: reduce) {
+  .news-card { transition: none; }
+  .popup-content { animation: none; }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 576px) {
+  .news-card {
+    width: 45vw;
+    min-width: 150px;
+    height: 140px;
+  }
+}
+

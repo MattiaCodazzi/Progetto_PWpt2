@@ -6,25 +6,30 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Museo Virtuale{% endblock %}</title>
+  <title>{% block title %}Museo Web{% endblock %}</title>
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Foglio stile personalizzato -->
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
-  <link href="{% static 'css/img.css' %}" rel="stylesheet">
   <link href="{% static 'css/news.css' %}" rel="stylesheet">
   <link href="{% static 'css/tabella_opere.css' %}" rel="stylesheet">
+  <link href="{% static 'css/theme-rose.css' %}" rel="stylesheet">
+  
+
+
+
+
 </head>
 
-<body class="bg-pattern d-flex flex-column min-vh-100">
+
 
   <!-- Header -->
 <header class="bg-light-pink py-3 shadow-sm text-center">
 
   <!-- Titolo sopra la navbar -->
   <div class="mb-2">
-    <h1 class="fw-bold text-dark display-6 mb-0">Museo Virtuale</h1>
+    <h1 class="fw-bold text-dark display-6 mb-0">Museo Web</h1>
   </div>
 
   <!-- Navbar -->
@@ -36,6 +41,8 @@
       <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:sale_list' %}">Sale</a></li>
       <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'gallery:temi_list' %}">Temi</a></li>
     </ul>
+  
+
   </nav>
 
 </header>
@@ -53,6 +60,60 @@
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/main.js' %}"></script>
+  <script>
+(function () {
+  const body = document.body;
+  const btn  = document.getElementById('theme-toggle');
+
+  // tema salvato o classe di default già presente nel body
+  const saved = localStorage.getItem('theme');
+  if (saved === 'theme-rosa' || saved === 'theme-classico') {
+    body.classList.remove('theme-rosa','theme-classico');
+    body.classList.add(saved);
+  }
+
+  function currentTheme() {
+    return body.classList.contains('theme-classico') ? 'theme-classico' : 'theme-rosa';
+  }
+
+  function applyLabel() {
+    const t = currentTheme();
+    if (t === 'theme-rosa') {
+      btn.innerText = '🏛 Classico';     // indica cosa succede al click
+      btn.setAttribute('aria-pressed', 'false');
+    } else {
+      btn.innerText = '🌸 Rosa';
+      btn.setAttribute('aria-pressed', 'true');
+    }
+  }
+
+  function toggleTheme() {
+    if (currentTheme() === 'theme-rosa') {
+      body.classList.remove('theme-rosa');
+      body.classList.add('theme-classico');
+      localStorage.setItem('theme', 'theme-classico');
+    } else {
+      body.classList.remove('theme-classico');
+      body.classList.add('theme-rosa');
+      localStorage.setItem('theme', 'theme-rosa');
+    }
+    applyLabel();
+  }
+
+  // init label e handler
+  applyLabel();
+  btn?.addEventListener('click', toggleTheme);
+
+  // opzionale: scorciatoia da tastiera Alt+T
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && (e.key === 't' || e.key === 'T')) {
+      e.preventDefault();
+      toggleTheme();
+    }
+  });
+})();
+</script>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>

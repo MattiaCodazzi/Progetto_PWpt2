@@ -63,34 +63,55 @@ def autore_check_or_create(request):
 @csrf_exempt
 @require_POST
 def autore_create(request):
+    from datetime import datetime
+
     nome = request.POST.get("nome")
     cognome = request.POST.get("cognome")
     nazione = request.POST.get("nazione")
-    data_nascita = request.POST.get("dataNascita")  # <-- con N maiuscola
+    data_nascita = request.POST.get("dataNascita")  # ISO yyyy-mm-dd (UI)
     data_morte = request.POST.get("dataMorte")
     tipo = request.POST.get("tipo")
 
     if not nome or not cognome or not nazione:
         return JsonResponse({"error": "Dati mancanti"}, status=400)
+
+    # Normalizza in base a 'tipo'
     if tipo == "vivo":
         data_morte = None
     elif tipo == "morto" and not data_morte:
         return JsonResponse({"error": "Data di morte richiesta per autore morto"}, status=400)
+
+    # ✅ Parse sicuro date + controllo logico nascita < morte
+    dn = dm = None
+    try:
+        if data_nascita:
+            dn = datetime.fromisoformat(data_nascita).date()
+        if data_morte:
+            dm = datetime.fromisoformat(data_morte).date()
+    except Exception:
+        return JsonResponse({"error": "Formato data non valido. Usa yyyy-mm-dd."}, status=400)
+
+    if dn and dm and dn >= dm:
+        return JsonResponse({"error": "La data di nascita deve essere precedente alla data di morte."}, status=400)
+
+    # Crea autore (salva date; se usi field DateField, passiamo date)
     autore = Autore.objects.create(
         nome=nome,
         cognome=cognome,
         nazione=nazione,
-        data_nascita=data_nascita or None,
-        data_morte=data_morte or None,
+        data_nascita=dn,
+        data_morte=dm,
         tipo=tipo
     )
-
     return JsonResponse({"msg": "Autore inserito", "id": autore.codice})
+
 
 
 
 @require_POST
 def autori_update(request):
+    from datetime import datetime
+
     codice = request.POST.get("codice")
     nome = request.POST.get("nome", "").strip()
     cognome = request.POST.get("cognome", "").strip()
@@ -102,26 +123,38 @@ def autori_update(request):
     if not codice or not nome or not cognome or not nazione:
         return JsonResponse({"error": "Dati incompleti"}, status=400)
 
-    # 🛑 Se è stato inserito un tipo "vivo" ma c'è una data di morte, blocca
+    # Coerenza con 'tipo'
     if tipo == "vivo" and data_morte:
         return JsonResponse({"error": "Un autore vivo non può avere una data di morte."}, status=400)
-
-    # 🛑 Se è stato selezionato "morto" ma manca la data di morte
     if tipo == "morto" and not data_morte:
         return JsonResponse({"error": "Seleziona una data di morte per un autore morto."}, status=400)
+
+    # ✅ Parse sicuro date + controllo logico nascita < morte
+    dn = dm = None
+    try:
+        if data_nascita:
+            dn = datetime.fromisoformat(data_nascita).date()
+        if data_morte:
+            dm = datetime.fromisoformat(data_morte).date()
+    except Exception:
+        return JsonResponse({"error": "Formato data non valido. Usa yyyy-mm-dd."}, status=400)
+
+    if dn and dm and dn >= dm:
+        return JsonResponse({"error": "La data di nascita deve essere precedente alla data di morte."}, status=400)
 
     try:
         autore = Autore.objects.get(codice=codice)
         autore.nome = nome
         autore.cognome = cognome
         autore.nazione = nazione
-        autore.data_nascita = data_nascita
-        autore.data_morte = data_morte
+        autore.data_nascita = dn
+        autore.data_morte = dm
         autore.tipo = tipo
         autore.save()
         return JsonResponse({"msg": "Autore aggiornato"})
     except Autore.DoesNotExist:
         return JsonResponse({"error": "Autore non trovato"}, status=404)
+
 
 
 
@@ -169,23 +202,38 @@ def opera_create(request):
         if not (autore_id and titolo and anno_realizzazione and anno_acquisto and tipo):
             return JsonResponse({"error": "Tutti i campi obbligatori devono essere compilati."}, status=400)
 
+        try:
+            ar = int(anno_realizzazione)
+            aa = int(anno_acquisto)
+        except ValueError:
+            return JsonResponse({"error": "Gli anni devono essere numeri interi."}, status=400)
+
+        LIMITE_ANNO = 2025
+        if ar < 0 or aa < 0:
+            return JsonResponse({"error": "L'anno non può essere negativo."}, status=400)
+        if ar > LIMITE_ANNO or aa > LIMITE_ANNO:
+            return JsonResponse({"error": f"L'anno non può essere successivo al {LIMITE_ANNO}."}, status=400)
+        if aa < ar:
+            return JsonResponse({"error": "L'anno di acquisto non può precedere quello di realizzazione."}, status=400)
+
         autore = Autore.objects.get(pk=autore_id)
-        sala = Sala.objects.get(pk=sala_id) if sala_id not in [None, ""] else None
 
-        # Controllo coerenza anni (anche per anni < 1000 va bene: sono int)
-        if int(anno_acquisto) < int(anno_realizzazione):
-            return JsonResponse({"error": "L'anno di acquisto non può essere precedente a quello di realizzazione."},status=400)
+        # ✅ controllo morte autore
+        if autore.data_morte and ar > autore.data_morte.year:
+            return JsonResponse({
+                "error": f"L'anno di realizzazione ({ar}) non può essere successivo alla morte dell'autore ({autore.data_morte.year})."
+            }, status=400)
 
+        sala = Sala.objects.get(pk=sala_id) if sala_id else None
 
         Opera.objects.create(
             autore=autore,
             titolo=titolo,
-            anno_realizzazione=int(anno_realizzazione),
-            anno_acquisto=int(anno_acquisto),
+            anno_realizzazione=ar,
+            anno_acquisto=aa,
             tipo=tipo,
             esposta_in_sala=sala
         )
-
         return JsonResponse({"msg": "Opera inserita correttamente"}, status=201)
 
     except Autore.DoesNotExist:
@@ -196,110 +244,102 @@ def opera_create(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
+
+
 @csrf_exempt
 @require_POST
 def opere_search(request):
     from django.db.models import Q
 
+    # --- Lettura parametri dalla UI (vedi raccogliFiltri in opera_form.html) ---
     titolo = request.POST.get("titolo", "").strip()
-    autore_nome = request.POST.get("autore_nome", "").strip()
-    tipo = request.POST.get("tipo", "")
-    sala_id = request.POST.get("salaId", "")
-    anno_real_min = request.POST.get("annoRealizzazioneMin", "")
-    anno_real_max = request.POST.get("annoRealizzazioneMax", "")
-    anno_acq_min = request.POST.get("annoAcquistoMin", "")
-    anno_acq_max = request.POST.get("annoAcquistoMax", "")
-    anno_real_singolo = request.POST.get("annoRealizzazione", "")
-    anno_acq_singolo = request.POST.get("annoAcquisto", "")
+    autore_nome = request.POST.get("autore_nome", "").strip()   # testo "Nome Cognome"
+    tipo = request.POST.get("tipo", "").strip()
+    sala_id = request.POST.get("salaId", "").strip()            # numero sala (stringa)
 
+    # Range anni
+    anno_real_min = request.POST.get("annoRealizzazioneMin", "").strip()
+    anno_real_max = request.POST.get("annoRealizzazioneMax", "").strip()
+    anno_acq_min  = request.POST.get("annoAcquistoMin", "").strip()
+    anno_acq_max  = request.POST.get("annoAcquistoMax", "").strip()
 
+    # Valori singoli (usati in modalità modifica/insert)
+    anno_real_singolo = request.POST.get("annoRealizzazione", "").strip()
+    anno_acq_singolo  = request.POST.get("annoAcquisto", "").strip()
 
-
-    pagina = int(request.POST.get("pagina", 1))
+    # --- Paginazione: default 10/pg (coerente con UI) ---
+    try:
+        pagina = int(request.POST.get("pagina", 1))
+        if pagina < 1:
+            pagina = 1
+    except ValueError:
+        pagina = 1
     limite = 10
     offset = (pagina - 1) * limite
 
+    # --- Helper clamp anni ---
+    LIMITE_ANNO = 2025
+    def _clamp_anno(v, *, minv=0, maxv=LIMITE_ANNO):
+        try:
+            n = int(v)
+            if n < minv: n = minv
+            if n > maxv: n = maxv
+            return n
+        except Exception:
+            return None
+
+    # --- Costruzione filtri ---
     filtri = Q()
+
     if titolo:
+        # Ricerca titoli che iniziano con... (coerente con tua logica attuale)
         filtri &= Q(titolo__istartswith=titolo)
+
     if autore_nome:
+        # La UI passa testo, non ID: "Nome Cognome" (o una o più parole)
         parti = autore_nome.split()
         if len(parti) >= 2:
             nome = parti[0]
             cognome = " ".join(parti[1:])
             filtri &= Q(autore__nome__iexact=nome, autore__cognome__iexact=cognome)
+        else:
+            # Se l’utente scrive solo una parola, proviamo su nome O cognome
+            filtri &= (Q(autore__nome__icontains=autore_nome) | Q(autore__cognome__icontains=autore_nome))
 
     if tipo:
         filtri &= Q(tipo=tipo)
+
     if sala_id:
+        # La UI invia il numero sala; filtro su numero
         filtri &= Q(esposta_in_sala__numero=sala_id)
-    if anno_real_min:
-        filtri &= Q(anno_realizzazione__gte=int(anno_real_min))
-    if anno_real_max:
-        filtri &= Q(anno_realizzazione__lte=int(anno_real_max))
-    if anno_acq_min:
-        filtri &= Q(anno_acquisto__gte=int(anno_acq_min))
-    if anno_acq_max:
-        filtri &= Q(anno_acquisto__lte=int(anno_acq_max))
-    
 
-    if anno_real_singolo:
-        filtri &= Q(anno_realizzazione=int(anno_real_singolo))
-    if anno_acq_singolo:
-        filtri &= Q(anno_acquisto=int(anno_acq_singolo))
+    # --- Range anni normalizzati (0–2025) ---
+    n = _clamp_anno(anno_real_min)
+    if n is not None:
+        filtri &= Q(anno_realizzazione__gte=n)
 
+    n = _clamp_anno(anno_real_max)
+    if n is not None:
+        filtri &= Q(anno_realizzazione__lte=n)
 
-    queryset = Opera.objects.filter(filtri).select_related("autore", "esposta_in_sala")
-    totale = queryset.count()
-    opere = queryset.order_by("titolo")[offset:offset + limite]
+    n = _clamp_anno(anno_acq_min)
+    if n is not None:
+        filtri &= Q(anno_acquisto__gte=n)
 
-    risultati = []
-    for o in opere:
-        risultati.append({
-    "codice": o.codice,
-    "titolo": o.titolo,
-    "autore": f"{o.autore.nome} {o.autore.cognome}",
-    "autore_id": o.autore.codice,
-    "tipo": o.tipo,
-    "annoRealizzazione": o.anno_realizzazione,
-    "annoAcquisto": o.anno_acquisto,
-    "sala": o.esposta_in_sala.nome if o.esposta_in_sala else None,
-    "sala_id": o.esposta_in_sala.numero if o.esposta_in_sala else None
-})
+    n = _clamp_anno(anno_acq_max)
+    if n is not None:
+        filtri &= Q(anno_acquisto__lte=n)
 
+    # --- Valori singoli (se presenti) ---
+    n = _clamp_anno(anno_real_singolo)
+    if n is not None:
+        filtri &= Q(anno_realizzazione=n)
 
-    return JsonResponse({
-        "opere": risultati,
-        "totale": totale,
-        "limite": limite
-    })
+    n = _clamp_anno(anno_acq_singolo)
+    if n is not None:
+        filtri &= Q(anno_acquisto=n)
 
-
-    titolo = request.POST.get("titolo", "").strip()
-    autore_id = request.POST.get("autore", "")           # ✅ corretto
-    tipo = request.POST.get("tipo", "")
-    sala_id = request.POST.get("salaId", "")             # ← questo è giusto
-    anno_real = request.POST.get("annoRealizzazione", "")
-    anno_acq = request.POST.get("annoAcquisto", "")
-
-    pagina = int(request.POST.get("pagina", 1))
-    limite = 10
-    offset = (pagina - 1) * limite
-
-    filtri = Q()
-    if titolo:
-        filtri &= Q(titolo__icontains=titolo)
-    if autore_id:
-        filtri &= Q(autore__codice=autore_id)
-    if tipo:
-        filtri &= Q(tipo=tipo)
-    if sala_id:
-        filtri &= Q(esposta_in_sala__numero=sala_id)
-    if anno_real:
-        filtri &= Q(anno_realizzazione=anno_real)
-    if anno_acq:
-        filtri &= Q(anno_acquisto=anno_acq)
-
+    # --- Query + serializzazione coerente con la tabella JS ---
     queryset = Opera.objects.filter(filtri).select_related("autore", "esposta_in_sala")
     totale = queryset.count()
     opere = queryset.order_by("titolo")[offset:offset + limite]
@@ -310,10 +350,12 @@ def opere_search(request):
             "codice": o.codice,
             "titolo": o.titolo,
             "autore": f"{o.autore.nome} {o.autore.cognome}",
+            "autore_id": o.autore.codice,  # serve per link a /autori/<id>
             "tipo": o.tipo,
             "annoRealizzazione": o.anno_realizzazione,
             "annoAcquisto": o.anno_acquisto,
-            "sala": o.esposta_in_sala.nome if o.esposta_in_sala else None
+            "sala": o.esposta_in_sala.nome if o.esposta_in_sala else None,
+            "sala_id": o.esposta_in_sala.numero if o.esposta_in_sala else None  # serve per link a /sale/<id>
         })
 
     return JsonResponse({
@@ -321,6 +363,7 @@ def opere_search(request):
         "totale": totale,
         "limite": limite
     })
+
 
 
 
@@ -403,20 +446,34 @@ def opera_update(request):
         if not codice or not titolo or not anno_realizzazione or not anno_acquisto or not tipo or not autore_id:
             return JsonResponse({"error": "Campi obbligatori mancanti."}, status=400)
 
-        if int(anno_acquisto) < int(anno_realizzazione):
-            return JsonResponse({
-                "error": "L'anno di acquisto non può essere precedente a quello di realizzazione."
-            }, status=400)
+        try:
+            ar = int(anno_realizzazione)
+            aa = int(anno_acquisto)
+        except ValueError:
+            return JsonResponse({"error": "Gli anni devono essere numeri interi."}, status=400)
 
-        # Recupera tutte le entità necessarie PRIMA di usarle
+        LIMITE_ANNO = 2025
+        if ar < 0 or aa < 0:
+            return JsonResponse({"error": "L'anno non può essere negativo."}, status=400)
+        if ar > LIMITE_ANNO or aa > LIMITE_ANNO:
+            return JsonResponse({"error": f"L'anno non può essere successivo al {LIMITE_ANNO}."}, status=400)
+        if aa < ar:
+            return JsonResponse({"error": "L'anno di acquisto non può precedere quello di realizzazione."}, status=400)
+
         opera = Opera.objects.get(pk=codice)
         autore = Autore.objects.get(pk=autore_id)
+
+        # ✅ controllo morte autore
+        if autore.data_morte and ar > autore.data_morte.year:
+            return JsonResponse({
+                "error": f"L'anno di realizzazione ({ar}) non può essere successivo alla morte dell'autore ({autore.data_morte.year})."
+            }, status=400)
+
         sala = Sala.objects.get(pk=sala_id) if sala_id else None
 
-        # Aggiorna i campi
         opera.titolo = titolo
-        opera.anno_realizzazione = int(anno_realizzazione)
-        opera.anno_acquisto = int(anno_acquisto)
+        opera.anno_realizzazione = ar
+        opera.anno_acquisto = aa
         opera.tipo = tipo
         opera.autore = autore
         opera.esposta_in_sala = sala
@@ -432,6 +489,8 @@ def opera_update(request):
         return JsonResponse({"error": "Sala non trovata"}, status=400)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
 
 
 
@@ -569,22 +628,28 @@ def sala_update(request):
         numero = data.get("numero")
         nome = data.get("nome")
         superficie = data.get("superficie")
-        tema_descrizione = data.get("tema")
+        tema_descrizione = (data.get("tema") or "").strip()  # <- normalizzo
 
         sala = get_object_or_404(Sala, numero=numero)
         sala.nome = nome
         sala.superficie = superficie
 
-        if tema_descrizione:
+        # ✅ nuova logica per il tema
+        if tema_descrizione == "":
+            # Campo vuoto: azzera il tema -> "Non definito"
+            sala.tema = None
+        else:
             from .models import Tema
-            tema = Tema.objects.filter(descrizione__iexact=tema_descrizione).first()
-            sala.tema = tema
+            # Testo non vuoto: prova a mappare uno dei 10 temi (case-insensitive).
+            # Se non esiste, first() restituisce None -> "Non definito".
+            sala.tema = Tema.objects.filter(descrizione__iexact=tema_descrizione).first()
 
         sala.save()
-
         return JsonResponse({"success": True})
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
 
 
 #--------------AUTORI--------------#
