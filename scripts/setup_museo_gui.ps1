@@ -316,15 +316,27 @@ function Invoke-Setup {
         $total = 10; $step = 1
 
         SetStep ($step++) $total "Controlli preliminari"
-        if(-not (Test-Path $ProjectPath)){ throw "Cartella progetto non trovata: $ProjectPath" }
-        Set-Location "`"$ProjectPath`""
+
+# Normalizza: rimuovi eventuali doppi apici e spazi ai bordi
+if ($null -eq $ProjectPath) { $ProjectPath = "" }
+$ProjectPath = $ProjectPath.Trim('"').Trim()
 
 
-        # Se l'utente seleziona 'scripts', risalgo alla root (dove c'è manage.py)
-        if (-not (Test-Path ".\manage.py") -and (Test-Path ".\scripts")) {
-            Set-Location ..
-            Log "Rilevato 'scripts': risalgo alla root $((Get-Location).Path)" "Gray"
-        }
+# Verifica percorso con -LiteralPath (gestisce spazi e caratteri speciali)
+if (-not (Test-Path -LiteralPath $ProjectPath)) {
+    throw "Cartella progetto non trovata: $ProjectPath"
+}
+
+# Vai nella cartella progetto (percorso risolto in forma canonica)
+$projRoot = (Resolve-Path -LiteralPath $ProjectPath).Path
+Set-Location -LiteralPath $projRoot
+
+# Se l'utente ha selezionato la sottocartella 'scripts', risali alla root del progetto
+if (-not (Test-Path -LiteralPath ".\manage.py") -and (Test-Path -LiteralPath ".\scripts")) {
+    Set-Location -LiteralPath ..
+    Log "Rilevato 'scripts': risalgo alla root $((Get-Location).Path)" "Gray"
+}
+
         if (-not (Test-Path ".\manage.py")) { throw "manage.py non trovato nella cartella: $((Get-Location).Path)" }
 
         # Scegli eseguibile Python: priorità al venv locale
