@@ -14,7 +14,7 @@ venv/
 db.sqlite3
 media/
 staticfiles/
-.env
+
 
 # IDE / Editor settings
 .vscode/
