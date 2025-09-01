@@ -317,7 +317,8 @@ function Invoke-Setup {
 
         SetStep ($step++) $total "Controlli preliminari"
         if(-not (Test-Path $ProjectPath)){ throw "Cartella progetto non trovata: $ProjectPath" }
-        Set-Location $ProjectPath
+        Set-Location "`"$ProjectPath`""
+
 
         # Se l'utente seleziona 'scripts', risalgo alla root (dove c'è manage.py)
         if (-not (Test-Path ".\manage.py") -and (Test-Path ".\scripts")) {
@@ -397,7 +398,8 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
             "-w",
             "-v","ON_ERROR_STOP=1",
             "-q",
-            "-f",$DumpPath
+            "-f","`"$DumpPath`""
+
         )
         Log "Dump importato: $DumpPath" "Green"
     }
@@ -455,7 +457,9 @@ try {
 
     SetStep ($step++) $total "Avvio server Django"
     # avvio server in una nuova PS, ma bind su 127.0.0.1 (così la console mostra l’URL giusto)
-    Start-Process "powershell" "-NoExit -Command cd `"$([System.IO.Path]::GetFullPath($(Get-Location)))`"; & `"$PYEXE`" `".\manage.py`" runserver 127.0.0.1:8000"
+    $projPath = "`"$([System.IO.Path]::GetFullPath($(Get-Location)))`""
+    Start-Process "powershell" "-NoExit -Command cd $projPath; & `"$PYEXE`" `".\manage.py`" runserver 127.0.0.1:8000"
+
 
     # evidenzio il link nel wizard e apro il browser
     $lnkSite.Text = "Apri il sito → $serverUrl"
