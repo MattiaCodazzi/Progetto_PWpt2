@@ -186,8 +186,11 @@ $form.Controls.AddRange(@(
 
 $btnBrowse.Add_Click({
     $fd = New-Object System.Windows.Forms.FolderBrowserDialog
-    if($fd.ShowDialog() -eq "OK"){ $tbProject.Text = $fd.SelectedPath }
+    if ($fd.ShowDialog() -eq "OK") {
+        $tbProject.Text = '"' + $fd.SelectedPath + '"'
+    }
 })
+
 $btnBrowseDump.Add_Click({
     $od = New-Object System.Windows.Forms.OpenFileDialog
     $od.Filter = "SQL Dump|*.sql|Tutti i file|*.*"
