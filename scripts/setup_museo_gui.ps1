@@ -317,7 +317,7 @@ function Invoke-Setup {
 
         SetStep ($step++) $total "Controlli preliminari"
         if(-not (Test-Path $ProjectPath)){ throw "Cartella progetto non trovata: $ProjectPath" }
-        Set-Location $ProjectPath
+        Set-Location "$ProjectPath"
 
 
         # Se l'utente seleziona 'scripts', risalgo alla root (dove c'è manage.py)
