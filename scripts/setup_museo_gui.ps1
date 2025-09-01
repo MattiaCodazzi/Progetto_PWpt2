@@ -347,11 +347,28 @@ function Invoke-Setup {
                 Log "Database $DbName creato" "Green"
             } else { Log "Database $DbName già esiste" "Cyan" }
 
-            if($DumpPath -and (Test-Path $DumpPath)){
-                SetStep ($step++) $total "Import dump SQL"
-                ExecNative "psql" @("-U",$DbUser,"-d",$DbName,"-f",$DumpPath)
-                Log "Dump importato: $DumpPath" "Green"
-            }
+           if($DumpPath -and (Test-Path $DumpPath)){
+    SetStep ($step++) $total "Import dump SQL"
+    # Password non interattiva per l'utente museo_user
+    $env:PGPASSWORD = $DbPass
+    try{
+        ExecNative "psql" @(
+            "-h","127.0.0.1",
+            "-U",$DbUser,
+            "-d",$DbName,
+            "-w",
+            "-v","ON_ERROR_STOP=1",
+            "-q",
+            "-f",$DumpPath
+        )
+        Log "Dump importato: $DumpPath" "Green"
+    }
+    finally{
+        Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+    }
+}
+
+
         } else {
             Log "psql non trovato nel PATH: salto la sezione PostgreSQL" "Yellow"
         }

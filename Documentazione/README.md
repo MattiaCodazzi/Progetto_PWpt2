@@ -20,14 +20,14 @@
 
 5. Nel wizard:
    - usare **Sfoglia** per selezionare la **cartella principale del progetto** (quella con `manage.py`)  
-   - usare **Sfoglia** per selezionare il file `dump.sql`  
+   - usare **...** per selezionare il file `dump.sql` che si trova nella cartella datbase
    - lasciare invariati gli altri campi
 
 <img src="image-1.png" alt="Screenshot" width="500">
 
 6. **Cliccare Avvia**
-7. Dopo pochi secondi compare la scritta **“creazione postgre”**  
-   - nella shell viene richiesta la **password PostgreSQL** (non appare mentre si scrive, ma viene letta)  
+7. Dopo pochi secondi compare la scritta **“configuro PostgreSQL”**  
+   - nella shell viene richiesta la **password PostgreSQL**, quella scelta al momento dell'istallazione di Postgre (non appare mentre si scrive, ma viene letta)  
    - inserire la password due volte
 
 <img src="image-3.png" alt="Screenshot" width="900">
