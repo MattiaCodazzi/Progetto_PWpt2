@@ -15,9 +15,9 @@ Il sistema permette la gestione completa di un museo attraverso operazioni **CRU
 ## Documentazione
 La documentazione del progetto è suddivisa in tre parti principali:
 
-- 📖 [Guida all’installazione](installazione.md) – spiega come configurare e avviare il progetto.  
-- 🖥️ [Manuale d’uso](manuale.md) – illustra le funzionalità del sito e come utilizzarle.  
-- 📌 [Miglioramenti rispetto al Progetto 1](miglioramenti.md) – descrive le correzioni e gli avanzamenti implementati in questa seconda versione.
+- 📖 installazione.md – spiega come configurare e avviare il progetto.  
+- 🖥️ manuale.md – illustra le funzionalità del sito e come utilizzarle.  
+- 📌 miglioramenti.md – descrive le correzioni e gli avanzamenti implementati in questa seconda versione.
 
 ---
 
