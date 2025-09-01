@@ -25,7 +25,7 @@ La documentazione del progetto è suddivisa in tre parti principali:
 - **Backend:** Python, Django  
 - **Frontend:** HTML, CSS, Bootstrap, JavaScript, jQuery  
 - **Database:** PostgreSQL  
-- **Altro:** AJAX, JSON  
+- **Altro:** AJAX, JSON, whitenoise, pillow (ottimizzazione immagini)
 
 ---
 
