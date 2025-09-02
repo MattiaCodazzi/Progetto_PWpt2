@@ -172,6 +172,7 @@ $tbLog.ReadOnly = $true
 $tbLog.BackColor = [System.Drawing.Color]::White
 
 $btnStart = New-Object System.Windows.Forms.Button
+$btnStart.Name = 'btnStart'
 $btnStart.Text="Avvia"
 $btnStart.Location=New-Object System.Drawing.Point(730,16)
 $btnStart.Width=66
@@ -183,13 +184,13 @@ $form.Controls.AddRange(@(
   $tbSU,$tbEmail,$tbSUPass,$chkRun,$progress,$lblStatus,$tbLog,$btnStart
 ))
 
-
 $btnBrowse.Add_Click({
     $fd = New-Object System.Windows.Forms.FolderBrowserDialog
     if ($fd.ShowDialog() -eq "OK") {
-        $tbProject.Text = '"' + $fd.SelectedPath + '"'
+        $tbProject.Text = $fd.SelectedPath   # niente virgolette
     }
 })
+
 
 $btnBrowseDump.Add_Click({
     $od = New-Object System.Windows.Forms.OpenFileDialog
@@ -435,15 +436,15 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         # ---- Requirements ----
         SetStep ($step++) $total "Installo dipendenze"
         if (Test-Path ".\requirements.txt") {
-            Exec "$env:ComSpec /c `"$PYEXE -m pip install --upgrade pip`""
-            Exec "$env:ComSpec /c `"$PYEXE -m pip install -r .\requirements.txt`""
+            ExecNative $PYEXE @("-m","pip","install","--upgrade","pip")
+            ExecNative $PYEXE @("-m","pip","install","-r","requirements.txt")
         } else {
             Exec "$env:ComSpec /c `"$PYEXE -m pip install django`""
         }
 
         # ---- Migrazioni ----
         SetStep ($step++) $total "Migrazioni Django"
-        Exec "$env:ComSpec /c `"$PYEXE .\manage.py migrate`""
+        ExecNative $PYEXE @("manage.py","migrate")
         Log "Migrate OK" "Green"
 
         # ---- Superuser ----
@@ -452,7 +453,8 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         $env:DJANGO_SUPERUSER_EMAIL    = $SuperEmail
         $env:DJANGO_SUPERUSER_PASSWORD = $SuperPass
         try {
-            Exec "$env:ComSpec /c `"$PYEXE .\manage.py createsuperuser --noinput`"" -Quiet
+            ExecNative $PYEXE @("manage.py","createsuperuser","--noinput")
+
             Log "Superuser creato/già presente" "Green"
         } catch {
             Log "Creazione superuser: probabilmente già presente (OK)" "Yellow"
@@ -461,31 +463,33 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         # ---- Collectstatic opzionale ----
         SetStep ($step++) $total "Collectstatic (opzionale)"
 try {
-    Exec "$env:ComSpec /c `"$PYEXE .\manage.py collectstatic --noinput`"" -Quiet
+    ExecNative $PYEXE @("manage.py","collectstatic","--noinput")
+
     Log "collectstatic completato" "Green"
 } catch {
     Log "collectstatic saltato: $($_.Exception.Message)" "Yellow"
 }
 
 
-        if($RunServer){
-    # URL locale visibile/correttamente cliccabile
-$serverUrl = "http://127.0.0.1:8000"
+        if ($RunServer) {
+    $serverUrl = "http://127.0.0.1:8000"
+    SetStep ($step++) $total "Avvio server Django"
 
-SetStep ($step++) $total "Avvio server Django"
-# avvio server in una nuova PS, usando Set-Location -LiteralPath (robusto con spazi)
-$projPath = [System.IO.Path]::GetFullPath((Get-Location).Path)
-$args = "-NoExit -Command Set-Location -LiteralPath `"$projPath`"; & `"$PYEXE`" `".\manage.py`" runserver 127.0.0.1:8000"
-Start-Process "powershell" $args
+    $projPath = [System.IO.Path]::GetFullPath((Get-Location).Path)
+    $psCmd = "Set-Location -LiteralPath '{0}'; & '{1}' '.\manage.py' runserver 127.0.0.1:8000" -f $projPath, $PYEXE
 
+    # ❗ Usa -FilePath (non -FileName) oppure il posizionale
+    Start-Process -FilePath "powershell.exe" -ArgumentList @(
+        '-NoProfile','-NoExit','-Command', $psCmd
+    )
 
-
-    # evidenzio il link nel wizard e apro il browser
     $lnkSite.Text = "Apri il sito → $serverUrl"
     $lnkSite.Visible = $true
     Log "Sito avviato su $serverUrl" "Blue"
     Start-Process $serverUrl
 }
+
+
 
 
         SetStep 100 100 "Completato"
