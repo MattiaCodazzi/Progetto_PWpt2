@@ -9,6 +9,11 @@
 
 $ErrorActionPreference = 'Stop'
 
+# Forza UTF-8 in console per evitare "giÃ "
+chcp 65001 > $null
+$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+
+
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -343,19 +348,34 @@ if (-not (Test-Path -LiteralPath ".\manage.py") -and (Test-Path -LiteralPath ".\
 
         if (-not (Test-Path ".\manage.py")) { throw "manage.py non trovato nella cartella: $((Get-Location).Path)" }
 
-        # Scegli eseguibile Python: priorità al venv locale
-        $script:PYEXE = $null
-        $venvPy = Join-Path (Get-Location).Path ".venv\Scripts\python.exe"
+        # ---- Ambiente Python: crea/usa .venv ----
+# ---- Ambiente Python: crea/usa .venv ----
+SetStep ($step++) $total "Ambiente Python (.venv)"
+$script:PYEXE = $null
+$venvPy = Join-Path (Get-Location).Path ".venv\Scripts\python.exe"
 
-        if (Test-Path $venvPy) {
-            $script:PYEXE = $venvPy
-            Log "Uso Python del venv: $PYEXE" "Gray"
-        } else {
-            $sysPy = Get-SystemPy
-            if (-not $sysPy) { throw "Python non trovato. Installa Python 3 o crea il venv (.venv)." }
-            $script:PYEXE = $sysPy
-            Log "Uso Python di sistema: $PYEXE" "Yellow"
-        }
+if (-not (Test-Path $venvPy)) {
+    Log "Venv non trovato: creazione di .venv..." "Blue"
+    $sysPy = Get-SystemPy
+    if (-not $sysPy) {
+        throw "Python di sistema non trovato (né 'py' né 'python'). Installa Python 3.x oppure crea manualmente .venv"
+    }
+    # Crea il venv con il python di sistema
+    ExecNative $sysPy @("-m","venv",".venv")
+    if (-not (Test-Path $venvPy)) {
+        throw "Creazione .venv fallita: .venv\Scripts\python.exe non trovato"
+    }
+    Log "Ambiente virtuale creato in .venv" "Green"
+} else {
+    Log "Ambiente virtuale già presente" "Gray"
+}
+
+# Usa SEMPRE il python del venv d'ora in poi
+$script:PYEXE = $venvPy
+$PYEXE = $script:PYEXE   # <-- aggiungi questa riga
+Log "Uso Python del venv: $script:PYEXE" "Gray"
+Log "DEBUG: usando PYEXE = $script:PYEXE" "Gray"
+
 
         # ---- PostgreSQL: crea utente/db se necessario ----
         SetStep ($step++) $total "Configuro PostgreSQL (se necessario)"
@@ -398,7 +418,7 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
     try{
         $hasTables = & psql -h 127.0.0.1 -U postgres -w -d $DbName -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
         if ([int]$hasTables -gt 0) {
-            Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Yellow"
+            Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Blue"
             & psql -h 127.0.0.1 -U postgres -w -d $DbName -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION $DbUser; GRANT ALL ON SCHEMA public TO $DbUser; GRANT ALL ON SCHEMA public TO public;"
         }
     }
@@ -416,6 +436,8 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
             "-w",
             "-v","ON_ERROR_STOP=1",
             "-q",
+            "-X",
+            "--pset=tuples_only=on",
             "-f","`"$DumpPath`""
 
         )
@@ -436,15 +458,15 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         # ---- Requirements ----
         SetStep ($step++) $total "Installo dipendenze"
         if (Test-Path ".\requirements.txt") {
-            ExecNative $PYEXE @("-m","pip","install","--upgrade","pip")
-            ExecNative $PYEXE @("-m","pip","install","-r","requirements.txt")
+            ExecNative $script:PYEXE @("-m","pip","install","--upgrade","pip")
+            ExecNative $script:PYEXE @("-m","pip","install","-r","requirements.txt")
         } else {
             Exec "$env:ComSpec /c `"$PYEXE -m pip install django`""
         }
 
         # ---- Migrazioni ----
         SetStep ($step++) $total "Migrazioni Django"
-        ExecNative $PYEXE @("manage.py","migrate")
+        ExecNative $script:PYEXE @("manage.py","migrate")
         Log "Migrate OK" "Green"
 
         # ---- Superuser ----
@@ -453,7 +475,7 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         $env:DJANGO_SUPERUSER_EMAIL    = $SuperEmail
         $env:DJANGO_SUPERUSER_PASSWORD = $SuperPass
         try {
-            ExecNative $PYEXE @("manage.py","createsuperuser","--noinput")
+           ExecNative $script:PYEXE @("manage.py","createsuperuser","--noinput") 
 
             Log "Superuser creato/già presente" "Green"
         } catch {
@@ -463,7 +485,7 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
         # ---- Collectstatic opzionale ----
         SetStep ($step++) $total "Collectstatic (opzionale)"
 try {
-    ExecNative $PYEXE @("manage.py","collectstatic","--noinput")
+    ExecNative $script:PYEXE @("manage.py","collectstatic","--noinput")
 
     Log "collectstatic completato" "Green"
 } catch {
@@ -476,7 +498,7 @@ try {
     SetStep ($step++) $total "Avvio server Django"
 
     $projPath = [System.IO.Path]::GetFullPath((Get-Location).Path)
-    $psCmd = "Set-Location -LiteralPath '{0}'; & '{1}' '.\manage.py' runserver 127.0.0.1:8000" -f $projPath, $PYEXE
+    $psCmd = "Set-Location -LiteralPath '{0}'; & '{1}' '.\manage.py' runserver 127.0.0.1:8000" -f $projPath, $script:PYEXE
 
     # ❗ Usa -FilePath (non -FileName) oppure il posizionale
     Start-Process -FilePath "powershell.exe" -ArgumentList @(

@@ -2,7 +2,7 @@
 
 ## Requisiti
 - **Python 3.10+**
-- **PostgreSQL** (già installato)
+- **PostgreSQL**
 - Tutto il resto viene installato automaticamente dallo script (`requirements.txt`)
 
 ---
@@ -19,9 +19,9 @@
 <img src="image.png" alt="Screenshot" width="900">
 
 5. Nel wizard:
-   - usare **Sfoglia** per selezionare la **cartella principale del progetto** (quella con `manage.py`)  
+   - usare **Sfoglia** per selezionare la **cartella principale del progetto** (quella con `manage.py` o la cartella `database`)  
    - usare **...** per selezionare il file `dump.sql` che si trova nella cartella database
-   - inserire nel campo Postgres admin pass la propria password postgreSQL (quella scelta al momento dell'istallazione)
+   - inserire nel campo Postgres admin pass la propria password postgreSQL (quella scelta al momento dell'istallazione di PostgreSQL)
    - lasciare invariati gli altri campi
 
 <img src="image-1.png" alt="Screenshot" width="500">
