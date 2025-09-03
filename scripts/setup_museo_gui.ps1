@@ -107,7 +107,7 @@ $tbDbUser = TB 160 480 ($y0 + 35); $tbDbUser.Text = "museo_user"
 $form.Controls.Add((LBL "DB Pass:" 16 ($y0 + 72)))
 $tbDbPass = TB 180 200 ($y0 + 69); $tbDbPass.Text = "museo_pw"; $tbDbPass.UseSystemPasswordChar = $true
 
-$form.Controls.Add((LBL "Dump .sql :" 400 ($y0 + 72)))
+$form.Controls.Add((LBL "Dump .sql:" 400 ($y0 + 72)))
 $tbDump = TB 260 560 ($y0 + 69)
 
 # NUOVO CAMPO: Postgres admin pass (subito sotto DB Pass, a sinistra)
@@ -295,7 +295,17 @@ function ExecNative {
     Log ("RUN> " + $file + " " + ($arguments -join " ")) "Gray"
     $p = New-Object System.Diagnostics.Process
     $p.StartInfo.FileName  = $file
-    $p.StartInfo.Arguments = ($arguments -join " ")
+    # Quota automaticamente gli argomenti che contengono spazi o simboli
+$quotedArgs = $arguments | ForEach-Object {
+  if ($_ -match '[\s;]') { '"' + ($_ -replace '"','\"') + '"' } else { $_ }
+}
+# Quota automaticamente gli argomenti che contengono spazi o ; 
+$quotedArgs = $arguments | ForEach-Object {
+  if ($_ -match '[\s;]') { '"' + ($_ -replace '"','\"') + '"' } else { $_ }
+}
+$p.StartInfo.Arguments = ($quotedArgs -join ' ')
+
+
     $p.StartInfo.RedirectStandardOutput = $true
     $p.StartInfo.RedirectStandardError  = $true
     $p.StartInfo.UseShellExecute = $false
@@ -326,9 +336,24 @@ function Invoke-Setup {
 
         SetStep ($step++) $total "Controlli preliminari"
 
-# Normalizza: rimuovi eventuali doppi apici e spazi ai bordi
-if ($null -eq $ProjectPath) { $ProjectPath = "" }
-$ProjectPath = $ProjectPath.Trim('"').Trim()
+function As-String($v){ if($null -eq $v){""} else { $v.ToString() } }
+
+$ProjectPath = (As-String $ProjectPath).Trim('"').Trim()
+$DbName      = (As-String $DbName).Trim()
+$DbUser      = (As-String $DbUser).Trim()
+$DbPass      = (As-String $DbPass).Trim()
+$DumpPath    = (As-String $DumpPath).Trim('"').Trim()
+$SuperUser   = (As-String $SuperUser).Trim()
+$SuperEmail  = (As-String $SuperEmail).Trim()
+$SuperPass   = (As-String $SuperPass).Trim()
+$PgAdminPass = (As-String $PgAdminPass).Trim()
+
+# Validazioni minime (il controllo del percorso lo fai già sotto)
+if ([string]::IsNullOrWhiteSpace($DbName))      { throw "DB Name obbligatorio." }
+if ([string]::IsNullOrWhiteSpace($DbUser))      { throw "DB User obbligatorio." }
+if ([string]::IsNullOrWhiteSpace($PgAdminPass)) { throw "Password admin Postgres obbligatoria." }
+if ($DumpPath -ne "" -and -not (Test-Path -LiteralPath $DumpPath)) { throw "Dump non trovato: $DumpPath" }
+
 
 
 # Verifica percorso con -LiteralPath (gestisce spazi e caratteri speciali)
@@ -381,54 +406,69 @@ Log "DEBUG: usando PYEXE = $script:PYEXE" "Gray"
         SetStep ($step++) $total "Configuro PostgreSQL (se necessario)"
         $psql = Get-Command psql -ErrorAction SilentlyContinue
         if ($psql) {
-            $env:PGPASSWORD = $PgAdminPass
-            $existsUser = & psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DbUser';"
-            Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
-
-            if($existsUser.Trim() -ne "1"){
-                $env:PGPASSWORD = $PgAdminPass
-ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE USER $DbUser WITH PASSWORD '$DbPass';")
+           $env:PGPASSWORD = $PgAdminPass
+$existsUser = (& psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DbUser';" 2>$null) | Out-String
+$code = $LASTEXITCODE
 Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+if ($code -ne 0) { throw "Connessione a Postgres fallita (verifica password admin)" }
 
-                $env:PGPASSWORD = $PgAdminPass
-ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","ALTER USER $DbUser CREATEDB;")
+if ($existsUser.Trim() -ne "1"){
+    $env:PGPASSWORD = $PgAdminPass
+    ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE USER $DbUser WITH PASSWORD '$DbPass';")
+    Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
+    $env:PGPASSWORD = $PgAdminPass
+    ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","ALTER USER $DbUser CREATEDB;")
+    Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
+    Log "Utente $DbUser creato" "Green"
+} else {
+    Log "Utente $DbUser già esiste" "Cyan"
+}
+ 
+
+    $env:PGPASSWORD = $PgAdminPass
+$existsDb = (& psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_database WHERE datname = '$DbName';" 2>$null) | Out-String
+$code = $LASTEXITCODE
 Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+if ($code -ne 0) { throw "Connessione a Postgres fallita (verifica password admin)" }
 
-                Log "Utente $DbUser creato" "Green"
-            } else { Log "Utente $DbUser già esiste" "Cyan" }
-
-            $env:PGPASSWORD = $PgAdminPass
-$existsDb = & psql -h 127.0.0.1 -U postgres -w -tAc "SELECT 1 FROM pg_database WHERE datname = '$DbName';"
-Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
-
-            if($existsDb.Trim() -ne "1"){
-                $env:PGPASSWORD = $PgAdminPass
-ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE DATABASE $DbName OWNER $DbUser;")
-Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
-
-                Log "Database $DbName creato" "Green"
-            } else { Log "Database $DbName già esiste" "Cyan" }
+if ($existsDb.Trim() -ne "1"){
+    $env:PGPASSWORD = $PgAdminPass
+    ExecNative "psql" @("-h","127.0.0.1","-U","postgres","-w","-c","CREATE DATABASE $DbName OWNER $DbUser;")
+    Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+    Log "Database $DbName creato" "Green"
+} else {
+    Log "Database $DbName già esiste" "Cyan"
+}
+    
 
            if ($DumpPath -and (Test-Path -LiteralPath $DumpPath)) {
 
     SetStep ($step++) $total "Import dump SQL"
 
-    # 1) Se il DB ha tabelle nello schema public, lo resetto (DROP+CREATE) usando postgres
     $env:PGPASSWORD = $PgAdminPass
-    try{
-        $hasTables = & psql -h 127.0.0.1 -U postgres -w -d $DbName -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
-        if ([int]$hasTables -gt 0) {
-            Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Blue"
-            & psql -h 127.0.0.1 -U postgres -w -d $DbName -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION $DbUser; GRANT ALL ON SCHEMA public TO $DbUser; GRANT ALL ON SCHEMA public TO public;"
-        }
-    }
-    finally{
-        Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
-    }
+$hasTables = (& psql -h 127.0.0.1 -U postgres -w -d $DbName -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';" 2>$null) | Out-String
+$code = $LASTEXITCODE
+Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+if ($code -ne 0) { throw "Connessione a Postgres fallita (verifica password admin)" }
+
+$hasTables = ($hasTables.Trim() -as [int])
+if ($hasTables -gt 0) {
+    Log "DB non vuoto: reset dello schema 'public' prima dell'import." "Blue"
+    $env:PGPASSWORD = $PgAdminPass
+    & psql -h 127.0.0.1 -U postgres -w -d $DbName -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION $DbUser; GRANT ALL ON SCHEMA public TO $DbUser; GRANT ALL ON SCHEMA public TO public;"
+    Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+}
+
 
     # 2) Import del dump (password non interattiva per museo_user)
     $env:PGPASSWORD = $DbPass
     try{
+        # Risolvo il percorso del dump (gestisce spazi/caratteri speciali)
+$dumpResolved = (Resolve-Path -LiteralPath $DumpPath -ErrorAction Stop).Path
+Log "Import dump da: $dumpResolved" "Gray"
+
         ExecNative "psql" @(
             "-h","127.0.0.1",
             "-U",$DbUser,
@@ -438,7 +478,8 @@ Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
             "-q",
             "-X",
             "--pset=tuples_only=on",
-            "-f","`"$DumpPath`""
+            "-f",$dumpResolved
+
 
         )
         Log "Dump importato: $DumpPath" "Green"
