@@ -13,7 +13,7 @@ Il sistema permette la gestione completa di un museo attraverso operazioni **CRU
 ---
 
 ## Documentazione
-La documentazione del progetto è suddivisa in cinque parti principali (reperibili nella cartella "Documentazione":
+La documentazione del progetto è suddivisa in cinque parti principali (reperibili nella cartella "Documentazione"):
 
 - si accede alla documentazione attraverso il file index.html, tale file contiene:
  1) guida all'istallazione
