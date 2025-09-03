@@ -13,19 +13,20 @@ Il sistema permette la gestione completa di un museo attraverso operazioni **CRU
 ---
 
 ## Documentazione
-La documentazione del progetto è suddivisa in tre parti principali:
+La documentazione del progetto è suddivisa in tre parti principali (reperibili nella cartella "Documentazione":
 
 - 📖 installazione.md – spiega come configurare e avviare il progetto.  
 - 🖥️ manuale.md – illustra le funzionalità del sito e come utilizzarle.  
 - 📌 miglioramenti.md – descrive le correzioni e gli avanzamenti implementati in questa seconda versione.
+Inoltre, sempre nella cartella documentazione, è disponibile una guida per risolvere alcuni possibili errori comuni (errori_comuni.md)
 
 ---
 
 ## Tecnologie utilizzate
 - **Backend:** Python, Django  
-- **Frontend:** HTML, CSS, Bootstrap, JavaScript, jQuery  
+- **Frontend:** HTML, CSS, Bootstrap, 
 - **Database:** PostgreSQL  
-- **Altro:** AJAX, JSON, whitenoise, pillow (ottimizzazione immagini)
+- **Altro:** powerShell, JSON, whitenoise, pillow (ottimizzazione immagini)
 
 ---
 
