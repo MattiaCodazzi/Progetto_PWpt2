@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manuale d'Uso – Progetto Museo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  :root{--maxw:980px}
+  .container{max-width:var(--maxw)}
+  .codeblock{position:relative}
+  .btn-copy{position:absolute; top:.5rem; right:.5rem}
+
+    body{background:#f8f9fa}
+    main.container{max-width:980px}
+    pre code{white-space:pre-wrap}
+    .markdown-body code{background:#212529;color:#f8f9fa;padding:.1rem .35rem;border-radius:.25rem}
+    .markdown-body pre{background:#212529;color:#f8f9fa;padding:1rem;border-radius:.5rem;overflow:auto}
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Progetto Museo – Docs</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto"><li class='nav-item'><a class='nav-link' href='installazione.html'>Guida Installazione</a></li><li class='nav-item'><a class='nav-link active' href='manuale.html'>Manuale d'Uso</a></li><li class='nav-item'><a class='nav-link' href='miglioramenti.html'>Miglioramenti</a></li><li class='nav-item'><a class='nav-link' href='errori_comuni.html'>Errori Comuni</a></li></ul>
+    </div>
+  </div>
+</nav>
+
+
+<section class="bg-gradient py-4 border-bottom" style="background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);">
+  <div class="container" style="max-width:980px">
+    <div class="d-flex flex-wrap align-items-center justify-content-between text-white">
+      <div class="py-1">
+        <h1 class="h3 mb-1 fw-bold text-dark">Manuale d'Uso</h1>
+        <p class="mb-0 opacity-75 text-dark">Documentazione Progetto Museo</p>
+      </div>
+      <div class="py-1">
+        <a href="index.html" class="btn btn-light btn-sm shadow-sm">← Torna all'indice</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="bg-light">
+  <div class="container" style="max-width:980px">
+    <ol class="breadcrumb small mb-0 py-2">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Manuale d'Uso</li>
+    </ol>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <article class="markdown-body bg-white p-4 rounded-4 shadow-sm">
+    <h1>Manuale di Utilizzo – Museo (Django + Bootstrap)</h1>
+
+<h2>Introduzione</h2>
+<p>Nella seconda parte del progetto abbiamo ristrutturato il lavoro iniziale utilizzando <strong>Python</strong>, <strong>Django</strong> e <strong>Bootstrap</strong>.</p>
+<p>L’obiettivo principale è stato quello di risolvere le criticità emerse nella prima consegna, sia dal punto di vista <strong>funzionale</strong> che <strong>grafico/estetico</strong>.</p>
+
+<p>Il risultato è un gestionale che consente al personale museale di amministrare in modo semplice ed efficiente il database del museo, attraverso le operazioni CRUD (Create, Read, Update, Delete).</p>
+<p>Particolare attenzione è stata posta al miglioramento dei punti deboli evidenziati nella valutazione del primo progetto, tutti i miglioramenti sono reperibili tramite apposito file</a>.</p>
+
+<hr>
+<p>IMPORTANTE: consigliamo la visione del sito a schermo intero o quantomeno a 3/4 di schermo</p>
+<hr>
+
+<h2>Struttura del sito</h2>
+<ul>
+<li><strong>Home</strong> → pagina iniziale con panoramica generale.</li>
+<li><strong>Opere</strong> → ricerca, inserimento, modifica ed eliminazione delle opere.</li>
+<li><strong>Autori</strong> → gestione completa degli autori.</li>
+<li><strong>Sale</strong> → visualizzazione e gestione delle sale espositive.</li>
+<li><strong>Temi</strong> → gestione dei temi associabili alle sale.</li>
+</ul>
+
+<hr>
+
+<h2>Navigazione</h2>
+<ul>
+<li>Menù principale sempre visibile in alto.</li>
+<li>Le pagine sono collegate tra loro tramite link diretti, per un accesso rapido alle varie sezioni.</li>
+</ul>
+
+<hr>
+
+<h2>Funzionalità principali</h2>
+
+<h3>0. Home</h3>
+<ul>
+<li><strong>Benvenuto</strong> → sezione introduttiva che illustra le funzionalità principali del sito e include una piccola vetrina grafica.</li>
+<li><strong>Novità</strong> → spazio dedicato agli aggiornamenti o alle nuove funzionalità aggiunte al sistema.</li>
+<li><strong>Informazioni</strong> → bacheca per comunicazioni utili al personale. Cliccando sul pulsante dedicato si possono leggere in dettaglio gli avvisi o gli articoli.</li>
+</ul>
+
+<h3>1. Opere</h3>
+<ul>
+<li><strong>Ricerca</strong> → il form consente di filtrare le opere per: autore (nome e cognome), titolo, anno singolo o intervallo di anni, tipologia (quadro/scultura) e sala.</li>
+<li><strong>Inserimento</strong> → lo stesso form viene utilizzato anche per aggiungere nuove opere (senza considerare i parametri di ricerca come intervalli).</li>
+<li>Qualora venga inserito un autore non presente nel database, non sarà necessario crearlo precedentemente nella pagina degli autori: al click su <em>Inserisci</em> comparirà un messaggio <em>“Autore non presente, vuoi inserirlo?”</em> insieme a un form dedicato. Alla conferma, l’autore verrà inserito e contestualmente sarà salvata anche l’opera indicata in precedenza.</li>
+<li><strong>Modifica</strong> → cliccando su una riga della tabella delle opere, il form si compila automaticamente con i dati dell’opera selezionata, consentendo la modifica di tutti i parametri principali.</li>
+<li><strong>Eliminazione</strong> → è possibile selezionare una o più opere tramite la casella a sinistra di ciascuna riga. Il pulsante “Elimina selezionate”, posto sopra la tabella, consente la cancellazione, previa conferma.</li>
+</ul>
+
+<h3>1.1 Dettaglio autori</h3>
+<p>Nella tabella delle opere e in quella degli autori, i nomi degli autori sono cliccabili. Il click reindirizza a una <strong>pagina dinamica</strong> dedicata, che mostra:</p>
+<p>1. Anagrafica dell’autore</p>
+<p>2. Panoramica dell’attività</p>
+<p>3. Elenco completo delle opere realizzate dall’autore</p>
+
+<h3>1.2 Dettaglio sale</h3>
+<p>Nella tabella delle opere, i nomi delle sale sono cliccabili. Il click reindirizza a una <strong>pagina dinamica</strong> dedicata, che mostra:</p>
+<p>1. Numero di opere esposte</p>
+<p>2. Dettagli della sala (nome, superficie, tema)</p>
+<p>3. Elenco delle opere presenti in quella sala</p>
+
+<h3>2. Autori</h3>
+<ul>
+<li><strong>Ricerca</strong> → filtro per nome e cognome, nazione (sigla es. IT, FR), date di nascita e morte, periodo e stato (vivente/deceduto).</li>
+<li><strong>Inserimento</strong> → come per le opere, il form di ricerca funge anche da modulo di inserimento.</li>
+<li><strong>Modifica</strong> → funzionamento analogo a quello delle opere.</li>
+<li><strong>Eliminazione</strong> → analoga alle opere, con la differenza che il messaggio di conferma scompare dopo pochi secondi, per evitare cancellazioni accidentali di autori (operazione considerata rara).</li>
+</ul>
+
+<h3>3. Sale</h3>
+<ul>
+<li><strong>Visualizzazione</strong> → elenco delle sale con sistema di paginazione. Passando il mouse sopra una card vengono mostrate le informazioni principali (tema e superficie).</li>
+<li><strong>Modifica</strong> → cliccando su una card si apre un pop-up che permette di aggiornare nome, metratura e tema della sala.</li>
+<li>Se la casella del tema viene lasciata vuota o compilata con un valore non riconosciuto, il tema risulta “non definito” (è possibile assegnare ad ogni sala solo 1 dei 10 temi presenti nel museo).</li>
+<li>All’interno del pop-up viene mostrata anche un’anteprima con alcune opere esposte nella sala, per mantenere la finestra leggera e gestibile.</li>
+</ul>
+
+<h3>4. Temi</h3>
+<ul>
+<li><strong>Visualizzazione</strong> → elenco dei temi con paginazione. Al passaggio del mouse su una card viene mostrata una breve descrizione; cliccando sulla card si apre un pop-up con il numero di opere relative al tema e la sala in cui sono esposte.</li>
+<li><strong>Ricerca</strong> → disponibile un form per cercare i temi per nome.</li>
+</ul>
+
+<hr>
+
+<h2>Messaggistica a schermo</h2>
+<ul>
+<li><strong>Verde</strong> → operazione completata con successo.</li>
+<li><strong>Rosso</strong> → errore (campi non validi o operazioni non consentite).</li>
+<li><strong>Giallo</strong> → messaggi di avviso (es. conferma eliminazione).</li>
+</ul>
+
+<p>I messaggi non sono permanenti: scompaiono automaticamente dopo alcuni secondi, per evitare confusione qualora l’utente torni sul gestionale dopo un intervallo di tempo.</p>
+
+<hr>
+
+<h2>Conclusione</h2>
+<p>Il sistema realizzato consente una gestione <strong>semplice</strong>, <strong>intuitiva</strong> ed <strong>efficace</strong> del museo.</p>
+<p>Tutte le operazioni principali sono supportate da form chiari e conferme visive, riducendo al minimo il rischio di errori e migliorando l’esperienza d’uso.</p>
+
+
+  </article>
+  <footer class="text-center small py-4 text-muted">Ultimo aggiornamento: 2025-09-03 13:41</footer>
+<div class='text-end my-4'><a class='btn btn-outline-primary' href='index.html'>← Torna all'indice</a></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

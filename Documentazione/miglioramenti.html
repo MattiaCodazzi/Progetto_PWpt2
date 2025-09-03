@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Miglioramenti – Progetto Museo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  :root{--maxw:980px}
+  .container{max-width:var(--maxw)}
+  .codeblock{position:relative}
+  .btn-copy{position:absolute; top:.5rem; right:.5rem}
+
+    body{background:#f8f9fa}
+    main.container{max-width:980px}
+    pre code{white-space:pre-wrap}
+    .markdown-body code{background:#212529;color:#f8f9fa;padding:.1rem .35rem;border-radius:.25rem}
+    .markdown-body pre{background:#212529;color:#f8f9fa;padding:1rem;border-radius:.5rem;overflow:auto}
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Progetto Museo – Docs</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto"><li class='nav-item'><a class='nav-link' href='installazione.html'>Guida Installazione</a></li><li class='nav-item'><a class='nav-link' href='manuale.html'>Manuale d'Uso</a></li><li class='nav-item'><a class='nav-link active' href='miglioramenti.html'>Miglioramenti</a></li><li class='nav-item'><a class='nav-link' href='errori_comuni.html'>Errori Comuni</a></li></ul>
+    </div>
+  </div>
+</nav>
+
+
+<section class="bg-gradient py-4 border-bottom" style="background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);">
+  <div class="container" style="max-width:980px">
+    <div class="d-flex flex-wrap align-items-center justify-content-between text-white">
+      <div class="py-1">
+        <h1 class="h3 mb-1 fw-bold text-dark">Miglioramenti</h1>
+        <p class="mb-0 opacity-75 text-dark">Documentazione Progetto Museo</p>
+      </div>
+      <div class="py-1">
+        <a href="index.html" class="btn btn-light btn-sm shadow-sm">← Torna all'indice</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="bg-light">
+  <div class="container" style="max-width:980px">
+    <ol class="breadcrumb small mb-0 py-2">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Miglioramenti</li>
+    </ol>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <article class="markdown-body bg-white p-4 rounded-4 shadow-sm">
+    <h1>Tabella Critiche e Correzioni – Progetto Museo</h1>
+
+<p>In questa sezione vengono indicate le criticità emerse nella valutazione del primo progetto e le relative correzioni introdotte nel Progetto 2, con la motivazione delle scelte effettuate.</p>
+
+<div class='table-responsive'><table class='table table-sm table-bordered'>
+<thead><tr><th>Problemi progetto 1 (come da valutazione)</th><th>Correzioni nel Progetto 2</th></tr></thead>
+<tbody>
+<tr><td>**Generale**</td><td></td></tr>
+<tr><td>Header anonimo, mancava il nome dell’applicazione</td><td>header presente anche nella home</td></tr>
+<tr><td>Navigazione in posizione diversa tra home e altre pagine (effetto fastidioso)</td><td>la navigazione è posizionata nello stesso punto per tutte le pagine, senza variazioni</td></tr>
+<tr><td>Palette rosa in contrasto con grigio poco armonica</td><td>abbiamo optato per schiarire il rosa e marcare di più il grigio</td></tr>
+<tr><td>Mancanza di coerenza tra pagine (es. stili diversi tra opere e autori)</td><td>la tabella e il form delle pagine opere e autori hanno lo stesso layout a parte per i parametri</td></tr>
+<tr><td>Paginazione solo sequenziale, senza numeri di pagina</td><td>abbiamo reso la paginazione più flessibile, permettendo all'utente di saltare a pagina X oltre alla sequenza, inoltre la paginazione è uniforme in tutte le pagine</td></tr>
+<tr><td>**Temi**</td><td></td></tr>
+<tr><td>Descrizione visibile solo al click, non al passaggio del mouse</td><td>abbiamo messo la descrizione al passaggio del mouse</td></tr>
+<tr><td>Al click sul tema non si aprono le sale collegate</td><td>al click si apre il pop-up con la sala che presenta il tema e il numero di opere esposte</td></tr>
+<tr><td>Mancano informazioni: quante sale collegate, quante opere esposte</td><td>informazioni presenti nel pop-up e nella pagina dinamica di ogni sala</td></tr>
+<tr><td>Assente maschera di ricerca dei temi</td><td>ricerca implementata</td></tr>
+<tr><td>Paginazione solo sequenziale, mancano numeri di pagina</td><td>come già indicato, migliorata la paginazione</td></tr>
+<tr><td>Ordine dei temi non chiaro (non alfabetico, non cronologico)</td><td>temi ordinati in ordine alfabetico</td></tr>
+<tr><td>**Sale**</td><td></td></tr>
+<tr><td>Mancanza di icone/foto rappresentative per ogni sala</td><td>abbiamo inserito un'immagine come sfondo per ogni card della sala</td></tr>
+<tr><td>Nella maschera di modifica non è chiaro quale sala si sta modificando</td><td>viene indicato nel pop-up il nome della sala, inoltre è possibile modificarne il nome</td></tr>
+<tr><td>Una volta assegnato un tema non è possibile rimuoverlo</td><td>implementata la possibilità, con indicazione “non definito” per assenza di tema</td></tr>
+<tr><td>Pulsante “salva” poco visibile (sembra testo normale)</td><td>aumentata la visibilità del tasto, ora denominato “Salva modifiche”</td></tr>
+<tr><td>Tema mostrato col codice invece che col nome</td><td>il tema viene mostrato con il suo nome (es. Impressionismo)</td></tr>
+<tr><td>Mancano link al tema o ad altre sale con lo stesso tema</td><td>tutte le informazioni di ogni sala si trovano nelle pagine dinamiche</td></tr>
+<tr><td>Mancano filtri per selezionare sale di un tema</td><td>scelta di non implementare per semplicità e user-friendliness (solo 10 sale, non ampliabili)</td></tr>
+<tr><td>Mancano informazioni sul numero di opere esposte nella sala</td><td>tutte le informazioni si trovano nelle pagine dinamiche di ogni sala</td></tr>
+<tr><td>**Autori**</td><td></td></tr>
+<tr><td>La pagina si apre vuota, non mostra subito tutti gli autori</td><td>ora la pagina si apre mostrando tutti gli autori</td></tr>
+<tr><td>Layout allineato a sinistra, incoerente con altre pagine centrate</td><td>layout centrato come le altre pagine</td></tr>
+<tr><td>Uso tendine per nome/cognome → ricerca poco pratica, impossibile ricerca parziale</td><td>implementata ricerca parziale (partial match, LIKE)</td></tr>
+<tr><td>Mancano filtri: vivi/morti, anno nascita/morte, range di date</td><td>aggiunti questi filtri</td></tr>
+<tr><td>Mancano funzionalità di ordinamento dei dati</td><td>autori ordinati alfabeticamente per cognome</td></tr>
+<tr><td>Non viene mostrato il numero di autori trovati</td><td>numero mostrato dopo ogni ricerca vicino a “risultati”</td></tr>
+<tr><td>Mancanza di paginazione (tutti in una pagina unica)</td><td>paginazione uniforme e non solo sequenziale</td></tr>
+<tr><td>Colonne con nomi poco chiari (es. “tipo” per stato)</td><td>colonna rinominata in “Stato” (vivo/morto)</td></tr>
+<tr><td>Date mostrate in formato YYYY-MM-DD (poco leggibile per utenti)</td><td>ora mostrate come DD-MM-YYYY</td></tr>
+<tr><td>Mancano informazioni: quante opere ha un autore, con relativo link</td><td>aggiunte queste informazioni tramite pagine dinamiche</td></tr>
+<tr><td>Maschera di modifica sempre visibile, occupa spazio → meglio popup</td><td>maschera di modifica ora compare solo alla selezione di un autore</td></tr>
+<tr><td>Validazioni mancanti (es. data morte < data nascita possibile)</td><td>aggiunti controlli sulle date</td></tr>
+<tr><td>Messaggi di errore con alert del browser (non ammessi)</td><td>eliminati alert browser, sostituiti con messaggi personalizzati</td></tr>
+<tr><td>**Opere**</td><td></td></tr>
+<tr><td>Stile pagina diverso da autori (incoerenza grafica)</td><td>mantenuto stesso stile, variando solo i parametri specifici</td></tr>
+<tr><td>CRUD gestito con 4 pagine/tasti distinti (ridondante)</td><td>ora tutto il CRUD è gestito in un’unica pagina</td></tr>
+<tr><td>Selezione tipo con tendina invece di radio button</td><td>sostituita tendina con radio button</td></tr>
+<tr><td>Autore selezionato da tendina invece che campo di testo con ricerca parziale</td><td>implementata ricerca parziale anche per autore</td></tr>
+<tr><td>Mancano filtri per anno di realizzazione/acquisto e range di anni</td><td>filtri aggiunti</td></tr>
+<tr><td>Dati non linkati (clic autore o sala non porta a scheda)</td><td>dati ora linkati</td></tr>
+<tr><td>Numeri non allineati a destra</td><td>numeri allineati a destra</td></tr>
+<tr><td>Opere non esposte mostrate come “NULL”</td><td>ora indicato “non esposta”</td></tr>
+<tr><td>Inserimento: anno minimo 1000 poco sensato</td><td>fascia ampliata da 0 a 2025</td></tr>
+<tr><td>Inserimento: autore e tipo con tendine (scelta poco pratica)</td><td>sostituiti con input più funzionali</td></tr>
+<tr><td>Inserimento: quadri decorativi senza funzione, incoerenti</td><td>rimossi, aggiunta vetrina nella home</td></tr>
+<tr><td>Modifica: controllo anni non ben posizionato, messaggi incoerenti con altre pagine</td><td>messaggi posizionati sotto i form; messaggio conferma eliminazione accanto al pulsante “Elimina selezionate”</td></tr>
+<tr><td>Eliminazione: conferma con alert del browser</td><td>eliminati alert browser</td></tr>
+<tr><td>Eliminazione: messaggi persistenti, rischio confusione</td><td>implementati messaggi non persistenti (5 secondi)</td></tr>
+</tbody>
+</table></div>
+  </article>
+  <footer class="text-center small py-4 text-muted">Ultimo aggiornamento: 2025-09-03 13:41</footer>
+<div class='text-end my-4'><a class='btn btn-outline-primary' href='index.html'>← Torna all'indice</a></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

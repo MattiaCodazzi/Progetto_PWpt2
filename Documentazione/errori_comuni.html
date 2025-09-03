@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Errori Comuni – Progetto Museo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  :root{--maxw:980px}
+  .container{max-width:var(--maxw)}
+  .codeblock{position:relative}
+  .btn-copy{position:absolute; top:.5rem; right:.5rem}
+
+    body{background:#f8f9fa}
+    main.container{max-width:980px}
+    pre code{white-space:pre-wrap}
+    .markdown-body code{background:#212529;color:#f8f9fa;padding:.1rem .35rem;border-radius:.25rem}
+    .markdown-body pre{background:#212529;color:#f8f9fa;padding:1rem;border-radius:.5rem;overflow:auto}
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Progetto Museo – Docs</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto"><li class='nav-item'><a class='nav-link' href='installazione.html'>Guida Installazione</a></li><li class='nav-item'><a class='nav-link' href='manuale.html'>Manuale d'Uso</a></li><li class='nav-item'><a class='nav-link' href='miglioramenti.html'>Miglioramenti</a></li><li class='nav-item'><a class='nav-link active' href='errori_comuni.html'>Errori Comuni</a></li></ul>
+    </div>
+  </div>
+</nav>
+
+
+<section class="bg-gradient py-4 border-bottom" style="background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);">
+  <div class="container" style="max-width:980px">
+    <div class="d-flex flex-wrap align-items-center justify-content-between text-white">
+      <div class="py-1">
+        <h1 class="h3 mb-1 fw-bold text-dark">Errori Comuni</h1>
+        <p class="mb-0 opacity-75 text-dark">Documentazione Progetto Museo</p>
+      </div>
+      <div class="py-1">
+        <a href="index.html" class="btn btn-light btn-sm shadow-sm">← Torna all'indice</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="bg-light">
+  <div class="container" style="max-width:980px">
+    <ol class="breadcrumb small mb-0 py-2">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Errori Comuni</li>
+    </ol>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <article class="markdown-body bg-white p-4 rounded-4 shadow-sm">
+    <h1>🚨 Errori comuni e guida user friendly– Progetto Museo (Django + PostgreSQL)</h1>
+
+<p>Questa guida spiega, passo‑passo, come risolvere i problemi più frequenti durante l’installazione su Windows:</p>
+<ul>
+<li><code>py</code> / <code>python</code> non riconosciuto</li>
+<li><code>psql</code> non riconosciuto</li>
+</ul>
+
+<hr>
+
+<h2>🔎 Controllo iniziale</h2>
+<p>Apri <strong>PowerShell</strong> o <strong>Prompt dei comandi</strong> e digita:</p>
+<pre class='bg-dark text-light p-3 rounded'><code>
+py --version
+
+python --version
+
+psql --version
+
+</code></pre>
+<ul>
+<li>Se i comandi funzionano → ok.</li>
+<li>Se compare “<em>is not recognized</em>” → va aggiunto al <strong>PATH</strong>.</li>
+</ul>
+
+<hr>
+
+<h2>⚙️ Aggiungere Python (<code>py</code> o <code>python</code>) al PATH</h2>
+
+<h3>Caso A – Python non installato</h3>
+<p>1. Scaricare Python da <a href='https://www.python.org/downloads/'>python.org</a>.</p>
+<p>2. Avviare l’installazione.</p>
+<p>3. <strong>Selezionare l’opzione “Add python.exe to PATH”</strong>.</p>
+<p>4. Riavviare PowerShell e verificare:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>py --version
+python --version</code></pre></div>
+
+<h3>Caso B – Python già installato ma non nel PATH</h3>
+<p>1. Trovare la cartella che contiene <code>python.exe</code>, ad esempio:</p>
+<ul>
+<li><code>C:\Users\NOME\AppData\Local\Programs\Python\Python312\</code></li>
+<li><code>C:\Program Files\Python312\</code></li>
+</ul>
+<p>2. Copiare il percorso.</p>
+<p>3. Premere <strong>Start →</strong> cercare: <strong>Modifica le variabili di ambiente relative al sistema</strong>.</p>
+<p>4. Cliccare su <strong>Variabili d’ambiente…</strong>.</p>
+<p>5. In <strong>Variabili di sistema</strong> o <strong>variabili dell'utente</strong>, selezionare <code>Path</code> → <strong>Modifica</strong>.</p>
+<p>6. Cliccare su <strong>Nuovo</strong> e incollare il percorso copiato.</p>
+<p>7. Salvare con <strong>OK</strong>.</p>
+<p>8. Verificare in PowerShell:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>python --version
+py --version</code></pre></div>
+
+<hr>
+
+<h2>⚙️ Aggiungere PostgreSQL (<code>psql</code>) al PATH</h2>
+
+<p>1. Individuare la cartella <code>bin</code> di PostgreSQL, di solito:</p>
+<ul>
+<li><code>C:\Program Files\PostgreSQL\16\bin</code></li>
+</ul>
+<p>2. Copiare il percorso.</p>
+<p>3. Premere <strong>Start →</strong> cercare: <strong>Modifica le variabili di ambiente relative al sistema</strong>.</p>
+<p>4. Cliccare su <strong>Variabili d’ambiente…</strong>.</p>
+<p>5. In <strong>Variabili di sistema</strong> o <strong>variabili dell'utente</strong>, selezionare <code>Path</code> → <strong>Modifica</strong>.</p>
+<p>6. Cliccare su <strong>Nuovo</strong> e incollare il percorso copiato.</p>
+<p>7. Salvare con <strong>OK</strong>.</p>
+<p>8. Verificare in PowerShell:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql --version</code></pre></div>
+
+<hr>
+
+<h2>✅ Checklist finale</h2>
+<ul>
+<li>[ ] <code>py --version</code> oppure <code>python --version</code> funziona</li>
+<li>[ ] <code>psql --version</code> funziona</li>
+</ul>
+
+<p>Se entrambi i test passano, lo script di installazione funziona correttamente.</p>
+
+<hr>
+
+<hr>
+
+<h2>🔐 Password PostgreSQL dimenticata (<code>postgres</code>)</h2>
+
+<p><strong>Importante:</strong> la password dell’utente <code>postgres</code> <strong>non può essere recuperata o visualizzata</strong> perché è salvata in forma criptata.</p>
+<p>Se non la ricordi, puoi solo <strong>reimpostarla con una nuova password</strong>.</p>
+
+<h3>Metodo 1 – Reimpostare con <code>pg_hba.conf</code></h3>
+<p>1. Vai nella cartella dati di PostgreSQL, di solito:</p>
+<p>   <code>C:\Program Files\PostgreSQL\16\data\</code></p>
+<p>2. Apri il file <code>pg_hba.conf</code> con un editor di testo.</p>
+<p>3. Trova la riga per l’host locale e sostituisci l’ultima colonna con <code>trust</code>:</p>
+<p>   ```</p>
+<p>   host    all    all    127.0.0.1/32    trust</p>
+<p>   ```</p>
+<p>4. Salva il file e riavvia il servizio PostgreSQL (da “Servizi” di Windows).</p>
+<p>5. Apri PowerShell ed entra senza password:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U postgres -h 127.0.0.1</code></pre></div>
+<p>6. Cambia la password:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-sql'>ALTER USER postgres WITH PASSWORD 'NuovaPasswordSicura';</code></pre></div>
+<p>7. Ripristina <code>pg_hba.conf</code> rimettendo <code>md5</code> o <code>scram-sha-256</code> al posto di <code>trust</code>.</p>
+<p>8. Riavvia di nuovo PostgreSQL.</p>
+<p>9. Prova il login:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U postgres -h 127.0.0.1 -W</code></pre></div>
+
+<h3>Metodo 2 – Se hai un altro superuser valido</h3>
+<p>1. Accedi con quell’utente (via <code>psql</code> o pgAdmin).</p>
+<p>2. Esegui:</p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-sql'>ALTER USER postgres WITH PASSWORD 'NuovaPasswordSicura';</code></pre></div>
+
+<hr>
+
+<p>✅ Dopo il reset, inserisci la nuova password nel wizard.</p>
+<p>Le credenziali del file <code>.env</code> (utente <code>museo_user</code>) <strong>non vanno toccate</strong>: servono solo all’applicazione.</p>
+
+<hr>
+
+<h2>Errore: <code>Cartella progetto non trovata</code></h2>
+<p><strong>Causa:</strong> il percorso scelto contiene spazi o è scritto male.</p>
+
+<p><strong>Soluzioni:</strong></p>
+<ul>
+<li>Usare il pulsante <strong>Sfoglia</strong> nel wizard, evitando di scrivere il percorso a mano.</li>
+<li>Verificare che dentro la cartella ci sia il file <code>manage.py</code>.</li>
+</ul>
+
+<hr>
+
+<h2>Errore: <code>manage.py non trovato</code></h2>
+<p><strong>Causa:</strong> è stata selezionata la cartella <code>scripts/</code> invece della root del progetto.</p>
+
+<p><strong>Soluzione:</strong></p>
+<ul>
+<li>Selezionare la cartella principale del progetto, non la sottocartella <code>scripts/</code>.</li>
+</ul>
+
+<hr>
+
+<h2>Errore: <code>Creazione superuser fallita</code></h2>
+<p><strong>Causa:</strong> un superuser con lo stesso username esiste già.</p>
+
+<p><strong>Soluzioni:</strong></p>
+<ul>
+<li>Ignorare l’errore: il superuser è già presente.</li>
+<li>Oppure cancellare l’utente manualmente da PostgreSQL e rilanciare lo script.</li>
+</ul>
+
+<hr>
+
+<h2>Errore: <code>pip not found</code> o problemi di dipendenze</h2>
+<p><strong>Causa:</strong> <code>pip</code> non installato o non aggiornato.</p>
+
+<p><strong>Soluzioni:</strong></p>
+<ul>
+<li>Aggiornare <code>pip</code> con:</li>
+</ul>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>python -m ensurepip --upgrade
+python -m pip install --upgrade pip</code></pre></div>
+<ul>
+<li>Se manca un pacchetto, installarlo manualmente con:</li>
+</ul>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>python -m pip install nome_pacchetto</code></pre></div>
+
+<hr>
+
+  </article>
+  <footer class="text-center small py-4 text-muted">Ultimo aggiornamento: 2025-09-03 13:41</footer>
+<div class='text-end my-4'><a class='btn btn-outline-primary' href='index.html'>← Torna all'indice</a></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

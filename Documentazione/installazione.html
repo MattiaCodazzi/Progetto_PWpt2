@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guida Installazione – Progetto Museo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  :root{--maxw:980px}
+  .container{max-width:var(--maxw)}
+  .doc-callout{border-left:.25rem solid #0d6efd; background:#eef5ff}
+  .codeblock{position:relative}
+  .btn-copy{position:absolute; top:.5rem; right:.5rem}
+
+    body{background:#f8f9fa}
+    main.container{max-width:980px}
+    pre code{white-space:pre-wrap}
+    .markdown-body code{background:#212529;color:#f8f9fa;padding:.1rem .35rem;border-radius:.25rem}
+    .markdown-body pre{background:#212529;color:#f8f9fa;padding:1rem;border-radius:.5rem;overflow:auto}
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Progetto Museo – Docs</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto"><li class='nav-item'><a class='nav-link active' href='installazione.html'>Guida Installazione</a></li><li class='nav-item'><a class='nav-link' href='manuale.html'>Manuale d'Uso</a></li><li class='nav-item'><a class='nav-link' href='miglioramenti.html'>Miglioramenti</a></li><li class='nav-item'><a class='nav-link' href='errori_comuni.html'>Errori Comuni</a></li></ul>
+    </div>
+  </div>
+</nav>
+
+
+<section class="bg-gradient py-4 border-bottom" style="background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);">
+  <div class="container" style="max-width:980px">
+    <div class="d-flex flex-wrap align-items-center justify-content-between text-white">
+      <div class="py-1">
+        <h1 class="h3 mb-1 fw-bold text-dark">Guida Installazione</h1>
+        <p class="mb-0 opacity-75 text-dark">Setup rapido del progetto (Django + PostgreSQL)</p>
+      </div>
+      <div class="py-1">
+        <a href="index.html" class="btn btn-light btn-sm shadow-sm">← Torna all'indice</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="bg-light">
+  <div class="container" style="max-width:980px">
+    <ol class="breadcrumb small mb-0 py-2">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Guida Installazione</li>
+    </ol>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <article class="markdown-body bg-white p-4 rounded-4 shadow-sm">
+    <h1>Museo - Progetto PW25 (Django + Bootstrap)</h1>
+
+<h2>Requisiti</h2>
+<ul>
+<li><strong>Python 3.10+</strong> correttamente inserito nel PATH di sistema</li>
+<li><strong>PostgreSQL</strong> correttamente inserito nel PATH di sistema</li>
+<li>Tutto il resto viene installato automaticamente dallo script (<code>requirements.txt</code>)</li>
+</ul>
+
+<hr>
+
+<h2>Installazione (Windows)</h2>
+
+<p>1. <strong>Estrarre il progetto</strong> in una cartella oppure clonarlo da github</p>
+<p>2. <strong>Aprire la cartella</strong> ed entrare in <code>scripts</code></p>
+<p>3. <strong>Fare doppio click</strong> su <code>start_setup.bat</code></p>
+<p>4. Si aprono:</p>
+<ul>
+<li>un <strong>wizard grafico di installazione</strong></li>
+<li>una <strong>finestra di comando (shell)</strong></li>
+</ul>
+
+<p><img src="image.png" alt="Screenshot" width="900"></p>
+
+<p>5. Nel wizard:</p>
+<ul>
+<li>usare <strong>Sfoglia</strong> per selezionare la <strong>cartella principale del progetto</strong> (quella con <code>manage.py</code> o la cartella <code>database</code>)</li>
+<li>usare <strong>...</strong> per selezionare il file <code>dump.sql</code> che si trova nella cartella database</li>
+<li>inserire nel campo Postgres admin pass la propria password postgreSQL (quella scelta al momento dell'istallazione di PostgreSQL)</li>
+<li>lasciare invariati gli altri campi</li>
+</ul>
+
+<p><img src="image-1.png" alt="Screenshot" width="500"></p>
+
+<p>6. <strong>Cliccare Avvia</strong></p>
+<p>7. A questo punto il wizard procede nell'istallazione automaticamente, a fine download si apriranno:</p>
+<ul>
+<li>il sito sul proprio browser predefinito</li>
+<li>una power shell dove vengono visionati tutti i log</li>
+</ul>
+
+<p>8. (Opzionale) Nel caso non si dovesse aprire il sito, (a primo impatto il sito non si carica, bisogna aspettare il caricamento del server django (pochi istanti)), sopra la console dei log del wizard o all'interno della power shell viene mostrato il link cliccabile dove viene aperto il sito</p>
+
+<hr>
+
+<h2>Problemi comuni</h2>
+
+<div class='alert alert-warning small' role='alert'>Se qualcosa non funziona, verifica PATH di Python/PostgreSQL e consulta la pagina <a href='errori_comuni.html' class='alert-link'>Errori Comuni</a>.</div><p>1. <strong>Python non trovato</strong></p>
+<ul>
+<li>verificare che il comando <code>py</code> funzioni da terminale</li>
+<li>se non funziona, aggiungere Python al <strong>PATH di sistema</strong></li>
+</ul>
+
+<p>2. <strong>PostgreSQL non trovato</strong></p>
+<ul>
+<li>verificare che il comando <code>psql</code> funzioni da terminale</li>
+<li>se non funziona, aggiungere PostgreSQL al <strong>PATH di sistema</strong></li>
+</ul>
+
+<p>In caso di ulteriori problematiche consultare il file relativo ai problemi comuni</a></p>
+
+<hr>
+
+<h2>Backup installazione sicuro (riga di comando)</h2>
+
+<p>Se l’installazione tramite wizard e shell non funziona, è possibile usare una procedura alternativa da <strong>riga di comando</strong>.</p>
+<p>È più lunga e manuale, ma garantisce sempre il corretto funzionamento.</p>
+
+<p>Tutti i comandi da eseguire (uno per volta, nell’ordine) sono contenuti nel file <code>start.txt</code> nella cartella <code>scripts</code>.</p>
+<p>Di seguito la spiegazione di ciascun comando:</p>
+
+<hr>
+
+<p>1. <strong>Posizionarsi nella cartella del progetto</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>cd "PERCORSO\cartella\del\progetto"</code></pre></div>
+<p>   Porta la console dentro la cartella principale del progetto (quella dove si trova <code>manage.py</code>).</p>
+
+<hr>
+
+<p>2. <strong>Creare un ambiente virtuale Python</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>py -m venv .venv</code></pre></div>
+<p>   Crea una cartella <code>.venv</code> che contiene un ambiente isolato di Python.</p>
+<p>   Serve per installare le dipendenze del progetto senza toccare quelle globali del PC.</p>
+
+<hr>
+
+<p>3. <strong>Abilitare l’esecuzione di script PowerShell (se richiesto)</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre></div>
+<p>   Alcuni PC non permettono di eseguire script <code>.ps1</code>.</p>
+<p>   Con questo comando si concede il permesso.</p>
+<p>   Dopo averlo eseguito, <strong>chiudere e riaprire PowerShell</strong>, poi ripetere dal punto 1.</p>
+
+<hr>
+
+<p>4. <strong>Attivare l’ambiente virtuale</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>.\.venv\Scripts\Activate.ps1</code></pre></div>
+<p>   Attiva l’ambiente Python locale. Da questo momento, tutti i pacchetti installati finiscono dentro <code>.venv</code>.</p>
+
+<hr>
+
+<p>5. <strong>Aggiornare <code>pip</code></strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>pip install --upgrade pip</code></pre></div>
+<p>   Porta <code>pip</code> (il gestore pacchetti di Python) all’ultima versione, evitando errori di compatibilità.</p>
+
+<hr>
+
+<p>6. <strong>Installare le dipendenze del progetto</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>pip install -r requirements.txt</code></pre></div>
+<p>   Installa tutte le librerie necessarie (Django, Bootstrap, Pillow, ecc.).</p>
+
+<hr>
+
+<p>7. <strong>Creare un utente PostgreSQL per il progetto</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U postgres -c "CREATE USER museo_user WITH PASSWORD 'museo_pw';"</code></pre></div>
+<p>   Crea un nuovo utente chiamato <code>museo_user</code> con password <code>museo_pw</code>. (IMPORTANTE non modificare i parametri password e utente poichè sono quelli utilizzati nel file .env del progetto, se si volessero cambiare i parametri occore modificare il file .env)</p>
+
+<hr>
+
+<p>8. <strong>Abilitare i permessi di creazione database all’utente</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U postgres -c "ALTER USER museo_user CREATEDB;"</code></pre></div>
+<p>   Concede a <code>museo_user</code> il permesso di creare database.</p>
+
+<hr>
+
+<p>9. <strong>Creare il database del progetto</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U postgres -c "CREATE DATABASE museo_db OWNER museo_user;"</code></pre></div>
+<p>   Crea un database chiamato <code>museo_db</code> e lo assegna come proprietario a <code>museo_user</code>.</p>
+
+<hr>
+
+<p>10. <strong>Caricare il dump iniziale dei dati</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>psql -U museo_user -d museo_db -f "PERCORSO_COMPLETO\dump.sql"</code></pre></div>
+<p>    Importa i dati dal file <code>dump.sql</code> dentro il database <code>museo_db</code>.</p>
+<p>    ⚠️ Sostituire <code>PERCORSO_COMPLETO</code> con il percorso reale del file.</p>
+
+<hr>
+
+<p>11. <strong>Applicare le migrazioni Django</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>py manage.py migrate</code></pre></div>
+<p>    Crea tutte le tabelle necessarie al funzionamento del progetto (gestite direttamente da Django).</p>
+
+<hr>
+
+<p>12. <strong>Creare un superuser Django</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>py manage.py createsuperuser</code></pre></div>
+<p>    Crea un utente amministratore per accedere al <strong>pannello admin di Django</strong>.</p>
+<p>    Verranno richiesti username, email e password.</p>
+
+<hr>
+
+<p>13. <strong>Avviare il server Django</strong></p>
+<div class='position-relative'><button class='btn btn-sm btn-secondary btn-copy'>Copia</button><pre class='bg-dark text-light p-3 rounded codeblock'><code class='language-powershell'>py manage.py runserver</code></pre></div>
+<p>    Avvia il sito in locale. Per default è disponibile su <a href='http://127.0.0.1:8000'>http://127.0.0.1:8000</a>.</p>
+
+<hr>
+
+<p>14. <strong>Aprire il sito nel browser</strong></p>
+<p>    Dopo l’avvio, copiare e incollare nel browser l’indirizzo mostrato (di solito <code>http://127.0.0.1:8000</code>), oppure ctrl+click il link.</p>
+
+<hr>
+
+<p>Con questa procedura manuale il progetto viene installato e avviato senza passare dal wizard grafico.</p>
+
+
+  </article>
+  <footer class="text-center small py-4 text-muted">Ultimo aggiornamento: 2025-09-03 13:41</footer>
+<div class='text-end my-4'><a class='btn btn-outline-primary' href='index.html'>← Torna all'indice</a></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('click', function(e){
+  if(e.target && e.target.classList.contains('btn-copy')){
+    const pre = e.target.parentElement.querySelector('pre code');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(()=>{
+      const old = e.target.innerText;
+      e.target.innerText = 'Copiato!';
+      setTimeout(()=> e.target.innerText = old, 1200);
+    });
+  }
+});
+</script>
+
+</body>
+</html>
