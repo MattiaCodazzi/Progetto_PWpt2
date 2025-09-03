@@ -18,7 +18,7 @@ La documentazione del progetto è suddivisa in tre parti principali (reperibili 
 - 📖 installazione.md – spiega come configurare e avviare il progetto.  
 - 🖥️ manuale.md – illustra le funzionalità del sito e come utilizzarle.  
 - 📌 miglioramenti.md – descrive le correzioni e gli avanzamenti implementati in questa seconda versione.
-Inoltre, sempre nella cartella documentazione, è disponibile una guida per risolvere alcuni possibili errori comuni (errori_comuni.md)
+Inoltre, sempre nella cartella Documentazione, è disponibile una guida per risolvere alcuni possibili errori comuni (errori_comuni.md)
 
 ---
 
@@ -34,4 +34,4 @@ Inoltre, sempre nella cartella documentazione, è disponibile una guida per riso
 
 ## Autori
 - Codazzi Mattia 1088568 m.codazzi3@studenti.unibg.it
-- Cattaldo Andrea xxxxxx a.cattaldo@studenti.unibg.it
+- Cattaldo Andrea 1087817 a.cattaldo@studenti.unibg.it
