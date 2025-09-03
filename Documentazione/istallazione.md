@@ -1,8 +1,8 @@
 # Museo - Progetto PW25 (Django + Bootstrap)
 
 ## Requisiti
-- **Python 3.10+**
-- **PostgreSQL**
+- **Python 3.10+** correttamente inserito nel PATH di sistema
+- **PostgreSQL** correttamente inserito nel PATH di sistema
 - Tutto il resto viene installato automaticamente dallo script (`requirements.txt`)
 
 ---
@@ -46,16 +46,7 @@
    - verificare che il comando `psql` funzioni da terminale  
    - se non funziona, aggiungere PostgreSQL al **PATH di sistema**
 
----
-
-## Cambio Database
-
-- **SQLite (default)**  
-  - lasciare `DB_URL` **commentata** in `.env`
-
-- **PostgreSQL**  
-  - togliere il `#` davanti a `DB_URL`  
-  - inserire le credenziali di accesso
+In caso di ulteriori problematiche consultare il file relativo ai [problemi comuni](errori_comuni.md)
 
 ---
 
@@ -124,7 +115,7 @@ Di seguito la spiegazione di ciascun comando:
    ```powershell
    psql -U postgres -c "CREATE USER museo_user WITH PASSWORD 'museo_pw';"
    ```
-   Crea un nuovo utente chiamato `museo_user` con password `museo_pw`.
+   Crea un nuovo utente chiamato `museo_user` con password `museo_pw`. (IMPORTANTE non modificare i parametri password e utente poichè sono quelli utilizzati nel file .env del progetto, se si volessero cambiare i parametri occore modificare il file .env) 
 
 ---
 

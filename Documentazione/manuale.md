@@ -61,7 +61,7 @@ Nella tabella delle opere, i nomi delle sale sono cliccabili. Il click reindiriz
 ### 3. Sale
 - **Visualizzazione** → elenco delle sale con sistema di paginazione. Passando il mouse sopra una card vengono mostrate le informazioni principali (tema e superficie).  
 - **Modifica** → cliccando su una card si apre un pop-up che permette di aggiornare nome, metratura e tema della sala.  
-   - Se la casella del tema viene lasciata vuota o compilata con un valore non riconosciuto, il tema risulta “non definito”.  
+   - Se la casella del tema viene lasciata vuota o compilata con un valore non riconosciuto, il tema risulta “non definito” (è possibile assegnare ad ogni sala solo 1 dei 10 temi presenti nel museo).  
    - All’interno del pop-up viene mostrata anche un’anteprima con alcune opere esposte nella sala, per mantenere la finestra leggera e gestibile.  
 
 ### 4. Temi
