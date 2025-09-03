@@ -21,6 +21,7 @@ La documentazione del progetto è suddivisa in cinque parti principali (reperibi
  3) miglioramenti rispetto alla versione precedente (Progetto 1)
  4) guida alla risoluzione di alcuni errori comuni
  5) scelte di progetto
+
 Inoltre, sempre nella cartella documentazione è disponibile una cartella alternativa per visualizzare la documentazione direttamente su GitHub
 
 ---
