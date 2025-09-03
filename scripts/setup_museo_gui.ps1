@@ -107,7 +107,7 @@ $tbDbUser = TB 160 480 ($y0 + 35); $tbDbUser.Text = "museo_user"
 $form.Controls.Add((LBL "DB Pass:" 16 ($y0 + 72)))
 $tbDbPass = TB 180 200 ($y0 + 69); $tbDbPass.Text = "museo_pw"; $tbDbPass.UseSystemPasswordChar = $true
 
-$form.Controls.Add((LBL "Dump .sql (facoltativo):" 400 ($y0 + 72)))
+$form.Controls.Add((LBL "Dump .sql :" 400 ($y0 + 72)))
 $tbDump = TB 260 560 ($y0 + 69)
 
 # NUOVO CAMPO: Postgres admin pass (subito sotto DB Pass, a sinistra)
