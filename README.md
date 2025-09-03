@@ -15,10 +15,12 @@ Il sistema permette la gestione completa di un museo attraverso operazioni **CRU
 ## Documentazione
 La documentazione del progetto è suddivisa in tre parti principali (reperibili nella cartella "Documentazione":
 
-- 📖 installazione.md – spiega come configurare e avviare il progetto.  
-- 🖥️ manuale.md – illustra le funzionalità del sito e come utilizzarle.  
-- 📌 miglioramenti.md – descrive le correzioni e gli avanzamenti implementati in questa seconda versione.
-Inoltre, sempre nella cartella Documentazione, è disponibile una guida per risolvere alcuni possibili errori comuni (errori_comuni.md)
+- si accede alla documentazione attraverso il file index.html, tale file contiene:
+ 1) guida all'istallazione
+ 2) manuale d'uso
+ 3) miglioramenti rispetto alla versione precedente (Progetto 1)
+ 4) guida alla risoluzione di alcuni errori comuni
+Inoltre, sempre nella cartella documentazione è disponibile una cartella alternativa per visualizzare la documentazione direttamente su GitHub
 
 ---
 
